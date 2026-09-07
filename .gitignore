@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+
+# IDE / Editor files
+.vscode/
+*.swp
+*.swo
+
+# Text File
+*.txt
+
+# Database
+*.db
