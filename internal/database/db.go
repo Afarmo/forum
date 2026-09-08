@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"os"
 )
 
 func Open() (*sql.DB, error) {
@@ -20,4 +21,13 @@ func Open() (*sql.DB, error) {
 	}
 
 	return db, nil
+}
+
+func InitializeSchema(db *sql.DB) error {
+	schemaBytes, err := os.ReadFile("internal/database/schema.sql")
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec(string(schemaBytes))
+	return err
 }
