@@ -1,9 +1,9 @@
 package service
 
 import (
-	"FORUM/internal/errorMsg"
 	"context"
 
+	"github.com/Afarmo/forum/internal/errorMsg"
 	"github.com/Afarmo/forum/internal/models"
 	"github.com/Afarmo/forum/internal/repository"
 )
@@ -12,8 +12,8 @@ type UserService struct {
 	repo *repository.UserRepository
 }
 
-func NewUserRepository(repo *repository.UserRepository) *UserService {
-	return &UserRepository{
+func NewUserService(repo *repository.UserRepository) *UserService {
+	return &UserService{
 		repo: repo,
 	}
 }

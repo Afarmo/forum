@@ -28,7 +28,7 @@ func main() {
 
 	tmpl := template.Must(template.ParseGlob("internal/web/templates/*.html"))
 
-	mux := router.NewRouter(tmpl)
+	mux := router.NewRouter(tmpl, db)
 
 	srv := &http.Server{
 		Addr:              ":8080",

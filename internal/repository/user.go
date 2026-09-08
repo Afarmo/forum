@@ -1,14 +1,13 @@
 package repository
 
 import (
-	"FORUM/internal/errorMsg"
-
-	"github.com/Afarmo/forum/internal/models"
-
 	"context"
 	"database/sql"
 	"strings"
 	"time"
+
+	"github.com/Afarmo/forum/internal/errorMsg"
+	"github.com/Afarmo/forum/internal/models"
 )
 
 type UserRepository struct {
