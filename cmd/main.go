@@ -31,7 +31,7 @@ func main() {
 	mux := router.NewRouter(tmpl)
 
 	srv := &http.Server{
-		Addr:              ":8082",
+		Addr:              ":8080",
 		Handler:           mux,
 		ReadTimeout:       10 * time.Second,
 		WriteTimeout:      10 * time.Second,
