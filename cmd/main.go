@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/Afarmo/forum/internal/database"
+	"github.com/Afarmo/forum/internal/middleware"
 	"github.com/Afarmo/forum/internal/router"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -29,10 +30,10 @@ func main() {
 	tmpl := template.Must(template.ParseGlob("internal/web/templates/*.html"))
 
 	mux := router.NewRouter(tmpl)
-
+	handler := middleware.Recover(middleware.Logger(mux))
 	srv := &http.Server{
 		Addr:              ":8080",
-		Handler:           mux,
+		Handler:           handler,
 		ReadTimeout:       10 * time.Second,
 		WriteTimeout:      10 * time.Second,
 		IdleTimeout:       60 * time.Second,
