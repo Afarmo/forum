@@ -43,3 +43,24 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *models.User) erro
 	user.CreatedAt = now
 	return tx.Commit()
 }
+
+func (r *UserRepository) FindUserByEmail(ctx context.Context, email string) (*models.User, error) {
+	query := `SELECT id, username, email, user_password, profile_picture, created_at FROM USERS WHERE email = ?`
+	user := &models.User{}
+
+	err := r.db.QueryRowContext(ctx, query, email).Scan(
+		&user.Id,
+		&user.UserName,
+		&user.Email,
+		&user.Password,
+		&user.ProfilePicture,
+		&user.CreatedAt,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errorMsg.ErrNotFound
+		}
+		return nil, err
+	}
+	return user, nil
+}

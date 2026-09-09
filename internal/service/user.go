@@ -24,3 +24,10 @@ func (s *UserService) CreateUser(ctx context.Context, user *models.User) error {
 	}
 	return s.repo.CreateUser(ctx, user)
 }
+
+func (s *UserService) FindUserByEmail(ctx context.Context, email string) (*models.User, error) {
+	if email == "" {
+		return nil, errorMsg.ErrInvalidInput
+	}
+	return s.repo.FindUserByEmail(ctx, email)
+}
