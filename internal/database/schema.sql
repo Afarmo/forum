@@ -16,9 +16,9 @@
 	);
 	
 	CREATE TABLE IF NOT EXISTS POSTS (
-	post_id INTEGER PRIMARY KEY AUTOINCREMENT,
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	user_id INTEGER NOT NULL,
-	content TEXT,
+	content TEXT NOT NULL,
 	picture_content TEXT,
 	created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 	FOREIGN KEY (user_id) REFERENCES USERS (id) 
@@ -32,17 +32,17 @@
 	CREATE TABLE IF NOT EXISTS POST_CATEGORIES (
 	post_id INTEGER NOT NULL,
 	category_id INTEGER NOT NULL,
-	PRIMARY KEY (category_id, post_id),
-    FOREIGN KEY (category_id) REFERENCES CATEGORIES (id) ,
-    FOREIGN KEY (post_id) REFERENCES POSTS (post_id)
+	PRIMARY KEY (post_id, category_id),
+    FOREIGN KEY (post_id) REFERENCES POSTS (id),
+    FOREIGN KEY (category_id) REFERENCES CATEGORIES (id)
 	);
 
 	CREATE TABLE IF NOT EXISTS POST_REACTIONS (
-	user_id INTEGER NOT NULL,
 	post_id INTEGER NOT NULL,
-	reaction INTEGER,
-	PRIMARY KEY (user_id, post_id),
-    FOREIGN KEY (post_id) REFERENCES POSTS (post_id) ,
+	user_id INTEGER NOT NULL,
+	reaction INTEGER CHECK (reaction IN (-1, 1)),
+	PRIMARY KEY (post_id, user_id),
+    FOREIGN KEY (post_id) REFERENCES POSTS (id),
     FOREIGN KEY (user_id) REFERENCES USERS (id) 
 	);
 
@@ -50,16 +50,16 @@
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	user_id INTEGER NOT NULL,
 	post_id INTEGER NOT NULL,
-	content TEXT,
+	content TEXT NOT NULL,
 	created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 	FOREIGN KEY (user_id) REFERENCES USERS (id),
-	FOREIGN KEY (post_id) REFERENCES POSTS (post_id)
+	FOREIGN KEY (post_id) REFERENCES POSTS (id)
 	);
 
 	CREATE TABLE IF NOT EXISTS COMMENT_REACTION (
 	user_id INTEGER NOT NULL,
 	comment_id INTEGER NOT NULL,
-	reaction INTEGER,
+	reaction INTEGER CHECK (reaction IN (-1, 1)),
 	PRIMARY KEY (user_id, comment_id),
 	FOREIGN KEY (user_id) REFERENCES USERS (id),
 	FOREIGN KEY (comment_id) REFERENCES COMMENTS (id)
