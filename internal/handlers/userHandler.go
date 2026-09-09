@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Afarmo/forum/internal/errorMsg"
+	"github.com/Afarmo/forum/internal/apperrors"
 	"github.com/Afarmo/forum/internal/models"
 	"github.com/Afarmo/forum/internal/service"
 )
@@ -48,7 +48,7 @@ func (h *UserHandler) FindUserByEmail(w http.ResponseWriter, r *http.Request) {
 	email := strings.TrimSpace(r.URL.Query().Get("email"))
 	user, err := h.service.FindUserByEmail(cx, email)
 	if err == sql.ErrNoRows {
-		http.Error(w, errorMsg.ErrNotFound.Error(), http.StatusNotFound)
+		http.Error(w, apperrors.ErrNotFound.Error(), http.StatusNotFound)
 		return
 	} else if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -65,7 +65,7 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 	user, err := h.service.FindUserById(cx, id)
 	if err == sql.ErrNoRows {
-		http.Error(w, errorMsg.ErrNotFound.Error(), http.StatusNotFound)
+		http.Error(w, apperrors.ErrNotFound.Error(), http.StatusNotFound)
 		return
 	} else if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

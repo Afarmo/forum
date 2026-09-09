@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Afarmo/forum/internal/errorMsg"
+	"github.com/Afarmo/forum/internal/apperrors"
 	"github.com/Afarmo/forum/internal/models"
 )
 
@@ -23,7 +23,7 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 func (r *UserRepository) CreateUser(ctx context.Context, user *models.User) error {
 	tx, txErr := r.db.BeginTx(ctx, nil)
 	if txErr != nil {
-		return errorMsg.ErrTransactionStart
+		return apperrors.ErrTransactionStart
 	}
 	defer tx.Rollback() // if there is error revert changes to the db back to before the changes
 	query := `INSERT INTO users(username, email, user_password, profile_picture) VALUES(?,?,?,?)`
@@ -31,7 +31,7 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *models.User) erro
 	result, err := tx.ExecContext(ctx, query, user.UserName, user.Email, user.Password, user.ProfilePicture)
 	if err != nil {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
-			return errorMsg.ErrDuplicateKey
+			return apperrors.ErrDuplicateKey
 		}
 		return err
 	}
@@ -48,7 +48,7 @@ func (r *UserRepository) FindUserByEmail(ctx context.Context, email string) (*mo
 	query := `SELECT id, username, email, user_password, profile_picture, created_at FROM USERS WHERE email = ?`
 	user := &models.User{}
 
-    var profilePicture sql.NullString
+	var profilePicture sql.NullString
 	err := r.db.QueryRowContext(ctx, query, email).Scan(
 		&user.Id,
 		&user.UserName,
@@ -59,7 +59,7 @@ func (r *UserRepository) FindUserByEmail(ctx context.Context, email string) (*mo
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, errorMsg.ErrNotFound
+			return nil, apperrors.ErrNotFound
 		}
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func (r *UserRepository) FindUserById(ctx context.Context, id int) (*models.User
 	query := `SELECT id, username, email, user_password, profile_picture, created_at FROM USERS WHERE id = ?`
 	user := &models.User{}
 
-    var profilePicture sql.NullString
+	var profilePicture sql.NullString
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
 		&user.Id,
 		&user.UserName,
@@ -81,14 +81,14 @@ func (r *UserRepository) FindUserById(ctx context.Context, id int) (*models.User
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, errorMsg.ErrNotFound
+			return nil, apperrors.ErrNotFound
 		}
 		return nil, err
 	}
 	return user, nil
 }
 func (r *UserRepository) UpdateProfilePicture(ctx context.Context, userID int, picturePath string) error {
-    query := `UPDATE users SET profile_picture = ? WHERE id = ?`
-    _, err := r.db.ExecContext(ctx, query, picturePath, userID)
-    return err
+	query := `UPDATE users SET profile_picture = ? WHERE id = ?`
+	_, err := r.db.ExecContext(ctx, query, picturePath, userID)
+	return err
 }
