@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Afarmo/forum/internal/app"
 	"github.com/Afarmo/forum/internal/database"
 	"github.com/Afarmo/forum/internal/middleware"
 	"github.com/Afarmo/forum/internal/router"
@@ -27,9 +28,17 @@ func main() {
 		log.Fatal(err)
 	}
 
-	tmpl := template.Must(template.ParseGlob("internal/web/templates/*.html"))
+	application := &app.Application{
+		DB: db,
+		Template: template.Must(template.ParseFiles(
+			"internal/web/templates/layout.html",
+			"internal/web/templates/home.html",
+			"internal/web/templates/partials/login.html",
+			"internal/web/templates/partials/register.html",
+		)),
+	}
 
-	mux := router.NewRouter(tmpl)
+	mux := router.NewRouter(application)
 	handler := middleware.Recover(middleware.Logger(mux))
 	srv := &http.Server{
 		Addr:              ":8080",
