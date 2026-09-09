@@ -1,0 +1,96 @@
+{{ define "register-modal" }}
+
+<div id="register-modal" class="modal" hidden>
+    <div class="modal-content">
+
+        <!-- Close button -->
+        <button
+            type="button"
+            class="close-modal"
+            onclick="closeModal('register-modal')"
+            aria-label="Close"
+        >
+            &times;
+        </button>
+
+        <!-- Logo -->
+        <div class="lion-logo">
+            🦁
+        </div>
+
+        <!-- Heading -->
+        <h2>Join the pride</h2>
+
+        <p class="subtitle">
+            Create your account to get started.
+        </p>
+
+        <!-- Tabs -->
+        <div class="auth-tabs">
+            <button type="button" class="auth-tab" data-auth-switch="login">
+                Sign In
+            </button>
+
+            <button type="button" class="auth-tab active">
+                Register
+            </button>
+        </div>
+
+        <!-- Register form -->
+        <form method="POST" action="/register">
+
+            <div class="form-group">
+                <label for="username">USERNAME</label>
+
+                <input
+                    id="username"
+                    type="text"
+                    name="username"
+                    placeholder="How you'll appear to others"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="register-email">EMAIL</label>
+
+                <input
+                    id="register-email"
+                    type="email"
+                    name="email"
+                    placeholder="your@email.com"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="register-password">PASSWORD</label>
+
+                <input
+                    id="register-password"
+                    type="password"
+                    name="password"
+                    placeholder="At least 6 characters"
+                    minlength="6"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="login-button">
+                Create Account
+            </button>
+
+        </form>
+
+        <!-- Sign in -->
+        <p class="register-text">
+            Already a member?
+            <button type="button" class="register-link" data-auth-switch="login">
+                Sign In
+            </button>
+        </p>
+
+    </div>
+</div>
+
+{{ end }}

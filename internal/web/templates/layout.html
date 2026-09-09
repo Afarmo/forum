@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ .Title }}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<nav>
+    <a href="/">Home</a>
+</nav>
+
+<main>
+    {{ template "content" . }}
+</main>
+
+<footer>
+    My Website
+</footer>
+
+<script src="/static/js/main.js"></script>
+</body>
+</html>

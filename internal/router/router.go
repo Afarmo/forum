@@ -1,16 +1,16 @@
 package router
 
 import (
-	"html/template"
 	"net/http"
 
+	"github.com/Afarmo/forum/internal/app"
 	"github.com/Afarmo/forum/internal/handlers"
 )
 
-func NewRouter(tmpl *template.Template) *http.ServeMux {
+func NewRouter(a *app.Application) *http.ServeMux {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /", handlers.HomeHandler(tmpl))
+	mux.HandleFunc("GET /", handlers.HomeHandler(a))
 	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("internal/web/static"))))
 
 	return mux
