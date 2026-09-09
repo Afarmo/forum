@@ -91,16 +91,24 @@ func (h *UserHandler) UploadProfilePicture(w http.ResponseWriter, r *http.Reques
 		http.Error(w, "failed to create upload directory", http.StatusInternalServerError)
 		return
 	}
-	destination, err := os.Create("uploads/profiles/" + header.Filename)
+	picturePath := "uploads/profiles/" + header.Filename
+	destination, err := os.Create(picturePath)
 	if err != nil {
 		http.Error(w, "failed to create file", http.StatusInternalServerError)
 		return
 	}
 	defer destination.Close()
-	
+
 	_, err = io.Copy(destination, file)
 	if err != nil {
 		http.Error(w, "failed to save uploaded file", http.StatusInternalServerError)
+		return
+	}
+	ctx := r.Context()
+	userID := 1 // just for test... waiting for authentication to get the user id from the session
+	err = h.service.UpdateProfilePicture(ctx, userID, picturePath)
+	if err != nil {
+		http.Error(w, "failed to update profile picture", http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
