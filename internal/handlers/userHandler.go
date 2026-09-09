@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/Afarmo/forum/internal/errorMsg"
@@ -49,10 +50,27 @@ func (h *UserHandler) FindUserByEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	} else if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	w.Header().Set("Content-type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(user)
+}
 
+func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
+	cx := r.Context()
+	id, err := strconv.Atoi(r.PathValue("id"))
+	user, err := h.service.FindUserById(cx, id)
+	if err == sql.ErrNoRows {
+		http.Error(w, errorMsg.ErrNotFound.Error(), http.StatusNotFound)
+		return
+	} else if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(user)
 }

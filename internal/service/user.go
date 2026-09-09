@@ -31,3 +31,9 @@ func (s *UserService) FindUserByEmail(ctx context.Context, email string) (*model
 	}
 	return s.repo.FindUserByEmail(ctx, email)
 }
+func (s *UserService) FindUserById(ctx context.Context, id int) (*models.User, error) {
+	if id < 1 {
+		return nil, errorMsg.ErrInvalidInput
+	}
+	return s.repo.FindUserById(ctx, id)
+}

@@ -48,12 +48,35 @@ func (r *UserRepository) FindUserByEmail(ctx context.Context, email string) (*mo
 	query := `SELECT id, username, email, user_password, profile_picture, created_at FROM USERS WHERE email = ?`
 	user := &models.User{}
 
+    var profilePicture sql.NullString
 	err := r.db.QueryRowContext(ctx, query, email).Scan(
 		&user.Id,
 		&user.UserName,
 		&user.Email,
 		&user.Password,
-		&user.ProfilePicture,
+		&profilePicture,
+		&user.CreatedAt,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errorMsg.ErrNotFound
+		}
+		return nil, err
+	}
+	return user, nil
+}
+
+func (r *UserRepository) FindUserById(ctx context.Context, id int) (*models.User, error) {
+	query := `SELECT id, username, email, user_password, profile_picture, created_at FROM USERS WHERE id = ?`
+	user := &models.User{}
+
+    var profilePicture sql.NullString
+	err := r.db.QueryRowContext(ctx, query, id).Scan(
+		&user.Id,
+		&user.UserName,
+		&user.Email,
+		&user.Password,
+		&profilePicture,
 		&user.CreatedAt,
 	)
 	if err != nil {
