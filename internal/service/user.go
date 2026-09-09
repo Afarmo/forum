@@ -37,3 +37,6 @@ func (s *UserService) FindUserById(ctx context.Context, id int) (*models.User, e
 	}
 	return s.repo.FindUserById(ctx, id)
 }
+func (s *UserService) UpdateProfilePicture(ctx context.Context, userID int,	picturePath string) error {
+	return s.repo.UpdateProfilePicture(ctx, userID, picturePath)
+}

@@ -20,6 +20,7 @@ func NewRouter(tmpl *template.Template, db *sql.DB) *http.ServeMux {
 	mux.HandleFunc("POST /users", userHandler.CreateUser)
 	mux.HandleFunc("GET /users/email", userHandler.FindUserByEmail)
 	mux.HandleFunc("GET /users/{id}", userHandler.FindUserById)
+	mux.HandleFunc("POST /users/profile-picture", userHandler.UploadProfilePicture)
 	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("internal/web/static"))))
 
 	return mux

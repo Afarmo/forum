@@ -26,9 +26,9 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *models.User) erro
 		return errorMsg.ErrTransactionStart
 	}
 	defer tx.Rollback() // if there is error revert changes to the db back to before the changes
-	query := `INSERT INTO users(username, email, user_password) VALUES(?,?,?)`
+	query := `INSERT INTO users(username, email, user_password, profile_picture) VALUES(?,?,?,?)`
 	now := time.Now()
-	result, err := tx.ExecContext(ctx, query, user.UserName, user.Email, user.Password)
+	result, err := tx.ExecContext(ctx, query, user.UserName, user.Email, user.Password, user.ProfilePicture)
 	if err != nil {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
 			return errorMsg.ErrDuplicateKey
@@ -86,4 +86,9 @@ func (r *UserRepository) FindUserById(ctx context.Context, id int) (*models.User
 		return nil, err
 	}
 	return user, nil
+}
+func (r *UserRepository) UpdateProfilePicture(ctx context.Context, userID int, picturePath string) error {
+    query := `UPDATE users SET profile_picture = ? WHERE id = ?`
+    _, err := r.db.ExecContext(ctx, query, picturePath, userID)
+    return err
 }
