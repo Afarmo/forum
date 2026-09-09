@@ -35,6 +35,7 @@ func main() {
 			"internal/web/templates/home.html",
 			"internal/web/templates/partials/login.html",
 			"internal/web/templates/partials/register.html",
+			"internal/web/templates/partials/writePost.html",
 		)),
 	}
 

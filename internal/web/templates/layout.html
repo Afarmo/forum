@@ -11,12 +11,18 @@
 </nav>
 
 <main>
+    <button type="button" class="new-post-button" onclick="openModal('writePost-modal')">Write Post</button>
+
     {{ template "content" . }}
 </main>
 
 <footer>
-    My Website
+    Made with ❤️ by Abde, Asha, Yeab, and Liv
 </footer>
+
+{{ template "login-modal" . }}
+{{ template "register-modal" . }}
+{{ template "writePost-modal" . }}
 
 <script src="/static/js/main.js"></script>
 </body>
