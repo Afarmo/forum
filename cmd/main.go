@@ -28,15 +28,12 @@ func main() {
 		log.Fatal(err)
 	}
 
+	tmpl := template.Must(template.New("").ParseGlob("internal/web/templates/*.html"))
+	template.Must(tmpl.ParseGlob("internal/web/templates/partials/*.html"))
+
 	application := &app.Application{
-		DB: db,
-		Template: template.Must(template.ParseFiles(
-			"internal/web/templates/layout.html",
-			"internal/web/templates/home.html",
-			"internal/web/templates/partials/login.html",
-			"internal/web/templates/partials/register.html",
-			"internal/web/templates/partials/writePost.html",
-		)),
+		DB:       db,
+		Template: tmpl,
 	}
 
 	mux := router.NewRouter(application)
