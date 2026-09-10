@@ -39,7 +39,7 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *models.User) erro
 	if err != nil {
 		return err
 	}
-	user.Id = int(id)
+	user.ID = int(id)
 	user.CreatedAt = now
 	return tx.Commit()
 }
@@ -50,7 +50,7 @@ func (r *UserRepository) FindUserByEmail(ctx context.Context, email string) (*mo
 
 	var profilePicture sql.NullString
 	err := r.db.QueryRowContext(ctx, query, email).Scan(
-		&user.Id,
+		&user.ID,
 		&user.UserName,
 		&user.Email,
 		&user.Password,
@@ -72,7 +72,7 @@ func (r *UserRepository) FindUserById(ctx context.Context, id int) (*models.User
 
 	var profilePicture sql.NullString
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
-		&user.Id,
+		&user.ID,
 		&user.UserName,
 		&user.Email,
 		&user.Password,
