@@ -20,7 +20,7 @@ func NewPostRepository(db *sql.DB) *PostRepository {
 	}
 }
 
-func (r *PostRepository) CreatePost(ctx context.Context, post *models.Post) error {
+func (r *PostRepository) CreatePost(ctx context.Context, post *models.Post, categoryID int) error {
 	tx, txErr := r.db.BeginTx(ctx, nil)
 	if txErr != nil {
 		return apperrors.ErrTransactionStart
@@ -41,5 +41,10 @@ func (r *PostRepository) CreatePost(ctx context.Context, post *models.Post) erro
 	}
 	post.PostId = int(id)
 	post.CreatedAt = now
+	categoryQuery := `INSERT INTO post_categories(post_id, category_id) VALUES(?,?)`
+	_, err = tx.ExecContext(ctx, categoryQuery, post.PostId, categoryID)
+	if err != nil {
+		return err
+	}
 	return tx.Commit()
 }

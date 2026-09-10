@@ -17,9 +17,12 @@ func NewPostService(repo *repository.PostRepository) *PostService {
 		repo: repo,
 	}
 }
-func (s *PostService) NewPostService(ctx context.Context, post *models.Post) error {
+func (s *PostService) CreatePost(ctx context.Context, post *models.Post, categoryID int) error {
 	if post.Content == "" {
 		return apperrors.ErrInvalidInput
 	}
-	return s.repo.CreatePost(ctx, post)
+	if categoryID < 1{
+		return apperrors.ErrInvalidInput
+	}
+	return s.repo.CreatePost(ctx, post, categoryID)
 }
