@@ -24,34 +24,34 @@ func NewUserRepository(service *service.UserService) *UserHandler {
 	}
 }
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
-	cx := r.Context()
+	ctx := r.Context()
 	var user models.User
 
-	err := json.NewDecoder(r.Body).Decode(&user)
-	if err != nil {
-		http.Error(w, "invalid JSON", http.StatusBadRequest)
+	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+		http.Error(w, "invalid JSON", http.StatusBadRequest) // TODO
 		return
 	}
-	err = h.service.CreateUser(cx, &user)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+
+	if err := h.service.CreateUser(ctx, &user); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest) // TODO
 		return
 	}
+
 	w.Header().Set("Content-type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(user)
 }
 
 func (h *UserHandler) FindUserByEmail(w http.ResponseWriter, r *http.Request) {
-	cx := r.Context()
+	ctx := r.Context()
 
 	email := strings.TrimSpace(r.URL.Query().Get("email"))
-	user, err := h.service.FindUserByEmail(cx, email)
+	user, err := h.service.FindUserByEmail(ctx, email)
 	if err == sql.ErrNoRows {
-		http.Error(w, apperrors.ErrNotFound.Error(), http.StatusNotFound)
+		http.Error(w, apperrors.ErrNotFound.Error(), http.StatusNotFound) // TODO
 		return
 	} else if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest) // TODO
 		return
 	}
 
@@ -61,14 +61,15 @@ func (h *UserHandler) FindUserByEmail(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
-	cx := r.Context()
+	ctx := r.Context()
+
 	id, err := strconv.Atoi(r.PathValue("id"))
-	user, err := h.service.FindUserById(cx, id)
+	user, err := h.service.FindUserById(ctx, id)
 	if err == sql.ErrNoRows {
-		http.Error(w, apperrors.ErrNotFound.Error(), http.StatusNotFound)
+		http.Error(w, apperrors.ErrNotFound.Error(), http.StatusNotFound) // TODO
 		return
 	} else if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest) // TODO
 		return
 	}
 
@@ -80,34 +81,32 @@ func (h *UserHandler) UploadProfilePicture(w http.ResponseWriter, r *http.Reques
 
 	file, header, err := r.FormFile("profile_picture")
 	if err != nil {
-		http.Error(w, "failed to get uploaded file", http.StatusBadRequest)
+		http.Error(w, "failed to get uploaded file", http.StatusBadRequest) // TODO
 		return
 	}
-
 	defer file.Close()
 
-	err = os.MkdirAll("uploads/profiles", 0755)
-	if err != nil {
-		http.Error(w, "failed to create upload directory", http.StatusInternalServerError)
+	if err = os.MkdirAll("uploads/profiles", 0755); err != nil {
+		http.Error(w, "failed to create upload directory", http.StatusInternalServerError) // TODO
 		return
 	}
+
 	picturePath := "uploads/profiles/" + header.Filename
 	destination, err := os.Create(picturePath)
 	if err != nil {
-		http.Error(w, "failed to create file", http.StatusInternalServerError)
+		http.Error(w, "failed to create file", http.StatusInternalServerError) // TODO
 		return
 	}
 	defer destination.Close()
 
-	_, err = io.Copy(destination, file)
-	if err != nil {
-		http.Error(w, "failed to save uploaded file", http.StatusInternalServerError)
+	if _, err = io.Copy(destination, file); err != nil {
+		http.Error(w, "failed to save uploaded file", http.StatusInternalServerError) // TODO
 		return
 	}
+
 	ctx := r.Context()
 	userID := 1 // just for test... waiting for authentication to get the user id from the session
-	err = h.service.UpdateProfilePicture(ctx, userID, picturePath)
-	if err != nil {
+	if err = h.service.UpdateProfilePicture(ctx, userID, picturePath); err != nil {
 		http.Error(w, "failed to update profile picture", http.StatusInternalServerError)
 		return
 	}
