@@ -1,0 +1,36 @@
+{{ define "header"}}
+<header class="header">
+    <div class="header-content">
+        <a href="/" class="logo">  
+            <div class="lion-logo">
+                🦁 
+            </div>
+            <div class="logo-text">
+                
+                 <div class="logo-text">
+                    <div class="logo-title">Literary Lions</div>
+                    <div class="logo-subtitle">BOOK CLUB FORUM</div>
+                </div>
+            </div>
+        </a>
+                <!-- Logo -->
+        
+        <nav class="nav-links">
+            <div>
+                <button type="button" class="nav-button" onclick="openModal('writePost-modal')">Write Post</button>
+            </div>
+            <div>
+                <button type="button" class="nav-button" onclick="openModal('login-modal')">Sign In</button>
+            </div>
+            <button class="nav-button">
+                 <a href="/user" id="user-link" >
+                    User
+                </a>
+            </button>
+           
+        </nav>
+    </div>
+</header>
+{{ template "login-modal" . }}
+{{ template "writePost-modal" . }}
+{{end}}
