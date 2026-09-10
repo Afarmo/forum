@@ -10,7 +10,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Afarmo/forum/internal/app"
 	"github.com/Afarmo/forum/internal/database"
+	"github.com/Afarmo/forum/internal/middleware"
 	"github.com/Afarmo/forum/internal/router"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -26,12 +28,22 @@ func main() {
 		log.Fatal(err)
 	}
 
-	tmpl := template.Must(template.ParseGlob("internal/web/templates/*.html"))
-	mux := router.NewRouter(tmpl, db)
+	application := &app.Application{
+		DB: db,
+		Template: template.Must(template.ParseFiles(
+			"internal/web/templates/layout.html",
+			"internal/web/templates/home.html",
+			"internal/web/templates/partials/login.html",
+			"internal/web/templates/partials/register.html",
+			"internal/web/templates/partials/writePost.html",
+		)),
+	}
 
+	mux := router.NewRouter(application)
+	handler := middleware.Recover(middleware.Logger(mux))
 	srv := &http.Server{
 		Addr:              ":8080",
-		Handler:           mux,
+		Handler:           handler,
 		ReadTimeout:       10 * time.Second,
 		WriteTimeout:      10 * time.Second,
 		IdleTimeout:       60 * time.Second,

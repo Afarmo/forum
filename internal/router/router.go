@@ -5,12 +5,13 @@ import (
 	"html/template"
 	"net/http"
 
+	"github.com/Afarmo/forum/internal/app"
 	"github.com/Afarmo/forum/internal/handlers"
 	"github.com/Afarmo/forum/internal/repository"
 	"github.com/Afarmo/forum/internal/service"
 )
 
-func NewRouter(tmpl *template.Template, db *sql.DB) *http.ServeMux {
+func NewRouter(a *app.Application) *http.ServeMux {
 	mux := http.NewServeMux()
 	repo := repository.NewUserRepository(db)
 	userService := service.NewUserService(repo)

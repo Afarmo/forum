@@ -1,0 +1,78 @@
+{{ define "writePost-modal" }}
+
+<div id="writePost-modal" class="modal" hidden>
+    <div class="modal-content">
+
+        <button
+            type="button"
+            class="close-modal"
+            onclick="closeModal('writePost-modal')"
+            aria-label="Close"
+        >
+            &times;
+        </button>
+
+        <h2>Start a Discussion</h2>
+
+        <form method="POST" action="/writePosts" enctype="multipart/form-data">
+
+            <div class="form-group">
+                <label for="writePost-title">TITLE</label>
+                <input
+                    id="writePost-title"
+                    type="text"
+                    name="title"
+                    placeholder="What's on your literary mind?"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label>CATEGORIES (pick at least one)</label>
+
+                <div class="category-picker">
+                    <label class="category-chip">
+                        <input type="checkbox" name="categories" value="classic-literature" class="chip-input">
+                        Classic Literature
+                    </label>
+                    <label class="category-chip">
+                        <input type="checkbox" name="categories" value="contemporary-fiction" class="chip-input">
+                        Contemporary Fiction
+                    </label>
+                    <!-- ...repeat per category, matching the photo... -->
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="writePost-content">CONTENT</label>
+                <textarea
+                    id="writePost-content"
+                    name="content"
+                    rows="8"
+                    placeholder="Share your thoughts, interpretations, recommendations... Use *asterisks* for italics."
+                    required
+                ></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>COVER IMAGE (optional)</label>
+
+                <div class="source-tabs">
+                    <button type="button" class="source-tab active" data-image-source="url">🔗 Image URL</button>
+                    <button type="button" class="source-tab" data-image-source="file">Upload File</button>
+                </div>
+
+                <input type="url"  name="image_url"  class="source-panel" data-source-panel="url"  placeholder="https://...">
+                <input type="file" name="image_file" class="source-panel" data-source-panel="file" accept="image/*" hidden>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeModal('writePost-modal')">Cancel</button>
+                <button type="submit" class="login-button">Publish Post</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+{{ end }}

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ .Title }}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<nav>
+    <a href="/">Home</a>
+</nav>
+
+<main>
+    <button type="button" class="new-post-button" onclick="openModal('writePost-modal')">Write Post</button>
+<button type="button" class="signin-button" onclick="openModal('login-modal')">
+    Sign In
+</button>
+
+    {{ template "content" . }}
+</main>
+
+<footer>
+    Made with ❤️ by Abde, Asha, Yeab, and Liv
+</footer>
+
+{{ template "login-modal" . }}
+{{ template "register-modal" . }}
+{{ template "writePost-modal" . }}
+
+<script src="/static/js/main.js"></script>
+</body>
+</html>
