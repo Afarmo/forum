@@ -1,8 +1,6 @@
 package router
 
 import (
-	"database/sql"
-	"html/template"
 	"net/http"
 
 	"github.com/Afarmo/forum/internal/app"
@@ -13,11 +11,10 @@ import (
 
 func NewRouter(a *app.Application) *http.ServeMux {
 	mux := http.NewServeMux()
-	repo := repository.NewUserRepository(db)
+	repo := repository.NewUserRepository(a.DB)
 	userService := service.NewUserService(repo)
 	userHandler := handlers.NewUserRepository(userService)
-
-	mux.HandleFunc("GET /", handlers.HomeHandler(tmpl))
+	mux.HandleFunc("GET /", handlers.HomeHandler(a))
 	mux.HandleFunc("POST /users", userHandler.CreateUser)
 	mux.HandleFunc("GET /users/email", userHandler.FindUserByEmail)
 	mux.HandleFunc("GET /users/{id}", userHandler.FindUserById)
