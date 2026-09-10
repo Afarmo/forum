@@ -1,0 +1,37 @@
+.new-post-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    border: none;
+    border-radius: 4px;
+
+    background: #c52b1f;
+    color: white;
+
+    padding: 12px 22px;
+
+    font-size: 16px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.new-post-button:hover {
+    background: #a92319;
+}
+
+/* Kept in the layout (not display:none) so the native validation bubble
+   has a box to anchor to — just shrunk to nothing and pulled out of flow. */
+.chip-input {
+    position: absolute;
+
+    width: 1px;
+    height: 1px;
+
+    margin: -1px;
+
+    opacity: 0;
+
+    pointer-events: none;
+}
