@@ -1,0 +1,142 @@
+.header{
+    width:100%;
+    background:#efc848;
+    /* border-bottom:1px solid rgba(255,255,255,.08); */
+    box-shadow:0 2px 5px rgba(0,0,0,.1);
+}
+
+.header-content{
+    max-width:1600px;
+    margin:0 auto;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:14px 32px;
+}
+.header a {
+    color: #dde4ef;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+.lion-logo {
+    font-size: 42px;
+    line-height: 1;
+    margin-bottom: 0;
+}
+.logo-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    line-height: 1.4;
+}
+.logo-text div {
+    margin: 0;
+    padding: 0;
+}
+.logo i {
+    font-size: 2.5rem;
+    font-weight: 600;
+
+}
+
+.logo-title {
+    color: rgb(37, 36, 36);
+    font-size: 16px;
+    padding: 2px 6px;
+}
+
+.logo-subtitle {
+    color: white;
+    font-size: 8px;
+    padding: 2px 6px;
+}
+
+.nav-links {
+    font-weight: 600;
+    font-size: 24px;
+    display: flex;
+    gap: 1.5rem;
+}
+
+.nav-links a:hover {
+    color: #f32420;
+}
+
+/* .nav-links a.selected {
+    color: #12b9ec;
+    font-weight: 500;
+    border-bottom: 2px solid #12b9ec;
+}  */
+
+.nav-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+
+    border: none;
+    border-radius: 4px;
+
+    background: #c52b1f;
+    color: white;
+    padding: 8px 12px;
+
+    font-size: 16px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.nav-button:hover {
+    background: #a92319;
+}
+
+/* Responsive Design for Mobile Screens */
+@media (max-width: 600px) {
+
+    .header {
+        /* flex-direction: column; */
+        padding: 6px;
+
+        gap: 1rem;
+        text-align: center;
+    }
+    .header-content{
+        padding:10px 16px;
+    }
+
+    .logo {
+        font-size: 1rem;
+    }
+
+    .logo i {
+        font-size: 1rem;
+    }
+
+    .nav-links {
+        font-weight: 600;
+        font-size: 10px;
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .hero-text {
+        font-size: 20px;
+        padding: 0px 20px;
+    }
+
+    .search {
+        font-size: 20px;
+    }
+
+    .car-collection {
+        font-size: 20px;
+        font-weight: 500;
+    }
+}

@@ -1,6 +1,13 @@
 {{ define "content" }}
+{{ template "header"  }}
 
-<h1>Welcome!</h1>
 <p>This is the home page.</p>
+
+<button type="button" class="signin-button" onclick="openModal('login-modal')">
+    Sign In
+</button>
+
+{{ template "login-modal" . }}
+{{ template "register-modal" . }}
 
 {{ end }}
