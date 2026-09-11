@@ -28,7 +28,7 @@ func (r *PostRepository) CreatePost(ctx context.Context, post *models.Post, cate
 	defer tx.Rollback() // if there is error revert changes to the db back to before the changes
 	query := `INSERT INTO posts(user_id, Content, picture_content) VALUES(?,?,?)`
 	now := time.Now()
-	result, err := tx.ExecContext(ctx, query, post.UserId, post.Content, post.PictureContent)
+	result, err := tx.ExecContext(ctx, query, post.UserID, post.Content, post.PictureContent)
 	if err != nil {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
 			return apperrors.ErrDuplicateKey
@@ -39,29 +39,29 @@ func (r *PostRepository) CreatePost(ctx context.Context, post *models.Post, cate
 	if err != nil {
 		return err
 	}
-	post.PostId = int(id)
+	post.PostID = int(id)
 	post.CreatedAt = now
 	categoryQuery := `INSERT INTO post_categories(post_id, category_id) VALUES(?,?)`
-	_, err = tx.ExecContext(ctx, categoryQuery, post.PostId, categoryID)
+	_, err = tx.ExecContext(ctx, categoryQuery, post.PostID, categoryID)
 	if err != nil {
 		return err
 	}
 	return tx.Commit()
 }
 
-func (r *PostRepository) GetAllPosts( ctx context.Context)([]models.Post, error){
+func (r *PostRepository) GetAllPosts(ctx context.Context) ([]models.Post, error) {
 	query := `SELECT id, user_id, content, picture_content, created_at FROM posts ORDER BY created_at DESC`
 
 	rows, err := r.db.QueryContext(ctx, query)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 	var posts []models.Post
-	for rows.Next(){
+	for rows.Next() {
 		var post models.Post
-		err := rows.Scan(&post.PostId, &post.UserId, &post.Content, &post.PictureContent, &post.CreatedAt)
-		if err != nil{
+		err := rows.Scan(&post.PostID, &post.UserID, &post.Content, &post.PictureContent, &post.CreatedAt)
+		if err != nil {
 			return nil, err
 		}
 		posts = append(posts, post)
@@ -69,20 +69,20 @@ func (r *PostRepository) GetAllPosts( ctx context.Context)([]models.Post, error)
 	return posts, rows.Err()
 }
 
-func (r *PostRepository) GetPostByUser(ctx context.Context, userId int)([]models.Post, error){
+func (r *PostRepository) GetPostByUser(ctx context.Context, userId int) ([]models.Post, error) {
 	query := `SELECT id, user_id, content, picture_content, created_at FROM posts WHERE user_id = ? ORDER BY created_at DESC`
 
 	rows, err := r.db.QueryContext(ctx, query, userId)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 	var posts []models.Post
 
-	for rows.Next(){
+	for rows.Next() {
 		var post models.Post
-		err := rows.Scan(&post.PostId, &post.UserId, &post.Content, &post.PictureContent, &post.CreatedAt)
-		if err != nil{
+		err := rows.Scan(&post.PostID, &post.UserID, &post.Content, &post.PictureContent, &post.CreatedAt)
+		if err != nil {
 			return nil, err
 		}
 		posts = append(posts, post)

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -18,7 +19,7 @@ type UserHandler struct {
 	service *service.UserService
 }
 
-func NewUserRepository(service *service.UserService) *UserHandler {
+func NewUserHandler(service *service.UserService) *UserHandler {
 	return &UserHandler{
 		service: service,
 	}
@@ -81,6 +82,7 @@ func (h *UserHandler) UploadProfilePicture(w http.ResponseWriter, r *http.Reques
 
 	file, header, err := r.FormFile("profile_picture")
 	if err != nil {
+		log.Println("upload failed: ", err)
 		http.Error(w, "failed to get uploaded file", http.StatusBadRequest) // TODO
 		return
 	}

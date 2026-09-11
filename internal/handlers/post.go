@@ -41,7 +41,7 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	// 	http.Error(w, "invalid JSON", http.StatusBadRequest)
 	// 	return
 	// }
-	post.UserId = 2 // dummmy id - waiting for authentication to get the user id from the session
+	post.UserID = 2 // dummmy id - waiting for authentication to get the user id from the session
 	post.Content = content
 	post.PictureContent = header.Filename
 	categoryID, err := strconv.Atoi(category_id)
