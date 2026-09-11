@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -52,4 +53,16 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(post)
+}
+func (h *PostHandler) GetAllPosts(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	posts, err := h.service.GetAllPosts(ctx)
+	if err != nil {
+		log.Println("Get post error:", err)
+		http.Error(w, "failed to get the posts", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(posts)
 }

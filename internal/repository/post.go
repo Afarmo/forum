@@ -48,3 +48,23 @@ func (r *PostRepository) CreatePost(ctx context.Context, post *models.Post, cate
 	}
 	return tx.Commit()
 }
+
+func (r *PostRepository) GetAllPosts( ctx context.Context)([]models.Post, error){
+	query := `SELECT id, user_id, content, picture_content, created_at FROM posts ORDER BY created_at DESC`
+
+	rows, err := r.db.QueryContext(ctx, query)
+	if err != nil{
+		return nil, err
+	}
+	defer rows.Close()
+	var posts []models.Post
+	for rows.Next(){
+		var post models.Post
+		err := rows.Scan(&post.PostId, &post.UserId, &post.Content, &post.PictureContent, &post.CreatedAt)
+		if err != nil{
+			return nil, err
+		}
+		posts = append(posts, post)
+	}
+	return posts, nil
+}

@@ -24,8 +24,10 @@ func NewRouter(a *app.Application) *http.ServeMux {
 	repoPost := repository.NewPostRepository(a.DB)
 	postService := service.NewPostService(repoPost)
 	postHandler := handlers.NewPostHandler(postService)
-
+	
 	mux.HandleFunc("POST /posts", postHandler.CreatePost)
+	mux.HandleFunc("GET /posts", postHandler.GetAllPosts)
+
 	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("internal/web/static"))))
 
 	return mux

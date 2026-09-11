@@ -26,3 +26,7 @@ func (s *PostService) CreatePost(ctx context.Context, post *models.Post, categor
 	}
 	return s.repo.CreatePost(ctx, post, categoryID)
 }
+
+func (s *PostService) GetAllPosts( ctx context.Context)([]models.Post, error){
+	return s.repo.GetAllPosts(ctx)
+}
