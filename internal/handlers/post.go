@@ -41,7 +41,7 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	// 	http.Error(w, "invalid JSON", http.StatusBadRequest)
 	// 	return
 	// }
-	post.UserId = 1 // dummmy id - waiting for authentication to get the user id from the session
+	post.UserId = 2 // dummmy id - waiting for authentication to get the user id from the session
 	post.Content = content
 	post.PictureContent = header.Filename
 	categoryID, err := strconv.Atoi(category_id)
@@ -60,6 +60,25 @@ func (h *PostHandler) GetAllPosts(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Get post error:", err)
 		http.Error(w, "failed to get the posts", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(posts)
+}
+
+func (h *PostHandler) GetPostByUser(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	id := r.PathValue("id")
+	userID, err := strconv.Atoi(id)
+	if err != nil{
+		http.Error(w, "invalid user id", http.StatusBadRequest)
+		return
+	}
+
+	posts, err := h.service.GetPostByUser(ctx, userID)
+	if err != nil {
+		http.Error(w, "failed to get the user posts", http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")

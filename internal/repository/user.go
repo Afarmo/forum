@@ -87,6 +87,7 @@ func (r *UserRepository) FindUserById(ctx context.Context, id int) (*models.User
 	}
 	return user, nil
 }
+
 func (r *UserRepository) UpdateProfilePicture(ctx context.Context, userID int, picturePath string) error {
 	query := `UPDATE users SET profile_picture = ? WHERE id = ?`
 	_, err := r.db.ExecContext(ctx, query, picturePath, userID)
