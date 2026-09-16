@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"strings"
 	"time"
 
@@ -88,4 +89,40 @@ func (r *PostRepository) GetPostByUser(ctx context.Context, userId int) ([]model
 		posts = append(posts, post)
 	}
 	return posts, rows.Err()
+}
+
+func (r *PostRepository) UpdatePost(ctx context.Context, userID int, update *models.UpdatePost) error {
+	tx, txErr := r.db.BeginTx(ctx, nil)
+	if txErr != nil {
+		return apperrors.ErrTransactionStart
+	}
+	defer tx.Rollback() // if there is error revert changes to the db back to before the changes
+	now := time.Now()
+	extraQuery := []string{"updated_at = ?"}
+	args := []any{now}
+	if update.Content != nil {
+		extraQuery = append(extraQuery, `content = ?`)
+		args = append(args, *update.Content)
+	}
+	if update.PictureContent != nil {
+		extraQuery = append(extraQuery, `picture_content = ?`)
+		args = append(args, *update.PictureContent)
+	}
+	args = append(args, userID)
+	query := fmt.Sprintf("UPDATE posts SET %s WHERE id = ?", strings.Join(extraQuery, ", "))
+	result, err := tx.ExecContext(ctx, query, args...)
+	if err != nil {
+		if strings.Contains(err.Error(), "UNIQUE constraints failed") {
+			return apperrors.ErrDuplicateKey
+		}
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return apperrors.ErrNotFound
+	}
+	return tx.Commit()
 }

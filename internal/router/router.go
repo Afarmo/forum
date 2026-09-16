@@ -26,8 +26,10 @@ func NewRouter(a *app.Application) *http.ServeMux {
 	postHandler := handlers.NewPostHandler(postService)
 
 	mux.HandleFunc("POST /posts", postHandler.CreatePost)
+	mux.HandleFunc("PATCH /posts/{id}", postHandler.UpdatePost)
 	mux.HandleFunc("GET /posts", postHandler.GetAllPosts)
 	mux.HandleFunc("GET /users/{id}/posts", postHandler.GetPostByUser)
+
 
 	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("internal/web/static"))))
 

@@ -41,7 +41,7 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	// 	http.Error(w, "invalid JSON", http.StatusBadRequest)
 	// 	return
 	// }
-	post.UserID = 2 // dummmy id - waiting for authentication to get the user id from the session
+	post.UserID = 1 // dummmy id - waiting for authentication to get the user id from the session
 	post.Content = content
 	post.PictureContent = header.Filename
 	categoryID, err := strconv.Atoi(category_id)
@@ -71,7 +71,7 @@ func (h *PostHandler) GetPostByUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	id := r.PathValue("id")
 	userID, err := strconv.Atoi(id)
-	if err != nil{
+	if err != nil {
 		http.Error(w, "invalid user id", http.StatusBadRequest)
 		return
 	}
@@ -84,4 +84,27 @@ func (h *PostHandler) GetPostByUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(posts)
+}
+
+func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	PostID, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		http.Error(w, "invalid Post ID", http.StatusBadRequest)
+		return
+	}
+	var update models.UpdatePost
+
+	err = json.NewDecoder(r.Body).Decode(&update)
+	if err != nil {
+		http.Error(w, "invalid Json", http.StatusBadRequest)
+		return
+	}
+	err = h.service.UpdatePost(ctx, &PostID, &update)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("post updated successfully"))
 }

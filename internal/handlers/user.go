@@ -24,6 +24,7 @@ func NewUserHandler(service *service.UserService) *UserHandler {
 		service: service,
 	}
 }
+
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	var user models.User

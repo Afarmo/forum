@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"strings"
 
 	"github.com/Afarmo/forum/internal/apperrors"
 	"github.com/Afarmo/forum/internal/models"
@@ -21,16 +22,29 @@ func (s *PostService) CreatePost(ctx context.Context, post *models.Post, categor
 	if post.Content == "" {
 		return apperrors.ErrInvalidInput
 	}
-	if categoryID < 1{
+	if categoryID < 1 {
 		return apperrors.ErrInvalidInput
 	}
 	return s.repo.CreatePost(ctx, post, categoryID)
 }
 
-func (s *PostService) GetAllPosts( ctx context.Context)([]models.Post, error){
+func (s *PostService) GetAllPosts(ctx context.Context) ([]models.Post, error) {
 	return s.repo.GetAllPosts(ctx)
 }
 
-func(s *PostService) GetPostByUser(ctx context.Context, userId int)([]models.Post, error){
+func (s *PostService) GetPostByUser(ctx context.Context, userId int) ([]models.Post, error) {
 	return s.repo.GetPostByUser(ctx, userId)
+}
+
+func (s *PostService) UpdatePost(ctx context.Context, PostID *int, update *models.UpdatePost) error {
+	if *PostID <= 0 || PostID == nil{
+		return apperrors.ErrInvalidInput
+	}
+	if update.Content == nil && update.PictureContent == nil {
+		return apperrors.ErrInvalidInput
+	}
+	if update.Content != nil && strings.TrimSpace(*update.Content) == "" {
+		return apperrors.ErrInvalidInput
+	}
+	return s.repo.UpdatePost(ctx, *PostID, update)
 }
