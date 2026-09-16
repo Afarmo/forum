@@ -1,9 +1,12 @@
 package models
 
-import "time"
+import (
+	"time"
+	"uuid"
+)
 
 type Session struct {
-	ID        int       `json:"id"`
+	ID        uuid.UUID `json:"-"`
 	ExpiresAt time.Time `json:"expires_at"`
 	UserID    int       `json:"user_id"`
 }
