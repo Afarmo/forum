@@ -12,6 +12,9 @@ var (
 	ErrInvalidID         = errors.New("invalid ID")
 	ErrTransactionStart  = errors.New("failed to begin transaction")
 	ErrTransactionCommit = errors.New("failed to commit transaction")
+	ErrInvalidUsername   = errors.New("invalid usernam")
+	ErrInvalidEmail      = errors.New("invalid email")
+	ErrInvalidPassword   = errors.New("invalid password")
 )
 
 func Log(err error) {
