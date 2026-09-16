@@ -48,3 +48,10 @@ func (s *PostService) UpdatePost(ctx context.Context, PostID *int, update *model
 	}
 	return s.repo.UpdatePost(ctx, *PostID, update)
 }
+
+func (s *PostService) DeletePost(ctx context.Context, PostID *int) error{
+	if  *PostID <= 0 || PostID == nil{
+		return apperrors.ErrInvalidInput
+	}
+	return s.repo.DeletePost(ctx, PostID)
+}

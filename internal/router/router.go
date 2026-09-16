@@ -27,6 +27,7 @@ func NewRouter(a *app.Application) *http.ServeMux {
 
 	mux.HandleFunc("POST /posts", postHandler.CreatePost)
 	mux.HandleFunc("PATCH /posts/{id}", postHandler.UpdatePost)
+	mux.HandleFunc("DELETE /posts/{id}", postHandler.DeletePost)
 	mux.HandleFunc("GET /posts", postHandler.GetAllPosts)
 	mux.HandleFunc("GET /users/{id}/posts", postHandler.GetPostByUser)
 

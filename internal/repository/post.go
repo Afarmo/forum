@@ -126,3 +126,21 @@ func (r *PostRepository) UpdatePost(ctx context.Context, userID int, update *mod
 	}
 	return tx.Commit()
 }
+
+func (r *PostRepository) DeletePost(ctx context.Context, postID *int) error {
+	tx, txErr := r.db.BeginTx(ctx, nil)
+	if txErr != nil {
+		return apperrors.ErrTransactionStart
+	}
+
+	defer tx.Rollback()
+
+	queries := []string{`DELETE FROM comment_reaction WHERE comment_id IN(SELECT id FROM comments WHERE post_id = ?)`, `DELETE FROM comments WHERE post_id = ?`, `DELETE FROM post_reactions WHERE post_id = ?`, `DELETE FROM post_categories WHERE post_id = ?`, `DELETE FROM posts WHERE id = ?`}
+	for _, query := range queries {
+		_, err := tx.ExecContext(ctx, query, postID)
+		if err != nil {
+			return err
+		}
+	}
+	return tx.Commit()
+}

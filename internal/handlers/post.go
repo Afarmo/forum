@@ -108,3 +108,20 @@ func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("post updated successfully"))
 }
+
+func (h *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	postID, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		http.Error(w, "invalid post ID", http.StatusBadRequest)
+		return
+	}
+	err = h.service.DeletePost(ctx, &postID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("post deleted successfully"))
+}
