@@ -11,14 +11,27 @@ import (
 
 func NewRouter(a *app.Application) *http.ServeMux {
 	mux := http.NewServeMux()
-	repo := repository.NewUserRepository(a.DB)
-	userService := service.NewUserService(repo)
-	userHandler := handlers.NewUserRepository(userService)
+	repoUser := repository.NewUserRepository(a.DB)
+	userService := service.NewUserService(repoUser)
+	userHandler := handlers.NewUserHandler(userService)
+
 	mux.HandleFunc("GET /", handlers.HomeHandler(a))
 	mux.HandleFunc("POST /users", userHandler.CreateUser)
 	mux.HandleFunc("GET /users/email", userHandler.FindUserByEmail)
 	mux.HandleFunc("GET /users/{id}", userHandler.FindUserById)
-	mux.HandleFunc("POST /users/profile-picture", userHandler.UploadProfilePicture)
+	mux.HandleFunc("POST /users/profile_picture", userHandler.UploadProfilePicture)
+
+	repoPost := repository.NewPostRepository(a.DB)
+	postService := service.NewPostService(repoPost)
+	postHandler := handlers.NewPostHandler(postService)
+
+	mux.HandleFunc("POST /posts", postHandler.CreatePost)
+	mux.HandleFunc("PATCH /posts/{id}", postHandler.UpdatePost)
+	mux.HandleFunc("DELETE /posts/{id}", postHandler.DeletePost)
+	mux.HandleFunc("GET /posts", postHandler.GetAllPosts)
+	mux.HandleFunc("GET /users/{id}/posts", postHandler.GetPostByUser)
+
+
 	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("internal/web/static"))))
 
 	return mux
