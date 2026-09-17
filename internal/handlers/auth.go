@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"html/template"
 	"net/http"
 
 	"github.com/Afarmo/forum/internal/apperrors"
@@ -10,11 +11,13 @@ import (
 
 type AuthHandler struct {
 	service *service.AuthService
+	tmpl    *template.Template
 }
 
-func NewAuthHandler(service *service.AuthService) *AuthHandler {
+func NewAuthHandler(service *service.AuthService, tmpl *template.Template) *AuthHandler {
 	return &AuthHandler{
 		service: service,
+		tmpl:    tmpl,
 	}
 }
 

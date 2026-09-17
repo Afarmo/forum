@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"html/template"
 	"log"
 	"net/http"
 	"strconv"
@@ -12,11 +13,13 @@ import (
 
 type PostHandler struct {
 	service *service.PostService
+	tmpl    *template.Template
 }
 
-func NewPostHandler(service *service.PostService) *PostHandler {
+func NewPostHandler(service *service.PostService, tmpl *template.Template) *PostHandler {
 	return &PostHandler{
 		service: service,
+		tmpl:    tmpl,
 	}
 }
 func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {

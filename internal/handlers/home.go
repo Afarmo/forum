@@ -2,32 +2,42 @@ package handlers
 
 import (
 	"bytes"
+	"html/template"
 	"log"
 	"net/http"
 
-	"github.com/Afarmo/forum/internal/app"
+	"github.com/Afarmo/forum/internal/service"
 )
 
-func HomeHandler(a *app.Application) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/" {
-			http.Error(w, "404 Not Found", http.StatusNotFound)
-			return
-		}
+type HomeHandler struct {
+	service *service.AuthService
+	tmpl    *template.Template
+}
 
-		var buf bytes.Buffer
+func NewHomeHandler(tmpl *template.Template) *HomeHandler {
+	return &HomeHandler{
+		tmpl: tmpl,
+	}
+}
 
-		data := map[string]string{"Title": "Home"}
+func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		http.Error(w, "404 Not Found", http.StatusNotFound)
+		return
+	}
 
-		if err := a.Template.ExecuteTemplate(&buf, "layout.html", data); err != nil {
-			log.Println(err)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
+	var buf bytes.Buffer
 
-		if _, err := buf.WriteTo(w); err != nil {
-			log.Println(err)
-			return
-		}
+	data := map[string]string{"Title": "Home"}
+
+	if err := h.tmpl.ExecuteTemplate(&buf, "layout.html", data); err != nil {
+		log.Println(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	if _, err := buf.WriteTo(w); err != nil {
+		log.Println(err)
+		return
 	}
 }

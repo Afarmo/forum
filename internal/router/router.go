@@ -3,34 +3,27 @@ package router
 import (
 	"net/http"
 
-	"github.com/Afarmo/forum/internal/app"
 	"github.com/Afarmo/forum/internal/handlers"
-	"github.com/Afarmo/forum/internal/repository"
-	"github.com/Afarmo/forum/internal/service"
 )
 
-func NewRouter(a *app.Application) *http.ServeMux {
+func NewRouter(homeHandler *handlers.HomeHandler,
+	userHandler *handlers.UserHandler,
+	postHandler *handlers.PostHandler,
+	authHandler *handlers.AuthHandler,
+) *http.ServeMux {
 	mux := http.NewServeMux()
-	repoUser := repository.NewUserRepository(a.DB)
-	userService := service.NewUserService(repoUser)
-	userHandler := handlers.NewUserHandler(userService)
 
-	mux.HandleFunc("GET /", handlers.HomeHandler(a))
+	mux.HandleFunc("GET /", homeHandler.HomePageHandler)
 	mux.HandleFunc("POST /users", userHandler.CreateUser)
 	mux.HandleFunc("GET /users/email", userHandler.FindUserByEmail)
 	mux.HandleFunc("GET /users/{id}", userHandler.FindUserById)
 	mux.HandleFunc("POST /users/profile_picture", userHandler.UploadProfilePicture)
-
-	repoPost := repository.NewPostRepository(a.DB)
-	postService := service.NewPostService(repoPost)
-	postHandler := handlers.NewPostHandler(postService)
 
 	mux.HandleFunc("POST /posts", postHandler.CreatePost)
 	mux.HandleFunc("PATCH /posts/{id}", postHandler.UpdatePost)
 	mux.HandleFunc("DELETE /posts/{id}", postHandler.DeletePost)
 	mux.HandleFunc("GET /posts", postHandler.GetAllPosts)
 	mux.HandleFunc("GET /users/{id}/posts", postHandler.GetPostByUser)
-
 
 	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("internal/web/static"))))
 
