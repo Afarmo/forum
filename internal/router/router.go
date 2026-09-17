@@ -14,8 +14,9 @@ func NewRouter(homeHandler *handlers.HomeHandler,
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /", homeHandler.HomePageHandler)
-	mux.HandleFunc("POST /users", userHandler.CreateUser)
-	mux.HandleFunc("GET /users/email", userHandler.FindUserByEmail)
+	mux.HandleFunc("POST /register", authHandler.RegisterHandler)
+	mux.HandleFunc("POST /login", authHandler.LoginHandler)
+
 	mux.HandleFunc("GET /users/{id}", userHandler.FindUserById)
 	mux.HandleFunc("POST /users/profile_picture", userHandler.UploadProfilePicture)
 
