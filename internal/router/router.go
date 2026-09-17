@@ -20,7 +20,7 @@ func NewRouter(homeHandler *handlers.HomeHandler,
 	mux.HandleFunc("GET /users/{id}", userHandler.FindUserById)
 	mux.HandleFunc("POST /users/profile_picture", userHandler.UploadProfilePicture)
 
-	mux.HandleFunc("POST /posts", postHandler.CreatePost)
+	mux.HandleFunc("POST /writePosts", postHandler.CreatePost)
 	mux.HandleFunc("PATCH /posts/{id}", postHandler.UpdatePost)
 	mux.HandleFunc("DELETE /posts/{id}", postHandler.DeletePost)
 	mux.HandleFunc("GET /posts", postHandler.GetAllPosts)
