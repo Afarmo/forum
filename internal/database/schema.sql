@@ -1,9 +1,10 @@
 
 	CREATE TABLE IF NOT EXISTS USERS (
 	id INTEGER PRIMARY KEY,
-	email TEXT NOT NULL UNIQUE,
 	username TEXT  NOT NULL UNIQUE,
-	user_password TEXT NOT NULL,
+	email TEXT NOT NULL UNIQUE,
+	password_hash BLOB NOT NULL,
+	password_salt BLOB NOT NULL,
 	profile_picture TEXT,
 	created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 	);
