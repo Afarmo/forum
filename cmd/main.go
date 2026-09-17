@@ -10,10 +10,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Afarmo/forum/internal/app"
 	"github.com/Afarmo/forum/internal/database"
+	"github.com/Afarmo/forum/internal/handlers"
 	"github.com/Afarmo/forum/internal/middleware"
+	"github.com/Afarmo/forum/internal/repository"
 	"github.com/Afarmo/forum/internal/router"
+	"github.com/Afarmo/forum/internal/service"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -31,12 +33,22 @@ func main() {
 	tmpl := template.Must(template.New("").ParseGlob("internal/web/templates/*.html"))
 	template.Must(tmpl.ParseGlob("internal/web/templates/partials/*.html"))
 
-	application := &app.Application{
-		DB:       db,
-		Template: tmpl,
-	}
+	// repositories
+	userRepo := repository.NewUserRepository(db)
+	postRepo := repository.NewPostRepository(db)
 
-	mux := router.NewRouter(application)
+	// services
+	userService := service.NewUserService(userRepo)
+	postService := service.NewPostService(postRepo)
+	authService := service.NewAuthService(userRepo)
+
+	// handlers
+	userHandler := handlers.NewUserHandler(userService, tmpl)
+	postHandler := handlers.NewPostHandler(postService, tmpl)
+	authHandler := handlers.NewAuthHandler(authService, tmpl)
+	homeHandler := handlers.NewHomeHandler(tmpl)
+
+	mux := router.NewRouter(homeHandler, userHandler, postHandler, authHandler)
 	handler := middleware.Recover(middleware.Logger(mux))
 	srv := &http.Server{
 		Addr:              ":8080",

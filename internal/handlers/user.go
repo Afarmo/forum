@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
+	"html/template"
 	"io"
 	"log"
 	"net/http"
@@ -17,11 +18,13 @@ import (
 
 type UserHandler struct {
 	service *service.UserService
+	tmpl    *template.Template
 }
 
-func NewUserHandler(service *service.UserService) *UserHandler {
+func NewUserHandler(service *service.UserService, tmpl *template.Template) *UserHandler {
 	return &UserHandler{
 		service: service,
+		tmpl:    tmpl,
 	}
 }
 
