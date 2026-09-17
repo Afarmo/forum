@@ -1,13 +1,15 @@
 {{ define "content" }}
-{{ template "header"  }}
 
-<p>This is the home page.</p>
+<div class = page-header>
+    {{ template "header"  .}}
+    {{ template "login-modal" . }}
+    {{ template "register-modal" . }}
+</div>
 
-<button type="button" class="signin-button" onclick="openModal('login-modal')">
-    Sign In
-</button>
 
-{{ template "login-modal" . }}
-{{ template "register-modal" . }}
+<div class = "page-body">
+    {{ template "sidebar" . }}
+</div>
+
 
 {{ end }}

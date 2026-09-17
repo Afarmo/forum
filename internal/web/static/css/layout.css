@@ -1,0 +1,24 @@
+/* =========================
+   PAGE LAYOUT
+   ========================= */
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+}
+
+.page-body {
+    margin-top: 24px;
+    margin-left: 24px;
+
+}
