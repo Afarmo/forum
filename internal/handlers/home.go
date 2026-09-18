@@ -10,13 +10,15 @@ import (
 )
 
 type HomeHandler struct {
-	service *service.AuthService
-	tmpl    *template.Template
+	service         *service.AuthService
+	categoryService *service.CategoryService
+	tmpl            *template.Template
 }
 
-func NewHomeHandler(tmpl *template.Template) *HomeHandler {
+func NewHomeHandler(tmpl *template.Template, categoryService *service.CategoryService) *HomeHandler {
 	return &HomeHandler{
-		tmpl: tmpl,
+		tmpl:            tmpl,
+		categoryService: categoryService,
 	}
 }
 
@@ -26,9 +28,19 @@ func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	categories, err := h.categoryService.GetAllCategories(r.Context())
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
 	var buf bytes.Buffer
 
-	data := map[string]string{"Title": "Home"}
+	data := map[string]any{
+		"Title":      "Home",
+		"Categories": categories,
+	}
 
 	if err := h.tmpl.ExecuteTemplate(&buf, "layout.html", data); err != nil {
 		log.Println(err)

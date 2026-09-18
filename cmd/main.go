@@ -50,7 +50,7 @@ func main() {
 	userHandler := handlers.NewUserHandler(userService, tmpl)
 	postHandler := handlers.NewPostHandler(postService, tmpl)
 	authHandler := handlers.NewAuthHandler(authService, tmpl)
-	homeHandler := handlers.NewHomeHandler(tmpl)
+	homeHandler := handlers.NewHomeHandler(tmpl, categoryService)
 	categoryHandler := handlers.NewCategoryHandler(categoryService)
 
 
