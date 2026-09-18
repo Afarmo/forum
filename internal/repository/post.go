@@ -50,10 +50,21 @@ func (r *PostRepository) CreatePost(ctx context.Context, post *models.Post, cate
 	return tx.Commit()
 }
 
-func (r *PostRepository) GetAllPosts(ctx context.Context) ([]models.Post, error) {
+func (r *PostRepository) GetAllPosts(ctx context.Context, categoryID int) ([]models.Post, error) {
 	query := `SELECT id, user_id, title, content, picture_content, created_at FROM posts ORDER BY created_at DESC`
+	args := []any{}
 
-	rows, err := r.db.QueryContext(ctx, query)
+	if categoryID > 0 {
+		query = `
+			SELECT p.id, p.user_id, p.title, p.content, p.picture_content, p.created_at
+			FROM posts p
+			JOIN post_categories pc ON pc.post_id = p.id
+			WHERE pc.category_id = ?
+			ORDER BY p.created_at DESC`
+		args = append(args, categoryID)
+	}
+
+	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}
