@@ -19,6 +19,9 @@ func NewPostService(repo *repository.PostRepository) *PostService {
 	}
 }
 func (s *PostService) CreatePost(ctx context.Context, post *models.Post, categoryID int) error {
+	if post.Title == "" {
+		return apperrors.ErrInvalidInput
+	}
 	if post.Content == "" {
 		return apperrors.ErrInvalidInput
 	}

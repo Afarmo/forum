@@ -50,6 +50,7 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 
 	post.UserID = 1 // dummmy id - waiting for authentication to get the user id from the session
 	post.Content = content
+	post.Title = title
 	file, header, err := r.FormFile("picture") // WIP
 	if err == nil {
 
