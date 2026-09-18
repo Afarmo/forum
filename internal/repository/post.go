@@ -61,7 +61,7 @@ func (r *PostRepository) GetAllPosts(ctx context.Context) ([]models.Post, error)
 	var posts []models.Post
 	for rows.Next() {
 		var post models.Post
-		err := rows.Scan(&post.PostID, &post.UserID, &post.Title, &post.PictureContent, &post.CreatedAt)
+		err := rows.Scan(&post.PostID, &post.UserID, &post.Title, &post.Content, &post.PictureContent, &post.CreatedAt)
 		if err != nil {
 			return nil, err
 		}

@@ -107,3 +107,13 @@ document.addEventListener("DOMContentLoaded", function () {
         closeModal("writePost-modal");
     });
 });
+document.addEventListener("DOMContentLoaded", async function () {
+    const feed = document.getElementById("post-feed");
+    if (!feed) return;
+
+    const res = await fetch("/posts");
+    if (!res.ok) return;
+
+    const posts = await res.json();
+    (posts || []).forEach(post => feed.appendChild(createPostCard(post)));
+});
