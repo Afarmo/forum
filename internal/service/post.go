@@ -19,6 +19,9 @@ func NewPostService(repo *repository.PostRepository) *PostService {
 	}
 }
 func (s *PostService) CreatePost(ctx context.Context, post *models.Post, categoryID int) error {
+	if post.Title == "" {
+		return apperrors.ErrInvalidInput
+	}
 	if post.Content == "" {
 		return apperrors.ErrInvalidInput
 	}
@@ -40,10 +43,13 @@ func (s *PostService) UpdatePost(ctx context.Context, PostID *int, update *model
 	if *PostID <= 0 || PostID == nil{
 		return apperrors.ErrInvalidInput
 	}
-	if update.Content == nil && update.PictureContent == nil {
+	if update.Title == nil && update.Content == nil && update.PictureContent == nil {
 		return apperrors.ErrInvalidInput
 	}
 	if update.Content != nil && strings.TrimSpace(*update.Content) == "" {
+		return apperrors.ErrInvalidInput
+	}
+	if update.Title != nil && strings.TrimSpace(*update.Title) == "" {
 		return apperrors.ErrInvalidInput
 	}
 	return s.repo.UpdatePost(ctx, *PostID, update)

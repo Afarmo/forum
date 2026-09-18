@@ -3,10 +3,11 @@
    ========================= */
 
 .sidebar {
-    width: 240px;
+    width: 100%;
     flex-shrink: 0;
 
     padding: 20px;
+    margin: 10px;
 
     background: #f8f4e7;
     border: 1px solid #e7ddc3;
@@ -77,11 +78,11 @@
    MOBILE
    ========================= */
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
 
     .sidebar {
         width: 100%;
-        border-radius: 0;
+        border-radius: 4;
         border-left: none;
         border-right: none;
         border-bottom: 1px solid #e7ddc3;
