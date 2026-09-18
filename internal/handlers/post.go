@@ -26,6 +26,11 @@ func NewPostHandler(service *service.PostService, tmpl *template.Template) *Post
 }
 func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	title := r.FormValue("title")
+	if title == "" {
+		http.Error(w, "title is required", http.StatusBadRequest)
+		return
+	}
 	content := r.FormValue("content")
 	if content == "" {
 		http.Error(w, "content is required", http.StatusBadRequest)

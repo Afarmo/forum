@@ -27,9 +27,9 @@ func (r *PostRepository) CreatePost(ctx context.Context, post *models.Post, cate
 		return apperrors.ErrTransactionStart
 	}
 	defer tx.Rollback() // if there is error revert changes to the db back to before the changes
-	query := `INSERT INTO posts(user_id, Content, picture_content) VALUES(?,?,?)`
+	query := `INSERT INTO posts(user_id, title, content, picture_content) VALUES(?,?,?,?)`
 	now := time.Now()
-	result, err := tx.ExecContext(ctx, query, post.UserID, post.Content, post.PictureContent)
+	result, err := tx.ExecContext(ctx, query, post.UserID, post.Title, post.Content, post.PictureContent)
 	if err != nil {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
 			return apperrors.ErrDuplicateKey
@@ -51,7 +51,7 @@ func (r *PostRepository) CreatePost(ctx context.Context, post *models.Post, cate
 }
 
 func (r *PostRepository) GetAllPosts(ctx context.Context) ([]models.Post, error) {
-	query := `SELECT id, user_id, content, picture_content, created_at FROM posts ORDER BY created_at DESC`
+	query := `SELECT id, user_id, title, content, picture_content, created_at FROM posts ORDER BY created_at DESC`
 
 	rows, err := r.db.QueryContext(ctx, query)
 	if err != nil {
@@ -71,7 +71,7 @@ func (r *PostRepository) GetAllPosts(ctx context.Context) ([]models.Post, error)
 }
 
 func (r *PostRepository) GetPostByUser(ctx context.Context, userId int) ([]models.Post, error) {
-	query := `SELECT id, user_id, content, picture_content, created_at FROM posts WHERE user_id = ? ORDER BY created_at DESC`
+	query := `SELECT id, user_id, title, content, picture_content, created_at FROM posts WHERE user_id = ? ORDER BY created_at DESC`
 
 	rows, err := r.db.QueryContext(ctx, query, userId)
 	if err != nil {
@@ -100,6 +100,10 @@ func (r *PostRepository) UpdatePost(ctx context.Context, userID int, update *mod
 	now := time.Now()
 	extraQuery := []string{"updated_at = ?"}
 	args := []any{now}
+	if update.Title != nil {
+		extraQuery = append(extraQuery, `title = ?`)
+		args = append(args, *update.Title)
+	}
 	if update.Content != nil {
 		extraQuery = append(extraQuery, `content = ?`)
 		args = append(args, *update.Content)
