@@ -28,19 +28,13 @@
             </div>
 
             <div class="form-group">
-                <label>CATEGORIES (pick at least one)</label>
-
-                <div class="category-picker">
-                    <label class="category-chip">
-                        <input type="checkbox" name="categories" value="classic-literature" class="chip-input">
-                        Classic Literature
-                    </label>
-                    <label class="category-chip">
-                        <input type="checkbox" name="categories" value="contemporary-fiction" class="chip-input">
-                        Contemporary Fiction
-                    </label>
-                    <!-- ...repeat per category, matching the photo... -->
-                </div>
+                <label for="writePost-category">CATEGORY</label>
+                <select id="writePost-category" name="category_id" required>
+                    <option value="" disabled selected>Choose a category</option>
+                    {{ range .Categories }}
+                        <option value="{{ .ID }}">{{ .Name }}</option>
+                    {{ end }}
+                </select>
             </div>
 
             <div class="form-group">
@@ -63,7 +57,7 @@
                 </div>
 
                 <input type="url"  name="image_url"  class="source-panel" data-source-panel="url"  placeholder="https://...">
-                <input type="file" name="image_file" class="source-panel" data-source-panel="file" accept="image/*" hidden>
+                <input type="file" name="picture" class="source-panel" data-source-panel="file" accept="image/*" hidden>
             </div>
 
             <div class="modal-actions">

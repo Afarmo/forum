@@ -87,7 +87,18 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 }
 func (h *PostHandler) GetAllPosts(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	posts, err := h.service.GetAllPosts(ctx)
+
+	categoryID := 0
+	if categoryIDStr := r.URL.Query().Get("category_id"); categoryIDStr != "" {
+		var convErr error
+		categoryID, convErr = strconv.Atoi(categoryIDStr)
+		if convErr != nil {
+			http.Error(w, "invalid category_id", http.StatusBadRequest)
+			return
+		}
+	}
+
+	posts, err := h.service.GetAllPosts(ctx, categoryID)
 	if err != nil {
 		log.Println("Get post error:", err)
 		http.Error(w, "failed to get the posts", http.StatusInternalServerError)
