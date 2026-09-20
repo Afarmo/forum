@@ -10,6 +10,7 @@ func NewRouter(homeHandler *handlers.HomeHandler,
 	userHandler *handlers.UserHandler,
 	postHandler *handlers.PostHandler,
 	authHandler *handlers.AuthHandler,
+	categoryHandler *handlers.CategoryHandler,
 ) *http.ServeMux {
 	mux := http.NewServeMux()
 
@@ -20,11 +21,12 @@ func NewRouter(homeHandler *handlers.HomeHandler,
 	mux.HandleFunc("GET /users/{id}", userHandler.FindUserById)
 	mux.HandleFunc("POST /users/profile_picture", userHandler.UploadProfilePicture)
 
-	mux.HandleFunc("POST /posts", postHandler.CreatePost)
+	mux.HandleFunc("POST /writePosts", postHandler.CreatePost)
 	mux.HandleFunc("PATCH /posts/{id}", postHandler.UpdatePost)
 	mux.HandleFunc("DELETE /posts/{id}", postHandler.DeletePost)
 	mux.HandleFunc("GET /posts", postHandler.GetAllPosts)
 	mux.HandleFunc("GET /users/{id}/posts", postHandler.GetPostByUser)
+	mux.HandleFunc("GET /categories", categoryHandler.GetAllCategories)
 
 	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("internal/web/static"))))
 

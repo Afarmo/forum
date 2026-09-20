@@ -45,3 +45,65 @@ document.querySelectorAll("[data-image-source]").forEach(tab => {
         });
     });
 });
+
+// Builds a post card DOM node from the JSON a post API call returns
+// (see models.Post: content, title, post_id, user_id, picture_content, created_at).
+// textContent is used throughout (never innerHTML) so post content can't inject markup.
+function createPostCard(post) {
+    const article = document.createElement("article");
+    article.className = "post-card";
+
+    const title = document.createElement("h3");
+    title.className = "post-title";
+    title.textContent = post.title;
+    article.appendChild(title);
+
+    if (post.picture_content) {
+        const img = document.createElement("img");
+        img.className = "post-image";
+        img.src = "/static/img/post/" + post.picture_content;
+        img.alt = post.title;
+        article.appendChild(img);
+    }
+
+    const content = document.createElement("p");
+    content.className = "post-content";
+    content.textContent = post.content;
+    article.appendChild(content);
+
+    const date = document.createElement("time");
+    date.className = "post-date";
+    date.textContent = new Date(post.created_at).toLocaleString();
+    article.appendChild(date);
+
+    return article;
+}
+
+// Write-post form: submit via fetch so the response (created post JSON) can be
+// turned straight into a card and dropped into the feed, instead of navigating
+// the browser to the raw JSON the handler returns.
+document.addEventListener("DOMContentLoaded", function () {
+    const writePostForm = document.querySelector("#writePost-modal form");
+    const feed = document.getElementById("post-feed");
+    if (!writePostForm || !feed) return;
+
+    writePostForm.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const res = await fetch(writePostForm.action, {
+            method: "POST",
+            body: new FormData(writePostForm),
+        });
+
+        if (!res.ok) {
+            alert(await res.text());
+            return;
+        }
+
+        const post = await res.json();
+        feed.prepend(createPostCard(post));
+
+        writePostForm.reset();
+        closeModal("writePost-modal");
+    });
+});

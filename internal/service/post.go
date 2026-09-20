@@ -31,8 +31,8 @@ func (s *PostService) CreatePost(ctx context.Context, post *models.Post, categor
 	return s.repo.CreatePost(ctx, post, categoryID)
 }
 
-func (s *PostService) GetAllPosts(ctx context.Context) ([]models.Post, error) {
-	return s.repo.GetAllPosts(ctx)
+func (s *PostService) GetAllPosts(ctx context.Context, categoryID int) ([]models.Post, error) {
+	return s.repo.GetAllPosts(ctx, categoryID)
 }
 
 func (s *PostService) GetPostByUser(ctx context.Context, userId int) ([]models.Post, error) {
