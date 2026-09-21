@@ -11,6 +11,7 @@ func NewRouter(homeHandler *handlers.HomeHandler,
 	postHandler *handlers.PostHandler,
 	authHandler *handlers.AuthHandler,
 	categoryHandler *handlers.CategoryHandler,
+	commentHandler *handlers.CommentHandler,
 ) *http.ServeMux {
 	mux := http.NewServeMux()
 
@@ -27,6 +28,8 @@ func NewRouter(homeHandler *handlers.HomeHandler,
 	mux.HandleFunc("GET /posts", postHandler.GetAllPosts)
 	mux.HandleFunc("GET /users/{id}/posts", postHandler.GetPostByUser)
 	mux.HandleFunc("GET /categories", categoryHandler.GetAllCategories)
+	mux.HandleFunc("POST /posts/{id}/comments", commentHandler.CreateComment)
+	mux.HandleFunc("GET /posts/{id}/comments", commentHandler.GetCommentsByPost)
 
 	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("internal/web/static"))))
 

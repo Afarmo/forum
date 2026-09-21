@@ -53,7 +53,7 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "authentication required", http.StatusUnauthorized)
 		return
 	}
-	post.UserID = user.ID // dummmy id - waiting for authentication to get the user id from the session
+	post.UserID = user.ID
 	post.Content = content
 	post.Title = title
 	file, header, err := r.FormFile("picture") // WIP
