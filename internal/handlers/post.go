@@ -9,6 +9,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/Afarmo/forum/internal/middleware"
 	"github.com/Afarmo/forum/internal/models"
 	"github.com/Afarmo/forum/internal/service"
 )
@@ -47,13 +48,16 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var post models.Post
-
-	post.UserID = 1 // dummmy id - waiting for authentication to get the user id from the session
+	user := middleware.UserFromContext(r.Context())
+	if user == nil {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	post.UserID = user.ID // dummmy id - waiting for authentication to get the user id from the session
 	post.Content = content
 	post.Title = title
 	file, header, err := r.FormFile("picture") // WIP
 	if err == nil {
-
 		defer file.Close()
 
 		err = os.MkdirAll("internal/web/static/img/post", 0755)
@@ -85,6 +89,7 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(post)
 }
+
 func (h *PostHandler) GetAllPosts(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 

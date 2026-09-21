@@ -11,6 +11,7 @@ import (
 	"strconv"
 
 	"github.com/Afarmo/forum/internal/apperrors"
+	"github.com/Afarmo/forum/internal/middleware"
 	"github.com/Afarmo/forum/internal/service"
 )
 
@@ -71,10 +72,9 @@ func (h *UserHandler) UploadProfilePicture(w http.ResponseWriter, r *http.Reques
 		http.Error(w, "failed to save uploaded file", http.StatusInternalServerError) // TODO
 		return
 	}
+	user := middleware.UserFromContext(r.Context())
 
-	ctx := r.Context()
-	userID := 1 // just for test... waiting for authentication to get the user id from the session
-	if err = h.service.UpdateProfilePicture(ctx, userID, picturePath); err != nil {
+	if err = h.service.UpdateProfilePicture(r.Context(), user.ID, picturePath); err != nil {
 		http.Error(w, "failed to update profile picture", http.StatusInternalServerError)
 		return
 	}

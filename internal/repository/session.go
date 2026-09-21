@@ -34,12 +34,12 @@ func (r *SessionRepository) FindByID(ctx context.Context, id uuid.UUID) (*models
 
 	if err := r.db.QueryRowContext(ctx, `
 		SELECT id, user_id, expires_at 
-		FROM session 
-		WHERE id ?
+		FROM sessions 
+		WHERE id = ?
 	`, id.String()).Scan(
 		&session.ID,
-		&session.ExpiresAt,
 		&session.UserID,
+		&session.ExpiresAt,
 	); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, apperrors.ErrNotFound
