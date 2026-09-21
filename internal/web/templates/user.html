@@ -1,4 +1,4 @@
-{{ define "home-content" }}
+{{ define "user-content"}}
 
 <div class = page-header>
     {{ template "header"  .}}
@@ -13,7 +13,10 @@
     <section class="main-content">
         
     
-    {{ template "search" . }}
+     <div class="user-profile">
+        <h1>user info here</h1>
+         
+        </div>
     <div id="post-feed">
         {{ range .Posts }}
         <article class="post-card">
@@ -30,5 +33,4 @@
     
 </div>
 
-
-{{ end }}
+{{end}}

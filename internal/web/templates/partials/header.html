@@ -15,17 +15,37 @@
         </a>        
         
         <nav class="nav-links">
-            <div>
+
+            
+            {{ if .User }}
+            <!-- User loged In -->
+           <div>
                 <button type="button" class="nav-button" onclick="openModal('writePost-modal')">Write Post</button>
             </div>
+            
             <div>
+                <button class="nav-button">
+                    <a href="/users/{{ .User.ID }}" id="user-link" >
+                        User
+                    </a>
+                </button>
+            </div>
+            
+            <div>
+                <button type="button" class="nav-button" >
+                    <a href="/logout" id="user-link" >
+                        Sign Out
+                    </a>
+                </button>
+            </div>
+            {{ else }}
+            
+            <!-- No User loged In -->
+             <div>
                 <button type="button" class="nav-button" onclick="openModal('login-modal')">Sign In</button>
             </div>
-            <button class="nav-button">
-                 <a href="/user" id="user-link" >
-                    User
-                </a>
-            </button>
+            
+            {{ end }}
            
         </nav>
     </div>

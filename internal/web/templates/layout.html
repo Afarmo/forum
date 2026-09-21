@@ -7,7 +7,12 @@
 <body>
 
 <main>
-    {{ template "content" . }}
+    {{ if eq .ContentTemplate "user-content" }}
+        {{ template "user-content" . }}
+    {{ else if eq .ContentTemplate "home-content" }}
+        {{ template "home-content" . }}
+   
+    {{ end }}
 </main>
 
 <footer>

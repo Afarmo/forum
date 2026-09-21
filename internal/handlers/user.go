@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"bytes"
 	"database/sql"
 	"encoding/json"
 	"html/template"
@@ -12,37 +13,110 @@ import (
 
 	"github.com/Afarmo/forum/internal/apperrors"
 	"github.com/Afarmo/forum/internal/middleware"
+	"github.com/Afarmo/forum/internal/models"
 	"github.com/Afarmo/forum/internal/service"
 )
 
 type UserHandler struct {
-	service *service.UserService
-	tmpl    *template.Template
+	categoryService *service.CategoryService
+	postService     *service.PostService
+	userService     *service.UserService
+	tmpl            *template.Template
 }
 
-func NewUserHandler(service *service.UserService, tmpl *template.Template) *UserHandler {
+func NewUserHandler(userService *service.UserService, categoryService *service.CategoryService, postService *service.PostService, tmpl *template.Template) *UserHandler {
 	return &UserHandler{
-		service: service,
-		tmpl:    tmpl,
+		userService:     userService,
+		categoryService: categoryService,
+		postService:     postService,
+		tmpl:            tmpl,
 	}
+}
+
+type UserDetail struct {
+	ID             int
+	UserName       string
+	Email          string
+	ProfilePicture string
+}
+
+type UserPageData struct {
+	Title           string
+	User            *models.User
+	Categories      []models.Category
+	Posts           []models.Post
+	UserDetail      UserDetail
+	ContentTemplate string
 }
 
 func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	id, err := strconv.Atoi(r.PathValue("id"))
-	user, err := h.service.FindUserById(ctx, id)
-	if err == sql.ErrNoRows {
-		http.Error(w, apperrors.ErrNotFound.Error(), http.StatusNotFound) // TODO
-		return
-	} else if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest) // TODO
+
+	categories, err := h.categoryService.GetAllCategories(r.Context())
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Content-type", "application/json")
+	categoryID := 0
+	if categoryIDStr := r.URL.Query().Get("category_id"); categoryIDStr != "" {
+		var convErr error
+		categoryID, convErr = strconv.Atoi(categoryIDStr)
+		if convErr != nil {
+			http.Error(w, "invalid category_id", http.StatusBadRequest)
+			return
+		}
+	}
+
+	posts, err := h.postService.GetPostByUser(r.Context(), categoryID)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+	userInfo, err := h.userService.FindUserById(ctx, id)
+	if err == sql.ErrNoRows {
+		http.Error(w, apperrors.ErrNotFound.Error(), http.StatusNotFound)
+		return
+	} else if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	userdetails := UserDetail{
+		ID:             userInfo.ID,
+		UserName:       userInfo.UserName,
+		Email:          userInfo.Email,
+		ProfilePicture: userInfo.ProfilePicture,
+	}
+
+	user := middleware.UserFromContext(r.Context())
+	contentTemplate := "user-content"
+	data := &UserPageData{
+		Title:           "User",
+		User:            user,
+		UserDetail:      userdetails,
+		Categories:      categories,
+		Posts:           posts,
+		ContentTemplate: contentTemplate,
+	}
+
+	var buf bytes.Buffer
+
+	if err := h.tmpl.ExecuteTemplate(&buf, "layout.html", data); err != nil {
+		log.Println(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-type", "text/html; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(user)
+	if _, err := buf.WriteTo(w); err != nil {
+		log.Println(err)
+		return
+	}
 }
 
 func (h *UserHandler) UploadProfilePicture(w http.ResponseWriter, r *http.Request) {
@@ -74,7 +148,7 @@ func (h *UserHandler) UploadProfilePicture(w http.ResponseWriter, r *http.Reques
 	}
 	user := middleware.UserFromContext(r.Context())
 
-	if err = h.service.UpdateProfilePicture(r.Context(), user.ID, picturePath); err != nil {
+	if err = h.userService.UpdateProfilePicture(r.Context(), user.ID, picturePath); err != nil {
 		http.Error(w, "failed to update profile picture", http.StatusInternalServerError)
 		return
 	}
