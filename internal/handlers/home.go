@@ -7,11 +7,12 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/Afarmo/forum/internal/middleware"
+	"github.com/Afarmo/forum/internal/models"
 	"github.com/Afarmo/forum/internal/service"
 )
 
 type HomeHandler struct {
-	service         *service.AuthService
 	categoryService *service.CategoryService
 	postService     *service.PostService
 	tmpl            *template.Template
@@ -23,6 +24,13 @@ func NewHomeHandler(tmpl *template.Template, categoryService *service.CategorySe
 		categoryService: categoryService,
 		postService:     postService,
 	}
+}
+
+type HomePageData struct {
+	Title      string
+	User       *models.User
+	Categories []models.Category
+	Posts      []models.Post
 }
 
 func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
@@ -55,13 +63,16 @@ func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var buf bytes.Buffer
+	user := middleware.UserFromContext(r.Context())
 
-	data := map[string]any{
-		"Title":      "Home",
-		"Categories": categories,
-		"Posts":      posts,
+	data := &HomePageData{
+		Title:      "Home",
+		User:       user,
+		Categories: categories,
+		Posts:      posts,
 	}
+
+	var buf bytes.Buffer
 
 	if err := h.tmpl.ExecuteTemplate(&buf, "layout.html", data); err != nil {
 		log.Println(err)

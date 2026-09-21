@@ -37,14 +37,13 @@ func main() {
 	userRepo := repository.NewUserRepository(db)
 	postRepo := repository.NewPostRepository(db)
 	categoryRepo := repository.NewCategoryRepository(db)
-
+	sessionRepo := repository.NewSessionRepository(db)
 
 	// services
 	userService := service.NewUserService(userRepo)
 	postService := service.NewPostService(postRepo)
-	authService := service.NewAuthService(userRepo)
+	authService := service.NewAuthService(userRepo, sessionRepo)
 	categoryService := service.NewCategoryService(categoryRepo)
-
 
 	// handlers
 	userHandler := handlers.NewUserHandler(userService, tmpl)
@@ -53,9 +52,16 @@ func main() {
 	homeHandler := handlers.NewHomeHandler(tmpl, categoryService, postService)
 	categoryHandler := handlers.NewCategoryHandler(categoryService)
 
-
 	mux := router.NewRouter(homeHandler, userHandler, postHandler, authHandler, categoryHandler)
-	handler := middleware.Recover(middleware.Logger(mux))
+
+	// middleware
+	authMiddleware := middleware.NewAuthMiddleware(sessionRepo, userRepo)
+	handler := middleware.Recover(
+		middleware.Logger(
+			authMiddleware.OptionalAuth(mux),
+		),
+	)
+
 	srv := &http.Server{
 		Addr:              ":8080",
 		Handler:           handler,

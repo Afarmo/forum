@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 	"net/mail"
+	"time"
+	"uuid"
 
 	"github.com/Afarmo/forum/internal/apperrors"
 	"github.com/Afarmo/forum/internal/auth"
@@ -18,12 +20,17 @@ const (
 )
 
 type AuthService struct {
-	repo *repository.UserRepository
+	userRepo    *repository.UserRepository
+	sessionRepo *repository.SessionRepository
 }
 
-func NewAuthService(repo *repository.UserRepository) *AuthService {
+func NewAuthService(
+	userRepo *repository.UserRepository,
+	sessionRepo *repository.SessionRepository,
+) *AuthService {
 	return &AuthService{
-		repo: repo,
+		userRepo:    userRepo,
+		sessionRepo: sessionRepo,
 	}
 }
 
@@ -44,20 +51,30 @@ func (s *AuthService) Register(ctx context.Context, username, email, password st
 		PasswordSalt: salt,
 	}
 
-	return s.repo.CreateUser(ctx, &user)
+	return s.userRepo.CreateUser(ctx, &user)
 }
 
-func (s *AuthService) Login(ctx context.Context, email, password string) error {
-	user, err := s.repo.FindUserByEmail(ctx, email)
+func (s *AuthService) Login(ctx context.Context, email, password string) (*models.Session, error) {
+	user, err := s.userRepo.FindUserByEmail(ctx, email)
 	if err != nil {
-		return apperrors.ErrInvalidCredentials
+		return nil, apperrors.ErrInvalidCredentials
 	}
 
 	if !auth.VerifyPassword(password, user.PasswordHash, user.PasswordSalt) {
-		return apperrors.ErrInvalidCredentials
+		return nil, apperrors.ErrInvalidCredentials
 	}
 
-	return nil
+	session := &models.Session{
+		ID:        uuid.New(),
+		ExpiresAt: time.Now().Add(24 * time.Hour),
+		UserID:    user.ID,
+	}
+
+	if err = s.sessionRepo.CreateSession(ctx, session); err != nil {
+		return nil, err
+	}
+
+	return session, nil
 }
 
 func validateRegistration(username, email, password string) error {

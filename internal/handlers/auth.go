@@ -42,13 +42,15 @@ func (h *AuthHandler) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
 func (h *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 	password := r.FormValue("password")
-	if err := h.service.Login(r.Context(), email, password); err != nil {
+
+	session, err := h.service.Login(r.Context(), email, password)
+	if err != nil {
 		apperrors.Log(err)
 		switch {
 		case errors.Is(err, apperrors.ErrInvalidCredentials):
@@ -60,6 +62,14 @@ func (h *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session_id",
+		Value:    session.ID.String(),
+		Expires:  session.ExpiresAt,
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+	})
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
