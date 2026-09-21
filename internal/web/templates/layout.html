@@ -7,9 +7,9 @@
 <body>
 
 <main>
-    {{ if eq .ContentTemplate "user-content" }}
+    {{ if .User }}
         {{ template "user-content" . }}
-    {{ else if eq .ContentTemplate "home-content" }}
+    {{ else }}
         {{ template "home-content" . }}
    
     {{ end }}

@@ -41,12 +41,11 @@ type UserDetail struct {
 }
 
 type UserPageData struct {
-	Title           string
-	User            *models.User
-	Categories      []models.Category
-	Posts           []models.Post
-	UserDetail      UserDetail
-	ContentTemplate string
+	Title      string
+	User       *models.User
+	Categories []models.Category
+	Posts      []models.Post
+	UserDetail UserDetail
 }
 
 func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
@@ -93,14 +92,12 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := middleware.UserFromContext(r.Context())
-	contentTemplate := "user-content"
 	data := &UserPageData{
-		Title:           "User",
-		User:            user,
-		UserDetail:      userdetails,
-		Categories:      categories,
-		Posts:           posts,
-		ContentTemplate: contentTemplate,
+		Title:      "User",
+		User:       user,
+		UserDetail: userdetails,
+		Categories: categories,
+		Posts:      posts,
 	}
 
 	var buf bytes.Buffer

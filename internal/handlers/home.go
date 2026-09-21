@@ -27,11 +27,10 @@ func NewHomeHandler(tmpl *template.Template, categoryService *service.CategorySe
 }
 
 type HomePageData struct {
-	Title           string
-	User            *models.User
-	Categories      []models.Category
-	Posts           []models.Post
-	ContentTemplate string
+	Title      string
+	User       *models.User
+	Categories []models.Category
+	Posts      []models.Post
 }
 
 func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
@@ -65,13 +64,11 @@ func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := middleware.UserFromContext(r.Context())
-	contentTemplate := "home-content"
 	data := &HomePageData{
-		Title:           "Home",
-		User:            user,
-		Categories:      categories,
-		Posts:           posts,
-		ContentTemplate: contentTemplate,
+		Title:      "Home",
+		User:       user,
+		Categories: categories,
+		Posts:      posts,
 	}
 
 	var buf bytes.Buffer
