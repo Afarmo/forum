@@ -33,25 +33,14 @@ func NewUserHandler(userService *service.UserService, categoryService *service.C
 	}
 }
 
-type UserDetail struct {
-	ID             int
-	UserName       string
-	Email          string
-	ProfilePicture string
-}
-
 type UserPageData struct {
 	Title      string
 	User       *models.User
 	Categories []models.Category
 	Posts      []models.Post
-	UserDetail UserDetail
 }
 
 func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	id, err := strconv.Atoi(r.PathValue("id"))
 
 	categories, err := h.categoryService.GetAllCategories(r.Context())
 	if err != nil {
@@ -76,7 +65,7 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-	userInfo, err := h.userService.FindUserById(ctx, id)
+
 	if err == sql.ErrNoRows {
 		http.Error(w, apperrors.ErrNotFound.Error(), http.StatusNotFound)
 		return
@@ -84,18 +73,11 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	userdetails := UserDetail{
-		ID:             userInfo.ID,
-		UserName:       userInfo.UserName,
-		Email:          userInfo.Email,
-		ProfilePicture: userInfo.ProfilePicture,
-	}
 
 	user := middleware.UserFromContext(r.Context())
 	data := &UserPageData{
 		Title:      "User",
 		User:       user,
-		UserDetail: userdetails,
 		Categories: categories,
 		Posts:      posts,
 	}
@@ -108,8 +90,6 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-type", "text/html; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
 	if _, err := buf.WriteTo(w); err != nil {
 		log.Println(err)
 		return
