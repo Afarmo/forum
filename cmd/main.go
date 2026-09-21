@@ -10,13 +10,14 @@ import (
 	"syscall"
 	"time"
 
+	_ "github.com/mattn/go-sqlite3"
+
 	"github.com/Afarmo/forum/internal/database"
 	"github.com/Afarmo/forum/internal/handlers"
 	"github.com/Afarmo/forum/internal/middleware"
 	"github.com/Afarmo/forum/internal/repository"
 	"github.com/Afarmo/forum/internal/router"
 	"github.com/Afarmo/forum/internal/service"
-	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
@@ -46,7 +47,7 @@ func main() {
 	categoryService := service.NewCategoryService(categoryRepo)
 
 	// handlers
-	userHandler := handlers.NewUserHandler(userService, tmpl)
+	userHandler := handlers.NewUserHandler(userService, categoryService, postService, tmpl)
 	postHandler := handlers.NewPostHandler(postService, tmpl)
 	authHandler := handlers.NewAuthHandler(authService, tmpl)
 	homeHandler := handlers.NewHomeHandler(tmpl, categoryService, postService)

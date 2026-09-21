@@ -64,7 +64,6 @@ func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := middleware.UserFromContext(r.Context())
-
 	data := &HomePageData{
 		Title:      "Home",
 		User:       user,
