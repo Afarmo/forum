@@ -1,9 +1,18 @@
 {{ define "home-content" }}
 
-<div class = "page-body">
- 
-    <h1>Home</h1>
-    {{ template "search" . }}
+<div >
+    <div class="discussion-header">
+        <div>
+            <h3>All Discussions</h3>
+            <p>Explore the latest thoughts from the Literary Lions community.</p>
+        </div>
+    
+        <div>
+                <button type="button" class="nav-button" onclick="openModal('writePost-modal')">Write Post</button>
+        </div>
+    </div>
+   
+    
     <div id="post-feed">
         {{ range .Posts }}
         <article class="post-card">
@@ -19,5 +28,5 @@
 
 </div>
 
-
+{{ template "writePost-modal" . }}
 {{ end }}

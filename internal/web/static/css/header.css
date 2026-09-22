@@ -11,7 +11,7 @@
     display:flex;
     justify-content:space-between;
     align-items:center;
-    padding:14px 32px;
+    padding:0px 24px;
 }
 .header a {
     color: #dde4ef;

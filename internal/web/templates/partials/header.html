@@ -2,9 +2,7 @@
 <header class="header">
     <div class="header-content">
         <a href="/" class="logo">  
-            <div class="lion-logo">
-                🦁 
-            </div>
+            
             <div class="logo-text">
                 
                  <div class="logo-text">
@@ -12,44 +10,71 @@
                     <div class="logo-subtitle">BOOK CLUB FORUM</div>
                 </div>
             </div>
-        </a>        
+        </a>  
+        <div>
+            {{ template "search" . }}
+        </div>      
         
-        <nav class="nav-links">
 
+        <!-- Navigation --> 
+         <nav class="nav-links"> 
             
-            {{ if .User }}
-            <!-- User loged In -->
-           <div>
-                <button type="button" class="nav-button" onclick="openModal('writePost-modal')">Write Post</button>
-            </div>
-            
-            <div>
-                <button class="nav-button">
-                    <a href="/users/{{ .User.ID }}" id="user-link" >
-                        User
-                    </a>
-                </button>
-            </div>
-            
-            <div>
-                <button type="button" class="nav-button" >
-                    <a href="/logout" id="user-link" >
-                        Sign Out
-                    </a>
-                </button>
-            </div>
+        {{ if .User }}
+
+        <details class="user-menu">
+
+        <summary class="user-menu-button">
+
+            {{ if .User.ProfilePicture }}
+                <img
+                    src="{{ .User.ProfilePicture }}"
+                    alt="{{ .User.UserName }}"
+                    class="user-avatar"
+                >
             {{ else }}
-            
-            <!-- No User loged In -->
-             <div>
-                <button type="button" class="nav-button" onclick="openModal('login-modal')">Sign In</button>
-            </div>
-            
+                <span class="user-avatar default-avatar">👤</span>
             {{ end }}
-           
+
+            <span class="user-name">
+                {{ .User.UserName }}
+            </span>
+
+            <span class="dropdown-arrow">⌄</span>
+
+        </summary>
+
+        <div class="user-dropdown">
+
+            <a href="/users/{{ .User.ID }}" class="dropdown-item">
+                My Profile
+            </a>
+
+            <div class="dropdown-divider"></div>
+
+            <a href="/logout" class="dropdown-item signout-item">
+                Sign Out
+            </a>
+
+        </div>
+
+    </details>
+
+        {{ else }}
+
+<button
+    type="button"
+    class="nav-button"
+    onclick="openModal('login-modal')"
+>
+    Sign In
+</button>
+
+{{ end }}
+
+
         </nav>
     </div>
 </header>
 {{ template "login-modal" . }}
-{{ template "writePost-modal" . }}
+
 {{end}}

@@ -1,0 +1,128 @@
+/* User menu container */
+.user-menu {
+    position: relative;
+    display: block;
+}
+
+
+/* Remove default details marker */
+.user-menu > summary {
+    list-style: none;
+}
+
+.user-menu > summary::-webkit-details-marker {
+    display: none;
+}
+
+
+/* User button */
+.user-menu-button {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    padding: 4px 7px;
+
+    border: none;
+    background: transparent;
+
+    cursor: pointer;
+}
+
+
+/* Profile image */
+.user-avatar {
+    width: 36px;
+    height: 36px;
+
+    border-radius: 50%;
+    border: 2px solid white;
+
+    object-fit: cover;
+
+    display: block;
+    box-sizing: border-box;
+}
+
+
+/* Default avatar */
+.default-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #e5dcca;
+    color: #7a6550;
+
+    font-size: 17px;
+}
+
+
+/* Username */
+.user-name {
+    color: #252424;
+    font-size: 15px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+
+/* Arrow */
+.dropdown-arrow {
+    color: #252424;
+    font-size: 15px;
+}
+
+
+/* =========================
+   FLOATING DROPDOWN
+   ========================= */
+
+.user-dropdown {
+    position: absolute;
+
+    top: calc(100% + 6px);
+    right: 0;
+
+    width: 100px;
+
+    background: #fffaf2;
+
+    border: 1px solid #d8ccb7;
+    border-radius: 6px;
+
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
+
+    z-index: 9999;
+}
+
+
+/* Dropdown links */
+.dropdown-item {
+    display: block;
+
+    padding: 12px 10px;
+
+    color: #252424 !important;
+    text-decoration: none;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.dropdown-item:hover {
+    background: #f1eadf;
+}
+
+
+/* Divider */
+.dropdown-divider {
+    height: 1px;
+    background: #e5dcca;
+}
+
+
+/* Sign out */
+.signout-item {
+    color: #b8452a !important;
+}
