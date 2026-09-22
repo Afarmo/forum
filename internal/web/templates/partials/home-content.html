@@ -1,0 +1,23 @@
+{{ define "home-content" }}
+
+<div class = "page-body">
+ 
+    <h1>Home</h1>
+    {{ template "search" . }}
+    <div id="post-feed">
+        {{ range .Posts }}
+        <article class="post-card">
+            <h3 class="post-title">{{ .Title }}</h3>
+            {{ if .PictureContent }}
+            <img class="post-image" src="/static/img/post/{{ .PictureContent }}" alt="{{ .Title }}">
+            {{ end }}
+            <p class="post-content">{{ .Content }}</p>
+            <time class="post-date">{{ .CreatedAt.Format "Jan 2, 2006 3:04 PM" }}</time>
+        </article>
+        {{ end }}
+    </div>
+
+</div>
+
+
+{{ end }}

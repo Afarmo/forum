@@ -1,0 +1,30 @@
+{{define "profile"}}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ .Title }}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class = page-header>
+        {{ template "header"  .}}
+        {{ template "login-modal" . }}
+        {{ template "register-modal" . }}
+    </div>
+    <div class = "page-body">
+
+        {{ template "sidebar" . }}
+       <main class="main-content">
+            {{template "profile-content" .}}
+        </main>
+    </div>
+    
+
+<footer>
+    Made with ❤️ by Abde, Asha, Yeab, and Liv
+</footer>
+
+<script src="/static/js/main.js"></script>
+</body>
+</html>
+{{ end }}
