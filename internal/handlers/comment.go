@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -76,7 +75,6 @@ func (h *CommentHandler) GetCommentsByPost(w http.ResponseWriter, r *http.Reques
 
 	posts, err := h.service.GetCommentsByPost(ctx, postID)
 	if err != nil {
-		fmt.Println("--->", err)
 		http.Error(w, "failed to get the user posts", http.StatusInternalServerError)
 		return
 	}
