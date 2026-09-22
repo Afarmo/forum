@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -33,6 +34,7 @@ func (h *CommentHandler) CreateComment(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "content is required", http.StatusBadRequest)
 		return
 	}
+
 	var comment models.Comment
 	user := middleware.UserFromContext(r.Context())
 	if user == nil {
@@ -42,6 +44,15 @@ func (h *CommentHandler) CreateComment(w http.ResponseWriter, r *http.Request) {
 	comment.UserID = user.ID
 	comment.PostID = postID
 	comment.Content = content
+	parentID := r.FormValue("parent_id")
+	if parentID != "" {
+		id, err := strconv.Atoi(parentID)
+		if err != nil {
+			http.Error(w, "invalid parent id", http.StatusBadRequest)
+			return
+		}
+		comment.ParentID = id
+	}
 
 	err = h.service.CreateComment(ctx, &comment)
 	if err != nil {
@@ -64,6 +75,7 @@ func (h *CommentHandler) GetCommentsByPost(w http.ResponseWriter, r *http.Reques
 
 	posts, err := h.service.GetCommentsByPost(ctx, postID)
 	if err != nil {
+		fmt.Println("--->",err)
 		http.Error(w, "failed to get the user posts", http.StatusInternalServerError)
 		return
 	}

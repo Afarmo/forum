@@ -20,9 +20,9 @@ func NewCommentRepository(db *sql.DB) *CommentRepository {
 
 func (r *CommentRepository) CreateComment(ctx context.Context, comment *models.Comment) error {
 
-	query := `INSERT INTO comments(user_id, post_id, content) VALUES(?,?,?)`
+	query := `INSERT INTO comments(user_id, post_id, parent_id, content) VALUES(?,?,?,?)`
 	now := time.Now()
-	result, err := r.db.ExecContext(ctx, query, comment.UserID, comment.PostID, comment.Content)
+	result, err := r.db.ExecContext(ctx, query, comment.UserID, comment.PostID, comment.ParentID, comment.Content)
 	if err != nil {
 		return err
 	}
@@ -37,7 +37,7 @@ func (r *CommentRepository) CreateComment(ctx context.Context, comment *models.C
 }
 
 func (r *CommentRepository) GetCommentsByPost(ctx context.Context, postID int) ([]models.Comment, error) {
-	query := `SELECT id, user_id, post_id, content, created_at, updated_at FROM comments WHERE post_id = ? ORDER BY created_at DESC`
+	query := `SELECT id, user_id, post_id, parent_id, content, created_at, updated_at FROM comments WHERE post_id = ? ORDER BY created_at DESC`
 
 	rows, err := r.db.QueryContext(ctx, query, postID)
 	if err != nil {
@@ -47,7 +47,7 @@ func (r *CommentRepository) GetCommentsByPost(ctx context.Context, postID int) (
 	var comments []models.Comment
 	for rows.Next() {
 		var comment models.Comment
-		err := rows.Scan(&comment.ID, &comment.UserID, &comment.Content, &comment.CreatedAt,  &comment.UpdatedAt)
+		err := rows.Scan(&comment.ID, &comment.UserID, &comment.ParentID, &comment.Content, &comment.CreatedAt,  &comment.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}
