@@ -39,12 +39,14 @@ func main() {
 	postRepo := repository.NewPostRepository(db)
 	categoryRepo := repository.NewCategoryRepository(db)
 	sessionRepo := repository.NewSessionRepository(db)
+	commentRepo := repository.NewCommentRepository(db)
 
 	// services
 	userService := service.NewUserService(userRepo)
 	postService := service.NewPostService(postRepo)
 	authService := service.NewAuthService(userRepo, sessionRepo)
 	categoryService := service.NewCategoryService(categoryRepo)
+	commentService := service.NewCommentService(commentRepo)
 
 	// handlers
 	userHandler := handlers.NewUserHandler(userService, categoryService, postService, tmpl)
@@ -52,8 +54,9 @@ func main() {
 	authHandler := handlers.NewAuthHandler(authService, tmpl)
 	homeHandler := handlers.NewHomeHandler(tmpl, categoryService, postService)
 	categoryHandler := handlers.NewCategoryHandler(categoryService)
+	commentHandler := handlers.NewCommentHandler(commentService)
 
-	mux := router.NewRouter(homeHandler, userHandler, postHandler, authHandler, categoryHandler)
+	mux := router.NewRouter(homeHandler, userHandler, postHandler, authHandler, categoryHandler, commentHandler)
 
 	// middleware
 	authMiddleware := middleware.NewAuthMiddleware(sessionRepo, userRepo)

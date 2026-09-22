@@ -34,10 +34,11 @@ func InitializeSchema(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
+
 	err = SeedCategories(db)
 	if err != nil {
 		return err
 	}
-	
+
 	return err
 }
