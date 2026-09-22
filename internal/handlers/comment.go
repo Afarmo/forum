@@ -30,6 +30,7 @@ func (h *CommentHandler) CreateComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	content := r.FormValue("content")
+
 	if content == "" {
 		http.Error(w, "content is required", http.StatusBadRequest)
 		return
@@ -75,7 +76,7 @@ func (h *CommentHandler) GetCommentsByPost(w http.ResponseWriter, r *http.Reques
 
 	posts, err := h.service.GetCommentsByPost(ctx, postID)
 	if err != nil {
-		fmt.Println("--->",err)
+		fmt.Println("--->", err)
 		http.Error(w, "failed to get the user posts", http.StatusInternalServerError)
 		return
 	}
