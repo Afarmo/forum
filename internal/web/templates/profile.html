@@ -1,30 +1,24 @@
 {{define "profile"}}
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{ .Title }}</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
-<body>
-    <div class = page-header>
-        {{ template "header"  .}}
-        {{ template "login-modal" . }}
-        {{ template "register-modal" . }}
+    <link rel="stylesheet" href="/static/css/style.css" />
+  </head>
+  <body>
+    <div class="page-header">
+      {{ template "header" .}} {{ template "login-modal" . }} {{ template
+      "register-modal" . }}
     </div>
-    <div class = "page-body">
-
-        {{ template "sidebar" . }}
-       <main class="main-content">
-            {{template "profile-content" .}}
-        </main>
+    <div class="page-body">
+      {{ template "sidebar" . }}
+      <main class="main-content">{{template "profile-content" .}}</main>
     </div>
-    
 
-<footer>
-    Made with ❤️ by Abde, Asha, Yeab, and Liv
-</footer>
+    <footer>Made with ❤️ by Abde, Asha, Yeab, and Liv</footer>
 
-<script src="/static/js/main.js"></script>
-</body>
+    <script src="/static/js/main.js"></script>
+  </body>
 </html>
 {{ end }}
