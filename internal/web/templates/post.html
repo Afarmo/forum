@@ -1,0 +1,17 @@
+{{define "post-content"}}
+
+        <article class="post-card">
+            <h3 class="post-title">{{ .Post.Title }}</h3>
+            {{ if .Post.PictureContent }}
+            <img class="post-image" src="/static/img/post/{{ .Post.PictureContent }}" alt="{{ .Post.Title }}">
+            {{ end }}
+            <p class="post-content">{{ .Post.Content }}</p>
+            <time class="post-date">{{ .Post.CreatedAt.Format "Jan 2, 2006 3:04 PM" }}</time>
+        </article>
+
+{{range .Comments}}
+
+        <p class = "comments">{{.Comment.Content}}</p>
+        <time class = "comment-date">{{.Post.CreatedAt}}</time>
+
+{{end}}

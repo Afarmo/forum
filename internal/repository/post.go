@@ -159,3 +159,17 @@ func (r *PostRepository) DeletePost(ctx context.Context, postID *int) error {
 	}
 	return tx.Commit()
 }
+
+func (r *PostRepository) GetPostById(ctx context.Context, postID int) (*models.Post, error) {
+	query := `SELECT id, user_id, title, content, picture_content, created_at FROM posts WHERE id = ?`
+
+	var post models.Post
+	err := r.db.QueryRowContext(ctx, query, postID).Scan(&post.PostID, &post.UserID, &post.Title, &post.Content, &post.PictureContent, &post.CreatedAt)
+	if err == sql.ErrNoRows {
+		return nil, apperrors.ErrNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &post, nil
+}
