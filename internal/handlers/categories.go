@@ -41,7 +41,6 @@ func (h *CategoryHandler) GetCategoryByUser(w http.ResponseWriter, r *http.Reque
 
 	categories, err := h.service.GetCategoryByUser(ctx, userID)
 	if err != nil {
-		fmt.Println("-->", err)
 		http.Error(w, "failed to get the user posts caategories", http.StatusInternalServerError)
 		return
 	}

@@ -37,7 +37,7 @@ func (r *CategoryRepository) GetAllCategories(ctx context.Context) ([]models.Cat
 }
 
 func (r *CategoryRepository) GetCategoryByUser(ctx context.Context, userId int) ([]models.Category, error) {
-	query := `SELECT CATEGORIES.id, CATEGORIES.name 
+	query := `SELECT DISTINCT  CATEGORIES.id, CATEGORIES.name 
 	FROM CATEGORIES 
 	JOIN POST_CATEGORIES 
 		ON CATEGORIES.id = POST_CATEGORIES.category_id
