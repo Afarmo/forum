@@ -63,11 +63,11 @@
 
 	);
 
-	CREATE TABLE IF NOT EXISTS COMMENT_REACTION (
-	user_id INTEGER NOT NULL,
+	CREATE TABLE IF NOT EXISTS COMMENT_REACTIONS (
 	comment_id INTEGER NOT NULL,
+	user_id INTEGER NOT NULL,
 	reaction INTEGER CHECK (reaction IN (-1, 1)),
-	PRIMARY KEY (user_id, comment_id),
-	FOREIGN KEY (user_id) REFERENCES USERS (id),
-	FOREIGN KEY (comment_id) REFERENCES COMMENTS (id)
+	PRIMARY KEY (comment_id, user_id),
+	FOREIGN KEY (comment_id) REFERENCES COMMENTS (id),
+	FOREIGN KEY (user_id) REFERENCES USERS (id)
 	);
