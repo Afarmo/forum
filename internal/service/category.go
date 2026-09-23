@@ -18,3 +18,6 @@ func NewCategoryService(repo *repository.CategoryRepository) *CategoryService {
 func (s *CategoryService) GetAllCategories(ctx context.Context) ([]models.Category, error) {
 	return s.repo.GetAllCategories(ctx)
 }
+func (s *CategoryService) GetCategoryByUser(ctx context.Context, userId int) ([]models.Category, error) {
+	return s.repo.GetCategoryByUser(ctx, userId)
+}
