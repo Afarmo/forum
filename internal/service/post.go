@@ -40,7 +40,7 @@ func (s *PostService) GetPostByUser(ctx context.Context, userId int) ([]models.P
 }
 
 func (s *PostService) UpdatePost(ctx context.Context, PostID *int, update *models.UpdatePost) error {
-	if *PostID <= 0 || PostID == nil{
+	if *PostID <= 0 || PostID == nil {
 		return apperrors.ErrInvalidInput
 	}
 	if update.Title == nil && update.Content == nil && update.PictureContent == nil {
@@ -55,9 +55,17 @@ func (s *PostService) UpdatePost(ctx context.Context, PostID *int, update *model
 	return s.repo.UpdatePost(ctx, *PostID, update)
 }
 
-func (s *PostService) DeletePost(ctx context.Context, PostID *int) error{
-	if  *PostID <= 0 || PostID == nil{
+func (s *PostService) DeletePost(ctx context.Context, PostID *int) error {
+	if *PostID <= 0 || PostID == nil {
 		return apperrors.ErrInvalidInput
 	}
 	return s.repo.DeletePost(ctx, PostID)
+}
+
+func (s *PostService) GetPostByID(ctx context.Context, postId int) ([]models.Post, error) {
+	if postId <= 0 {
+		return nil, apperrors.ErrInvalidInput
+	}
+
+	return s.repo.GetPostByUser(ctx, postId)
 }

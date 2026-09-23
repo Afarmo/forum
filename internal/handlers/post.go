@@ -25,6 +25,28 @@ func NewPostHandler(service *service.PostService, tmpl *template.Template) *Post
 		tmpl:    tmpl,
 	}
 }
+
+type PostPageData struct {
+	Title      string
+	User       *models.User
+	Categories []models.Category
+	Posts      []models.Post
+}
+func (h *PostHandler) CreatePostPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	user := middleware.UserFromContext(ctx)
+	if user == nil {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	err := h.tmpl.ExecuteTemplate(w, "create_post.html", nil)
+	if err != nil {
+		log.Println("Error rendering template:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+}
+
 func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	title := r.FormValue("title")

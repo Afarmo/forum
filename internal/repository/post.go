@@ -161,6 +161,7 @@ func (r *PostRepository) DeletePost(ctx context.Context, postID *int) error {
 }
 
 func (r *PostRepository) GetPostById(ctx context.Context, postID int) (*models.Post, error) {
+
 	query := `SELECT id, user_id, title, content, picture_content, created_at FROM posts WHERE id = ?`
 
 	var post models.Post
