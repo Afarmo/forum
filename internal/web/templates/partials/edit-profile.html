@@ -1,0 +1,98 @@
+{{ define "edit-profile-modal" }}
+
+<div id="edit-profile-modal" class="modal" hidden>
+  <div class="modal-content profile-edit-modal-content">
+    <button
+      type="button"
+      class="close-modal"
+      onclick="closeModal('edit-profile-modal')"
+      aria-label="Close"
+    >
+      &times;
+    </button>
+
+    <h2>Edit profile</h2>
+    <p class="profile-edit-subtitle">Update your profile details.</p>
+
+    <!-- TODO: call user update api with this form data -->
+    <form
+      method="POST"
+      action="/users/{{ .User.ID}}"
+      enctype="multipart/form-data"
+      data-confirm="Are you sure you want to save these profile changes?"
+    >
+      <div class="profile-edit-avatar-field">
+        <div class="profile-avatar profile-avatar-small">
+          {{ if .User.ProfilePicture }}
+          <img
+            src="{{ .User.ProfilePicture }}"
+            alt="{{ .User.UserName }} profile picture"
+          />
+          {{ else }}
+          <span>{{ printf "%.1s" .User.UserName }}</span>
+          {{ end }}
+        </div>
+        <label class="profile-picture-button">
+          Change picture
+          <input type="file" name="profile_picture" accept="image/*" />
+        </label>
+      </div>
+
+      <div class="profile-edit-field">
+        <label for="profile-username">USERNAME</label>
+        <input
+          id="profile-username"
+          type="text"
+          name="username"
+          value="{{ .User.UserName }}"
+          required
+        />
+      </div>
+
+      <div class="profile-edit-field">
+        <label for="profile-email">EMAIL</label>
+        <input
+          id="profile-email"
+          type="email"
+          value="{{ .User.Email }}"
+          disabled
+        />
+      </div>
+
+      <input
+        class="password-toggle-input"
+        type="checkbox"
+        id="password-toggle"
+      />
+      <label class="change-password-button" for="password-toggle">
+        Change password
+      </label>
+
+      <div class="password-fields">
+        <div class="profile-edit-field">
+          <label for="current-password">CURRENT PASSWORD</label>
+          <input
+            id="current-password"
+            type="password"
+            name="current_password"
+            autocomplete="current-password"
+          />
+        </div>
+        <div class="profile-edit-field">
+          <label for="new-password">NEW PASSWORD</label>
+          <input
+            id="new-password"
+            type="password"
+            name="new_password"
+            minlength="6"
+            autocomplete="new-password"
+          />
+        </div>
+      </div>
+
+      <button type="submit" class="profile-save-button">Save changes</button>
+    </form>
+  </div>
+</div>
+
+{{ end }}

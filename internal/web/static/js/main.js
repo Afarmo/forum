@@ -19,6 +19,48 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+  const confirmModal = document.getElementById("confirm-modal");
+  const confirmMessage = document.querySelector("[data-confirm-message]");
+  const confirmSubmit = document.querySelector("[data-confirm-submit]");
+  let pendingForm = null;
+
+  if (!confirmModal || !confirmMessage || !confirmSubmit) return;
+
+  document.addEventListener("submit", function (event) {
+    const form = event.target.closest("form[data-confirm]");
+    if (!form) return;
+
+    if (form.dataset.confirmed === "true") {
+      delete form.dataset.confirmed;
+      return;
+    }
+
+    event.preventDefault();
+    pendingForm = form;
+    confirmMessage.textContent = form.dataset.confirm;
+    openModal("confirm-modal");
+  });
+
+  document.querySelectorAll("[data-confirm-cancel]").forEach(function (button) {
+    button.addEventListener("click", function () {
+      pendingForm = null;
+      closeModal("confirm-modal");
+    });
+  });
+
+  confirmSubmit.addEventListener("click", function () {
+    if (!pendingForm) return;
+
+    const form = pendingForm;
+    pendingForm = null;
+    form.dataset.confirmed = "true";
+    closeModal("confirm-modal");
+    form.requestSubmit();
+  });
+});
+
 // Category picker: checkboxes can't use `required` (that would mean "check
 // ALL of them"), so "pick at least one" is enforced manually via
 // setCustomValidity on the first checkbox in the group. That plugs into the
