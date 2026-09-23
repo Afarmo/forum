@@ -1,35 +1,29 @@
-.main-content {
-    width: 100%;
-    padding: 20px;
-    margin: 20px;
-}
-
 #post-feed {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 20px;
 }
 
 .post-card {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
 }
 
 .post-card .post-title {
-    margin: 0 0 8px;
+  margin: 0 0 8px;
 }
 
 .post-card .post-image {
-    max-width: 100%;
-    border-radius: 4px;
-    margin-bottom: 8px;
+  max-width: 100%;
+  border-radius: 4px;
+  margin-bottom: 8px;
 }
 
 .post-card .post-date {
-    display: block;
-    margin-top: 8px;
-    font-size: 0.85em;
-    color: #666;
+  display: block;
+  margin-top: 8px;
+  font-size: 0.85em;
+  color: #666;
 }

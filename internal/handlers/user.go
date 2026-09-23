@@ -84,7 +84,7 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 
 	var buf bytes.Buffer
 
-	if err := h.tmpl.ExecuteTemplate(&buf, "layout.html", data); err != nil {
+	if err := h.tmpl.ExecuteTemplate(&buf, "user", data); err != nil {
 		log.Println(err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
