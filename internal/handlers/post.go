@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/Afarmo/forum/internal/middleware"
 	"github.com/Afarmo/forum/internal/models"
@@ -171,4 +172,23 @@ func (h *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("post deleted successfully"))
+}
+
+func (h *PostHandler) SearchPosts(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	search := strings.TrimSpace(r.URL.Query().Get("query"))
+	var posts []models.Post
+	var err error
+	if search == "" {
+		posts, err = h.service.GetAllPosts(ctx, 0)
+	} else {
+		posts, err = h.service.SearchPosts(ctx, search)
+	}
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(posts)
 }
