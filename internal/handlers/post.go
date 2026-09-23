@@ -176,7 +176,7 @@ func (h *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
 
 func (h *PostHandler) SearchPosts(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	search := strings.TrimSpace(r.URL.Query().Get("search"))
+	search := strings.TrimSpace(r.URL.Query().Get("query"))
 	var posts []models.Post
 	var err error
 	if search == "" {
