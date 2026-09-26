@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ .Title }}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="post-page-body">
+
+<div class="page-header">
+    {{ template "header" . }}
+</div>
+
+<main>
+    {{ template "post-content" . }}
+</main>
+
+<footer>
+    Made with ❤️ by Abde, Asha, Yeab, and Liv
+</footer>
+
+<script src="/static/js/main.js"></script>
+</body>
+</html>

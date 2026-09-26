@@ -1,34 +1,36 @@
 {{ define "home-content" }}
 
-<div class = page-header>
-    {{ template "header"  .}}
-    {{ template "login-modal" . }}
-    {{ template "register-modal" . }}
+<div class="page-header">
+  {{ template "header" .}} {{ template "login-modal" . }} {{ template
+  "register-modal" . }}
 </div>
 
-
-<div class = "page-body">
-
-    {{ template "sidebar" . }}
-    <section class="main-content">
-        
-    
+<div class="page-body">
+  {{ template "sidebar" . }}
+  <section class="main-content">
     {{ template "search" . }}
     <div id="post-feed">
-        {{ range .Posts }}
+      {{ range .Posts }}
+      <a class="post-link" href="/posts/{{ .PostID }}">
         <article class="post-card">
-            <h3 class="post-title">{{ .Title }}</h3>
-            {{ if .PictureContent }}
-            <img class="post-image" src="/static/img/post/{{ .PictureContent }}" alt="{{ .Title }}">
-            {{ end }}
-            <p class="post-content">{{ .Content }}</p>
-            <time class="post-date">{{ .CreatedAt.Format "Jan 2, 2006 3:04 PM" }}</time>
+          <h3 class="post-title">{{ .Title }}</h3>
+          {{ if .PictureContent }}
+          <img
+            class="post-image"
+            src="/static/img/post/{{ .PictureContent }}"
+            alt="{{ .Title }}"
+          />
+          {{ end }}
+          <p class="post-content">{{ .Content }}</p>
+          <time class="post-date"
+            >{{ .CreatedAt.Format "Jan 2, 2006 3:04 PM" }}</time
+          >
         </article>
-        {{ end }}
-    </div>
-</section>
-    
-</div>
+      </a>
 
+      {{ end }}
+    </div>
+  </section>
+</div>
 
 {{ end }}

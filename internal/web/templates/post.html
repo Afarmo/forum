@@ -1,17 +1,59 @@
-{{define "post-content"}}
+{{ define "post-content" }}
+<div class="post-page">
 
-        <article class="post-card">
-            <h3 class="post-title">{{ .Post.Title }}</h3>
-            {{ if .Post.PictureContent }}
-            <img class="post-image" src="/static/img/post/{{ .Post.PictureContent }}" alt="{{ .Post.Title }}">
-            {{ end }}
-            <p class="post-content">{{ .Post.Content }}</p>
-            <time class="post-date">{{ .Post.CreatedAt.Format "Jan 2, 2006 3:04 PM" }}</time>
-        </article>
+  <article class="post-detail">
+    {{ if .Post.PictureContent }}
+    <img class="post-detail-image" src="/static/img/post/{{ .Post.PictureContent }}" alt="{{ .Post.Title }}">
+    {{ end }}
 
-{{range .Comments}}
+    <div class="post-detail-body">
+      <h1 class="post-detail-title">{{ .Post.Title }}</h1>
 
-        <p class = "comments">{{.Comment.Content}}</p>
-        <time class = "comment-date">{{.Post.CreatedAt}}</time>
+      <div class="post-meta">
+        <div class="avatar">🦁</div>
+        <div>
+          <div class="author-name">User {{ .Post.UserID }}</div>
+          <time class="meta-date">{{ .Post.CreatedAt.Format "Jan 2" }}</time>
+        </div>
+      </div>
 
-{{end}}
+      <div class="post-detail-content">{{ .Post.Content }}</div>
+
+      <div class="post-footer">
+        <span class="meta-date">{{ len .Comments }} comments</span>
+      </div>
+    </div>
+  </article>
+
+  <section class="discussion">
+    <h2 class="discussion-title">Discussion</h2>
+
+    {{ if .User }}
+    <form class="card comment-form" method="POST" action="/posts/{{ .Post.PostID }}/comments">
+      <textarea name="content" placeholder="Share your thoughts..." required></textarea>
+      <button type="submit" class="nav-button">Comment</button>
+    </form>
+    {{ else }}
+    <div class="card sign-in-prompt">
+      <p>Join the conversation — sign in to leave a comment.</p>
+      <button type="button" class="nav-button" onclick="openModal('login-modal')">Sign In</button>
+    </div>
+    {{ end }}
+
+    {{ range .Comments }}
+    <div class="card comment">
+      <div class="comment-header">
+        <div class="avatar avatar-small">🦁</div>
+        <span class="author-name">User {{ .UserID }}</span>
+        <time class="meta-date">{{ .CreatedAt.Format "Jan 2" }}</time>
+      </div>
+      <p class="comment-content">{{ .Content }}</p>
+    </div>
+    {{ else }}
+    <p class="no-comments">No comments yet — be the first!</p>
+    {{ end }}
+  </section>
+
+</div>
+{{ end }}
+

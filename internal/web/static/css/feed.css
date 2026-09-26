@@ -33,3 +33,8 @@
     font-size: 0.85em;
     color: #666;
 }
+.post-link {
+    color: inherit;
+    text-decoration: none;
+    display: block;
+}

@@ -62,10 +62,10 @@ func (s *PostService) DeletePost(ctx context.Context, PostID *int) error {
 	return s.repo.DeletePost(ctx, PostID)
 }
 
-func (s *PostService) GetPostByID(ctx context.Context, postId int) ([]models.Post, error) {
+func (s *PostService) GetPostById(ctx context.Context, postId int) (*models.Post, error) {
 	if postId <= 0 {
 		return nil, apperrors.ErrInvalidInput
 	}
 
-	return s.repo.GetPostByUser(ctx, postId)
+	return s.repo.GetPostById(ctx, postId)
 }

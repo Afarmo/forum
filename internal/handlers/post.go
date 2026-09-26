@@ -8,21 +8,25 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"errors"
 
+	"github.com/Afarmo/forum/internal/apperrors"
 	"github.com/Afarmo/forum/internal/middleware"
 	"github.com/Afarmo/forum/internal/models"
 	"github.com/Afarmo/forum/internal/service"
 )
 
 type PostHandler struct {
-	service *service.PostService
-	tmpl    *template.Template
+	service        *service.PostService
+	commentService *service.CommentService
+	tmpl           *template.Template
 }
 
-func NewPostHandler(service *service.PostService, tmpl *template.Template) *PostHandler {
+func NewPostHandler(service *service.PostService, tmpl *template.Template, commentService *service.CommentService) *PostHandler {
 	return &PostHandler{
-		service: service,
-		tmpl:    tmpl,
+		service:        service,
+		commentService: commentService,
+		tmpl:           tmpl,
 	}
 }
 
@@ -30,21 +34,49 @@ type PostPageData struct {
 	Title      string
 	User       *models.User
 	Categories []models.Category
-	Posts      []models.Post
+	Post       *models.Post
+	Comments   []models.Comment
 }
+
 func (h *PostHandler) CreatePostPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	user := middleware.UserFromContext(ctx)
-	if user == nil {
-		http.Error(w, "authentication required", http.StatusUnauthorized)
+
+	num, er := strconv.Atoi(r.PathValue("id"))
+	if er != nil {
+		http.Error(w, "invalid post id", http.StatusBadRequest)
 		return
 	}
-	err := h.tmpl.ExecuteTemplate(w, "create_post.html", nil)
+	ctx := r.Context()
+	post, err := h.service.GetPostById(ctx, num)
+
 	if err != nil {
-		log.Println("Error rendering template:", err)
+		if errors.Is(err, apperrors.ErrNotFound) {
+			http.Error(w, "post not found", http.StatusNotFound)
+			return
+		}
+		log.Println("get post error:", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+
+	comments, err := h.commentService.GetCommentsByPost(ctx, num)
+	if err != nil {
+		log.Println("get comments error:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	data := &PostPageData{
+		Title:    post.Title,
+		User:     middleware.UserFromContext(ctx),
+		Post:     post,
+		Comments: comments,
+	}
+
+	if err := h.tmpl.ExecuteTemplate(w, "post_page.html", data); err != nil {
+		log.Println("Error rendering template:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+
 }
 
 func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
