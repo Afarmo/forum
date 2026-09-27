@@ -1,61 +1,88 @@
 .search-box {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    max-width: 500px;
-    height: 44px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 680px;
+  height: 32px;
 
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    background-color: white;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background-color: #e8eee9;
 
-    padding: 0 12px;
-    margin: 0 auto  12px;
-    margin-top: 12px;
-    box-sizing: border-box;
+  padding: 0 12px;
+  margin: 12px;
+  box-sizing: border-box;
 }
 
-/* Search icon */ 
-.search-icon { 
-    position: relative; 
-    width: 16px; 
-    height: 16px; 
-    border: 2px solid #6b7280; 
-    border-radius: 50%; 
-    margin-right: 10px; 
-    flex-shrink: 0; 
-} 
-    
-/* Handle of the magnifying glass */ 
-.search-icon::after { 
-    content: ""; 
-    position: absolute; 
-    width: 7px; 
-    height: 2px; 
-    background-color: #6b7280; 
-    right: -5px; 
-    bottom: -3px; 
-    transform: rotate(45deg); 
+.search-box form {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Search icon */
+.search-icon {
+  position: relative;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #315b4a;
+  border-radius: 50%;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+/* Handle of the magnifying glass */
+.search-icon::after {
+  content: "";
+  position: absolute;
+  width: 7px;
+  height: 2px;
+  background-color: #315b4a;
+  right: -5px;
+  bottom: -3px;
+  transform: rotate(45deg);
 }
 
 .search-input {
-    flex: 1;
-    border: none;
-    outline: none;
+  flex: 1;
+  border: none;
+  outline: none;
 
-    font-size: 16px;
-    color: #333;
-    background: transparent;
+  font-size: 12px;
+  color: #315b4a;
+  background: transparent;
+  width: 100%;
 }
 
 .search-input::placeholder {
-    color: #9ca3af;
+  color: #315b4a;
 }
 
 /* Small screens */
 @media (max-width: 768px) {
-    .search-box {
-         margin-left: auto;
-        margin-right: auto;
-    }
+  .search-box {
+    justify-content: center;
+    width: 100%;
+    max-width: 240px;
+    height: 28px;
+    padding: 0 4px;
+    margin: 4px auto;
+  }
+
+  .search-icon {
+    width: 9px;
+    height: 9px;
+    border-width: 1.5px;
+    margin-right: 7px;
+  }
+
+  .search-icon::after {
+    width: 5px;
+    height: 1.5px;
+    right: -4px;
+    bottom: -2px;
+  }
+
+  .search-input {
+    font-size: 11px;
+  }
 }

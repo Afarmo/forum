@@ -1,15 +1,11 @@
 {{ define "search"}}
 
 <div class="search-box">
-   <span class="search-icon"></span>
-    <form method="POST" action="/search" enctype="multipart/form-data">
-        <input
-        type="text"
-        class="search-input"
-        placeholder="Search..."
-    />
-    </form>
-    
+  <span class="search-icon"></span>
+  <!-- here we will call search api -->
+  <form method="POST" action="/search" enctype="multipart/form-data">
+    <input type="text" class="search-input" placeholder="Search..." />
+  </form>
 </div>
 
 {{ end}}

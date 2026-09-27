@@ -1,0 +1,56 @@
+{{ define "profile"}}
+
+<div class="profile-page">
+  <section class="profile-intro" aria-labelledby="profile-name">
+    <div class="profile-avatar">
+      {{ if .User.ProfilePicture }}
+      <img src="{{ .User.ProfilePicture }}" alt="{{ .User.UserName }} profile picture" />
+      {{ else }}
+      <span>{{ printf "%.1s" .User.UserName }}</span>
+      {{ end }}
+    </div>
+    <div class="profile-details">
+      <h1 id="profile-name">{{ .User.UserName }}</h1>
+      <p class="profile-meta">Member since {{ .User.CreatedAt.Format "Jan 2006" }}</p>
+      <button type="button" class="profile-edit-button" onclick="openModal('edit-profile-modal')">
+        Edit profile
+      </button>
+    </div>
+  </div>
+
+  <div class="profile-tabs">
+    <input type="radio" name="profile-tab" id="my-posts-tab" checked />
+    <input type="radio" name="profile-tab" id="liked-posts-tab" />
+
+    <nav class="profile-tab-list" aria-label="Profile posts">
+      <label for="my-posts-tab">My posts <span>{{ len .Posts }}</span></label>
+      <label for="liked-posts-tab">Liked posts</label>
+    </nav>
+
+    <section class="profile-tab-panel my-posts-panel" aria-labelledby="my-posts-tab">
+      {{ if .Posts }}
+      <div class="profile-post-list">
+        {{ range .Posts }}
+        <article class="profile-post">
+          <div class="profile-post-meta">
+            <time datetime="{{ .CreatedAt.Format "2006-01-02T15:04:05Z07:00" }}">{{ .CreatedAt.Format "Jan 2, 2006" }}</time>
+          </div>
+          <h2>{{ .Title }}</h2>
+          <p>{{ .Content }}</p>
+        </article>
+        {{ end }}
+      </div>
+      {{ else }}
+      <p class="profile-empty-state">You have not written any posts yet.</p>
+      {{ end }}
+    </section>
+
+    <section class="profile-tab-panel liked-posts-panel" aria-labelledby="liked-posts-tab">
+      <p class="profile-empty-state">Liked posts will appear here.</p>
+    </section>
+  </div>
+</div>
+
+{{ template "edit-profile-modal" . }}
+
+{{end}}

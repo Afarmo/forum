@@ -2,38 +2,60 @@
    PAGE LAYOUT
    ========================= */
 
-html, body {
-    height: 100%;
-    margin: 0;
+html,
+body {
+  height: 100%;
+  margin: 0;
 }
 
 body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 main {
-    flex: 1;
+  flex: 1;
 }
 
 .page-body {
-    margin-top: 24px;
-    margin-left: 24px;
-    display: grid;
-    grid-template-columns: 1fr 3fr;
-    gap: 2rem;
-    max-width: 100%;
-    margin: 0 auto;
-    padding: 2rem;
+  margin-top: 24px;
+  margin-left: 24px;
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  gap: 2rem;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 2rem;
+  flex: 1;
+  box-sizing: border-box;
+}
 
+.site-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  font-size: 18px;
+  padding: 10px 16px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.main-content {
+  padding: 20px;
+  margin: 10px;
 }
 
 /* Small screens */
 @media (max-width: 768px) {
-    .page-body {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-        padding: 1rem;
-    }
+  .page-body {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 1rem;
+  }
+  .site-footer {
+    font-size: 12px;
+    padding: 10px 16px;
+  }
 }
