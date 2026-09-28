@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"time"
+	"apperrors"
 
 	"github.com/Afarmo/forum/internal/models"
 )
@@ -47,11 +48,25 @@ func (r *CommentRepository) GetCommentsByPost(ctx context.Context, postID int) (
 	var comments []models.Comment
 	for rows.Next() {
 		var comment models.Comment
-		err := rows.Scan(&comment.ID, &comment.UserID, &comment.ParentID, &comment.Content, &comment.CreatedAt,  &comment.UpdatedAt)
+		err := rows.Scan(&comment.ID, &comment.UserID, &comment.PostID, &comment.ParentID, &comment.Content, &comment.CreatedAt, &comment.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}
 		comments = append(comments, comment)
 	}
 	return comments, rows.Err()
+}
+
+func (r *CommentRepository) GetCommentByID(ctx context.Context, commentID int) (*models.Comment, error) {
+	query := `SELECT id, user_id, post_id, parent_id, content, created_at, updated_at FROM comments WHERE id = ?`
+
+	var comment models.Comment
+	err := r.db.QueryRowContext(ctx, query, commentID).Scan(&comment.ID, &comment.UserID, &comment.PostID, &comment.ParentID, &comment.Content, &comment.CreatedAt, &comment.UpdatedAt)
+	if err == sql.ErrNoRows {
+		return nil, apperrors.ErrNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &comment, nil
 }

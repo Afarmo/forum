@@ -2,13 +2,13 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"html/template"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
-	"errors"
 
 	"github.com/Afarmo/forum/internal/apperrors"
 	"github.com/Afarmo/forum/internal/middleware"
@@ -31,11 +31,12 @@ func NewPostHandler(service *service.PostService, tmpl *template.Template, comme
 }
 
 type PostPageData struct {
-	Title      string
-	User       *models.User
-	Categories []models.Category
-	Post       *models.Post
-	Comments   []models.Comment
+	Title        string
+	User         *models.User
+	Categories   []models.Category
+	Post         *models.Post
+	Comments     []models.Comment
+	CommentCount int
 }
 
 func (h *PostHandler) CreatePostPage(w http.ResponseWriter, r *http.Request) {
@@ -127,7 +128,7 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		defer destination.Close()
 
 		if _, err := io.Copy(destination, file); err != nil {
-			http.Error(w, "falied to save uploaded file", http.StatusInternalServerError)
+			http.Error(w, "failed to save uploaded file", http.StatusInternalServerError)
 			return
 		}
 

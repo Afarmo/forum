@@ -51,7 +51,7 @@ func (h *CommentHandler) CreateComment(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "invalid parent id", http.StatusBadRequest)
 			return
 		}
-		comment.ParentID = id
+		comment.ParentID = &id
 	}
 
 	err = h.service.CreateComment(ctx, &comment)
@@ -59,9 +59,8 @@ func (h *CommentHandler) CreateComment(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	w.Header().Set("Content-type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(comment)
+	http.Redirect(w, r, "/posts/" +strconv.Itoa(postID), http.StatusSeeOther)
+
 }
 
 func (h *CommentHandler) GetCommentsByPost(w http.ResponseWriter, r *http.Request) {

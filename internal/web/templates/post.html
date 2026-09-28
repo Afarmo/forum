@@ -20,7 +20,7 @@
       <div class="post-detail-content">{{ .Post.Content }}</div>
 
       <div class="post-footer">
-        <span class="meta-date">{{ len .Comments }} comments</span>
+        <span class="meta-date">{{ .CommentCount }} comments</span>
       </div>
     </div>
   </article>
@@ -41,13 +41,41 @@
     {{ end }}
 
     {{ range .Comments }}
-    <div class="card comment">
-      <div class="comment-header">
-        <div class="avatar avatar-small">🦁</div>
-        <span class="author-name">User {{ .UserID }}</span>
-        <time class="meta-date">{{ .CreatedAt.Format "Jan 2" }}</time>
+    <div class="comment-thread">
+      <div class="card comment">
+        <div class="comment-header">
+          <div class="avatar avatar-small">🦁</div>
+          <span class="author-name">User {{ .UserID }}</span>
+          <time class="meta-date">{{ .CreatedAt.Format "Jan 2" }}</time>
+        </div>
+        <p class="comment-content">{{ .Content }}</p>
+
+        {{ if $.User }}
+        <details class="reply-box">
+          <summary>Reply</summary>
+          <form method="POST" action="/posts/{{ $.Post.PostID }}/comments">
+            <input type="hidden" name="parent_id" value="{{ .ID }}">
+            <textarea name="content" placeholder="Write a reply..." required></textarea>
+            <button type="submit" class="nav-button">Reply</button>
+          </form>
+        </details>
+        {{ end }}
       </div>
-      <p class="comment-content">{{ .Content }}</p>
+
+      {{ if .Replies }}
+      <div class="replies">
+        {{ range .Replies }}
+        <div class="card comment">
+          <div class="comment-header">
+            <div class="avatar avatar-small">🦁</div>
+            <span class="author-name">User {{ .UserID }}</span>
+            <time class="meta-date">{{ .CreatedAt.Format "Jan 2" }}</time>
+          </div>
+          <p class="comment-content">{{ .Content }}</p>
+        </div>
+        {{ end }}
+      </div>
+      {{ end }}
     </div>
     {{ else }}
     <p class="no-comments">No comments yet — be the first!</p>
@@ -56,4 +84,3 @@
 
 </div>
 {{ end }}
-
