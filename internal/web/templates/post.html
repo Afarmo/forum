@@ -11,7 +11,9 @@
 
 {{range .Comments}}
 
-        <p class = "comments">{{.Comment.Content}}</p>
-        <time class = "comment-date">{{.Post.CreatedAt}}</time>
+        <p class="comments">{{ .Content }}</p>
+        <time class="comment-date">{{ .CreatedAt.Format "Jan 2, 2006 3:04 PM" }}</time>
+
+{{end}}
 
 {{end}}
