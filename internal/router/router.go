@@ -28,8 +28,10 @@ func NewRouter(homeHandler *handlers.HomeHandler,
 	mux.HandleFunc("GET /posts", postHandler.GetAllPosts)
 	mux.HandleFunc("GET /users/{id}/posts", postHandler.GetPostByUser)
 	mux.HandleFunc("GET /categories", categoryHandler.GetAllCategories)
+	mux.HandleFunc("GET /users/{id}/categories", categoryHandler.GetCategoryByUser)
 	mux.HandleFunc("POST /posts/{id}/comments", commentHandler.CreateComment)
 	mux.HandleFunc("GET /posts/{id}/comments", commentHandler.GetCommentsByPost)
+	mux.HandleFunc("GET /search", postHandler.SearchPosts)
 
 	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("internal/web/static"))))
 

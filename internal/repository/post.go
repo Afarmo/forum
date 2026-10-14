@@ -174,3 +174,32 @@ func (r *PostRepository) GetPostById(ctx context.Context, postID int) (*models.P
 	}
 	return &post, nil
 }
+
+func (r *PostRepository) SearchPosts(ctx context.Context, search string) ([]models.Post, error) {
+
+	query := `SELECT id, user_id, title, content, picture_content, created_at, updated_at FROM POSTS WHERE LOWER(title) LIKE ? OR LOWER(content) LIKE ? ORDER BY created_at DESC`
+	search = "%" + search + "%"
+	rows, err := r.db.QueryContext(ctx, query, search, search)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var posts []models.Post
+	for rows.Next(){
+		var post models.Post
+		err := rows.Scan(
+			&post.PostID,
+			&post.UserID,
+			&post.Title,
+			&post.Content,
+			&post.PictureContent,
+			&post.CreatedAt,
+			&post.UpdatedAt,
+		)
+		if err != nil{
+			return nil, err
+		}
+		posts = append(posts, post)
+	}
+	return posts, rows.Err()
+}

@@ -73,7 +73,7 @@ func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
 
 	var buf bytes.Buffer
 
-	if err := h.tmpl.ExecuteTemplate(&buf, "layout.html", data); err != nil {
+	if err := h.tmpl.ExecuteTemplate(&buf, "home", data); err != nil {
 		log.Println(err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
