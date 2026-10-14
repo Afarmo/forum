@@ -3,14 +3,18 @@
 
   <article class="post-detail">
     {{ if .Post.PictureContent }}
-    <img class="post-detail-image" src="/static/img/post/{{ .Post.PictureContent }}" alt="{{ .Post.Title }}">
+    <img class="post-detail-image" src="{{ .Post.ImageSrc }}" alt="{{ .Post.Title }}">
     {{ end }}
 
     <div class="post-detail-body">
       <h1 class="post-detail-title">{{ .Post.Title }}</h1>
 
       <div class="post-meta">
-        <div class="avatar">🦁</div>
+        {{ if .Post.AuthorPicture }}
+        <img src="{{ .Post.AuthorPicture }}" alt="{{ .Post.AuthorName }}" class="user-avatar" />
+        {{ else }}
+        <span class="user-avatar default-avatar">👤</span>
+        {{ end }}
         <div>
           <div class="author-name">User {{ .Post.UserID }}</div>
           <time class="meta-date">{{ .Post.CreatedAt.Format "Jan 2" }}</time>
@@ -19,8 +23,15 @@
 
       <div class="post-detail-content">{{ .Post.Content }}</div>
 
-      <div class="post-footer">
-        <span class="meta-date">{{ .CommentCount }} comments</span>
+      <div class="post-footer" id="post-reactions">
+        {{ if .User }}
+        <form method="POST" action="/posts/{{ .Post.PostID }}/like">
+          <button type="submit" class="like-button" title="Like">
+            <span aria-hidden="true">♡</span> Like
+          </button>
+        </form>
+        {{ end }}
+        <span class="meta-date">{{ .CommentCount }} {{ if eq .CommentCount 1 }}comment{{ else }}comments{{ end }}</span>
       </div>
     </div>
   </article>
@@ -40,44 +51,10 @@
     </div>
     {{ end }}
 
-    {{ range .Comments }}
-    <div class="comment-thread">
-      <div class="card comment">
-        <div class="comment-header">
-          <div class="avatar avatar-small">🦁</div>
-          <span class="author-name">User {{ .UserID }}</span>
-          <time class="meta-date">{{ .CreatedAt.Format "Jan 2" }}</time>
-        </div>
-        <p class="comment-content">{{ .Content }}</p>
-
-        {{ if $.User }}
-        <details class="reply-box">
-          <summary>Reply</summary>
-          <form method="POST" action="/posts/{{ $.Post.PostID }}/comments">
-            <input type="hidden" name="parent_id" value="{{ .ID }}">
-            <textarea name="content" placeholder="Write a reply..." required></textarea>
-            <button type="submit" class="nav-button">Reply</button>
-          </form>
-        </details>
-        {{ end }}
-      </div>
-
-      {{ if .Replies }}
-      <div class="replies">
-        {{ range .Replies }}
-        <div class="card comment">
-          <div class="comment-header">
-            <div class="avatar avatar-small">🦁</div>
-            <span class="author-name">User {{ .UserID }}</span>
-            <time class="meta-date">{{ .CreatedAt.Format "Jan 2" }}</time>
-          </div>
-          <p class="comment-content">{{ .Content }}</p>
-        </div>
-        {{ end }}
-      </div>
-      {{ end }}
+    <div id="comment-list">
+      {{ range .Comments }}{{ template "comment" . }}{{ end }}
     </div>
-    {{ else }}
+    {{ if not .Comments }}
     <p class="no-comments">No comments yet — be the first!</p>
     {{ end }}
   </section>

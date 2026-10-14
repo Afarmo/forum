@@ -1,12 +1,14 @@
 package handlers
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"html/template"
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -36,7 +38,7 @@ type PostPageData struct {
 	User         *models.User
 	Categories   []models.Category
 	Post         *models.Post
-	Comments     []models.Comment
+	Comments     []CommentView
 	CommentCount int
 }
 
@@ -60,23 +62,32 @@ func (h *PostHandler) CreatePostPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	comments, err := h.commentService.GetCommentsByPost(ctx, num)
+	comments, err := h.commentService.GetCommentThreads(ctx, num)
 	if err != nil {
 		log.Println("get comments error:", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
+	user := middleware.UserFromContext(ctx)
+	views := newCommentViews(comments, user != nil)
+
 	data := &PostPageData{
-		Title:    post.Title,
-		User:     middleware.UserFromContext(ctx),
-		Post:     post,
-		Comments: comments,
+		Title:        post.Title,
+		User:         user,
+		Post:         post,
+		Comments:     views,
+		CommentCount: countComments(views),
 	}
 
-	if err := h.tmpl.ExecuteTemplate(w, "post_page.html", data); err != nil {
+	var buf bytes.Buffer
+	if err := h.tmpl.ExecuteTemplate(&buf, "post_page.html", data); err != nil {
 		log.Println("Error rendering template:", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+	if _, err := buf.WriteTo(w); err != nil {
+		log.Println("Error writing response:", err)
 	}
 
 }
@@ -134,6 +145,13 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		}
 
 		post.PictureContent = header.Filename
+	} else if imageURL := strings.TrimSpace(r.FormValue("image_url")); imageURL != "" {
+		u, err := url.Parse(imageURL)
+		if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" {
+			http.Error(w, "image URL must be a full http:// or https:// link", http.StatusBadRequest)
+			return
+		}
+		post.PictureContent = imageURL
 	}
 
 	err = h.service.CreatePost(ctx, &post, categoryID)
@@ -141,9 +159,8 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	w.Header().Set("Content-type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(post)
+	// Back to the feed, scrolled to the new post's card (#post-N).
+	http.Redirect(w, r, "/#post-"+strconv.Itoa(post.PostID), http.StatusSeeOther)
 }
 
 func (h *PostHandler) GetAllPosts(w http.ResponseWriter, r *http.Request) {

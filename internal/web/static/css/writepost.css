@@ -35,3 +35,50 @@
 
     pointer-events: none;
 }
+
+/* The write-post modal opens when the URL is #writePost-modal (the "Write Post"
+   link) and closes when it changes (the × and Cancel links go to #close). */
+#writePost-modal:not(:target) {
+    display: none;
+}
+
+#writePost-modal a.close-modal,
+#writePost-modal a.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    color: #222;
+}
+
+/* Image source tabs: radio buttons styled as tabs; the checked one decides
+   which input (URL or file) is shown. */
+.source-radio {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.source-tab {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 14px;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.source-radio:checked + .source-tab {
+    border-color: #a22b24;
+    color: #a22b24;
+}
+
+.source-radio:focus-visible + .source-tab {
+    outline: 2px solid #a22b24;
+    outline-offset: 2px;
+}
+
+.form-group:has(#image-source-url:checked) .source-panel-file,
+.form-group:has(#image-source-file:checked) .source-panel-url {
+    display: none;
+}

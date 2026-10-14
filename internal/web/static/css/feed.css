@@ -38,3 +38,29 @@
     text-decoration: none;
     display: block;
 }
+
+/* Like button sits below the card's link, so clicking it doesn't open the post. */
+.post-card-footer {
+    display: flex;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #eee;
+}
+
+/* Lets a redirect to #post-N bring the card back into view, mid-screen. */
+.post-card {
+    scroll-margin-top: 40vh;
+}
+
+/* After publishing, the feed loads at #post-N: briefly highlight that card. */
+@keyframes post-added {
+    from { background-color: #fbf3dc; }
+}
+
+.post-card:target {
+    animation: post-added 2s ease-out;
+}
+
+a.nav-button {
+    text-decoration: none;
+}
