@@ -1,0 +1,29 @@
+{{ define "comment" }}
+<div class="comment-thread" id="comment-{{ .ID }}">
+  <div class="card comment">
+    <div class="comment-header">
+      {{ if .AuthorPicture }}
+      <img src="{{ .AuthorPicture }}" alt="{{ .AuthorName }}" class="user-avatar" />
+      {{ else }}
+      <span class="user-avatar default-avatar">👤</span>
+      {{ end }}
+      <span class="author-name">User {{ .UserID }}</span>
+      <time class="meta-date">{{ .CreatedAt.Format "Jan 2" }}</time>
+    </div>
+    <p class="comment-content">{{ .Content }}</p>
+
+    {{ if .CanReply }}
+    <details class="reply-box">
+      <summary>Reply</summary>
+      <form class="reply-form" method="POST" action="/posts/{{ .PostID }}/comments">
+        <input type="hidden" name="parent_id" value="{{ .ID }}">
+        <textarea name="content" placeholder="Write a reply..." required></textarea>
+        <button type="submit" class="nav-button">Reply</button>
+      </form>
+    </details>
+    {{ end }}
+  </div>
+
+  <div class="replies">{{ range .Replies }}{{ template "comment" . }}{{ end }}</div>
+</div>
+{{ end }}

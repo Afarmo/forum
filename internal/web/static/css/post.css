@@ -1,0 +1,252 @@
+.post-page-body {
+    background: #f1eadb;
+}
+
+.post-page {
+    max-width: 900px;
+    margin: 32px auto;
+    padding: 0 16px;
+}
+
+.post-detail,
+.card {
+    background: #fbf8f2;
+    border: 1px solid #e7ddc3;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.post-detail {
+    overflow: hidden; /* keeps the image inside the rounded corners */
+}
+
+.post-detail-image {
+    width: 100%;
+    max-height: 360px;
+    object-fit: cover;
+    display: block;
+}
+
+.post-detail-body {
+    padding: 32px 40px;
+}
+
+.post-detail-title {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 2.2rem;
+    line-height: 1.25;
+    color: #2a241c;
+    margin: 0 0 24px;
+}
+
+.post-meta {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e7ddc3;
+}
+
+.avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid #e7ddc3;
+    background: #f8f4e7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+/* The post author's avatar is a size up from the 36px one in comments and the header. */
+.post-meta .user-avatar {
+    width: 48px;
+    height: 48px;
+}
+
+.avatar-small {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+}
+
+.author-name {
+    font-weight: 700;
+    color: #2a241c;
+}
+
+.meta-date {
+    font-family: "Courier New", monospace;
+    font-size: 0.9rem;
+    color: #8a7d63;
+}
+
+.post-detail-content {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #3a3226;
+    padding: 24px 0;
+    white-space: pre-line; /* keeps the line breaks the user typed */
+}
+
+.post-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 20px;
+    border-top: 1px solid #e7ddc3;
+    /* after liking, the page reloads at #post-reactions: keep the button
+       roughly where it was on screen instead of snapping it to the top */
+    scroll-margin-top: 40vh;
+}
+
+.like-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: 1px solid #e7ddc3;
+    border-radius: 999px;
+    background: #fff;
+    color: #8a7d63;
+    font: inherit;
+    font-size: 0.9rem;
+}
+
+.like-button {
+    cursor: pointer;
+}
+
+.like-button:hover {
+    border-color: #c0392b;
+    color: #c0392b;
+}
+
+.like-button.liked {
+    border-color: #c0392b;
+    background: #fdecea;
+    color: #c0392b;
+}
+
+.discussion {
+    margin-top: 40px;
+}
+
+.discussion-title {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.8rem;
+    color: #2a241c;
+}
+
+.sign-in-prompt {
+    text-align: center;
+    padding: 32px;
+    margin-bottom: 20px;
+    color: #6b5f4a;
+}
+
+.comment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.comment-form textarea {
+    min-height: 90px;
+    padding: 10px;
+    border: 1px solid #e7ddc3;
+    border-radius: 4px;
+    font: inherit;
+    resize: vertical;
+}
+
+.comment-form .nav-button {
+    align-self: flex-end;
+}
+
+.comment {
+    padding: 20px 24px;
+    margin-bottom: 16px;
+}
+
+.comment-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.comment-content {
+    line-height: 1.7;
+    color: #3a3226;
+    margin: 12px 0 0;
+}
+
+.no-comments {
+    color: #8a7d63;
+    text-align: center;
+}
+
+/* Replies sit under the comment they answer, indented with a thread line.
+   Indentation stops growing after a few levels so deep threads stay readable. */
+.replies {
+    margin-left: 24px;
+    padding-left: 16px;
+    border-left: 2px solid #e7ddc3;
+}
+
+.replies:empty {
+    display: none;
+}
+
+.replies .replies .replies .replies {
+    margin-left: 0;
+}
+
+.reply-box {
+    margin-top: 12px;
+}
+
+.reply-box summary {
+    cursor: pointer;
+    color: #8a7d63;
+    font-size: 0.9rem;
+    width: fit-content;
+}
+
+.reply-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.reply-form textarea {
+    min-height: 70px;
+    padding: 10px;
+    border: 1px solid #e7ddc3;
+    border-radius: 4px;
+    font: inherit;
+    resize: vertical;
+}
+
+.reply-form .nav-button {
+    align-self: flex-end;
+}
+
+/* After posting, the page reloads at #comment-N: scroll there with a little
+   breathing room and briefly highlight it, so the eye finds the new comment. */
+.comment-thread {
+    scroll-margin-top: 24px;
+}
+
+@keyframes comment-added {
+    from { background-color: #fbf3dc; }
+}
+
+.comment-thread:target > .comment {
+    animation: comment-added 2s ease-out;
+}

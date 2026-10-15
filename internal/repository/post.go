@@ -160,6 +160,26 @@ func (r *PostRepository) DeletePost(ctx context.Context, postID *int) error {
 	return tx.Commit()
 }
 
+func (r *PostRepository) GetPostById(ctx context.Context, postID int) (*models.Post, error) {
+
+	query := `SELECT p.id, p.user_id, p.title, p.content, p.picture_content, p.created_at,
+			COALESCE(u.username, ''), COALESCE(u.profile_picture, '')
+		FROM posts p
+		LEFT JOIN users u ON u.id = p.user_id
+		WHERE p.id = ?`
+
+	var post models.Post
+	err := r.db.QueryRowContext(ctx, query, postID).Scan(&post.PostID, &post.UserID, &post.Title, &post.Content, &post.PictureContent, &post.CreatedAt,
+		&post.AuthorName, &post.AuthorPicture)
+	if err == sql.ErrNoRows {
+		return nil, apperrors.ErrNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &post, nil
+}
+
 func (r *PostRepository) SearchPosts(ctx context.Context, search string) ([]models.Post, error) {
 
 	query := `SELECT id, user_id, title, content, picture_content, created_at, updated_at FROM POSTS WHERE LOWER(title) LIKE ? OR LOWER(content) LIKE ? ORDER BY created_at DESC`

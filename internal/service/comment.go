@@ -26,3 +26,46 @@ func (s *CommentService) CreateComment(ctx context.Context, comment *models.Comm
 func (s *CommentService) GetCommentsByPost(ctx context.Context, postID int) ([]models.Comment, error) {
 	return s.repo.GetCommentsByPost(ctx, postID)
 }
+
+// GetCommentThreads returns the top-level comments of a post (newest first).
+// Each comment carries its direct replies (oldest first), which carry their
+// own replies, so every reply sits under the comment it answers.
+func (s *CommentService) GetCommentThreads(ctx context.Context, postID int) ([]models.Comment, error) {
+	comments, err := s.repo.GetCommentsByPost(ctx, postID)
+	if err != nil {
+		return nil, err
+	}
+
+	exists := make(map[int]bool, len(comments))
+	for _, c := range comments {
+		exists[c.ID] = true
+	}
+
+	var top []models.Comment
+	for _, c := range comments {
+		if c.ParentID == nil || !exists[*c.ParentID] {
+			top = append(top, c)
+		}
+	}
+
+	// comments come newest first, so walk backwards to list replies oldest first
+	children := make(map[int][]models.Comment)
+	for i := len(comments) - 1; i >= 0; i-- {
+		c := comments[i]
+		if c.ParentID != nil && exists[*c.ParentID] {
+			children[*c.ParentID] = append(children[*c.ParentID], c)
+		}
+	}
+
+	var attach func(c *models.Comment)
+	attach = func(c *models.Comment) {
+		c.Replies = children[c.ID]
+		for i := range c.Replies {
+			attach(&c.Replies[i])
+		}
+	}
+	for i := range top {
+		attach(&top[i])
+	}
+	return top, nil
+}

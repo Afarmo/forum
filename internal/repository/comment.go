@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/Afarmo/forum/internal/apperrors"
 	"github.com/Afarmo/forum/internal/models"
 )
 
@@ -37,7 +38,12 @@ func (r *CommentRepository) CreateComment(ctx context.Context, comment *models.C
 }
 
 func (r *CommentRepository) GetCommentsByPost(ctx context.Context, postID int) ([]models.Comment, error) {
-	query := `SELECT id, user_id, post_id, parent_id, content, created_at, updated_at FROM comments WHERE post_id = ? ORDER BY created_at DESC`
+	query := `SELECT c.id, c.user_id, c.post_id, c.parent_id, c.content, c.created_at, c.updated_at,
+			COALESCE(u.username, ''), COALESCE(u.profile_picture, '')
+		FROM comments c
+		LEFT JOIN users u ON u.id = c.user_id
+		WHERE c.post_id = ?
+		ORDER BY c.created_at DESC, c.id DESC`
 
 	rows, err := r.db.QueryContext(ctx, query, postID)
 	if err != nil {
@@ -47,11 +53,26 @@ func (r *CommentRepository) GetCommentsByPost(ctx context.Context, postID int) (
 	var comments []models.Comment
 	for rows.Next() {
 		var comment models.Comment
-		err := rows.Scan(&comment.ID, &comment.UserID, &comment.ParentID, &comment.Content, &comment.CreatedAt,  &comment.UpdatedAt)
+		err := rows.Scan(&comment.ID, &comment.UserID, &comment.PostID, &comment.ParentID, &comment.Content, &comment.CreatedAt, &comment.UpdatedAt,
+			&comment.AuthorName, &comment.AuthorPicture)
 		if err != nil {
 			return nil, err
 		}
 		comments = append(comments, comment)
 	}
 	return comments, rows.Err()
+}
+
+func (r *CommentRepository) GetCommentByID(ctx context.Context, commentID int) (*models.Comment, error) {
+	query := `SELECT id, user_id, post_id, parent_id, content, created_at, updated_at FROM comments WHERE id = ?`
+
+	var comment models.Comment
+	err := r.db.QueryRowContext(ctx, query, commentID).Scan(&comment.ID, &comment.UserID, &comment.PostID, &comment.ParentID, &comment.Content, &comment.CreatedAt, &comment.UpdatedAt)
+	if err == sql.ErrNoRows {
+		return nil, apperrors.ErrNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &comment, nil
 }

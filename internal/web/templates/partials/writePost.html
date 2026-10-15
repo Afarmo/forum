@@ -1,16 +1,9 @@
 {{ define "writePost-modal" }}
 
-<div id="writePost-modal" class="modal" hidden>
+<div id="writePost-modal" class="modal">
     <div class="modal-content">
 
-        <button
-            type="button"
-            class="close-modal"
-            onclick="closeModal('writePost-modal')"
-            aria-label="Close"
-        >
-            &times;
-        </button>
+        <a href="#close" class="close-modal" aria-label="Close">&times;</a>
 
         <h2>Start a Discussion</h2>
 
@@ -52,16 +45,18 @@
                 <label>COVER IMAGE (optional)</label>
 
                 <div class="source-tabs">
-                    <button type="button" class="source-tab active" data-image-source="url">🔗 Image URL</button>
-                    <button type="button" class="source-tab" data-image-source="file">Upload File</button>
+                    <input type="radio" name="image_source" id="image-source-url" class="source-radio" checked>
+                    <label for="image-source-url" class="source-tab">🔗 Image URL</label>
+                    <input type="radio" name="image_source" id="image-source-file" class="source-radio">
+                    <label for="image-source-file" class="source-tab">Upload File</label>
                 </div>
 
-                <input type="url"  name="image_url"  class="source-panel" data-source-panel="url"  placeholder="https://...">
-                <input type="file" name="picture" class="source-panel" data-source-panel="file" accept="image/*" hidden>
+                <input type="url"  name="image_url" class="source-panel source-panel-url" placeholder="https://...">
+                <input type="file" name="picture" class="source-panel source-panel-file" accept="image/*">
             </div>
 
             <div class="modal-actions">
-                <button type="button" class="btn-secondary" onclick="closeModal('writePost-modal')">Cancel</button>
+                <a href="#close" class="btn-secondary">Cancel</a>
                 <button type="submit" class="login-button">Publish Post</button>
             </div>
 

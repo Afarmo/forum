@@ -21,6 +21,30 @@ func NewCommentHandler(service *service.CommentService) *CommentHandler {
 		service: service,
 	}
 }
+
+// CommentView is what the "comment" template renders: a comment, its replies,
+// and whether the viewer may reply to it.
+type CommentView struct {
+	models.Comment
+	Replies  []CommentView
+	CanReply bool
+}
+
+func newCommentViews(comments []models.Comment, canReply bool) []CommentView {
+	views := make([]CommentView, len(comments))
+	for i, c := range comments {
+		views[i] = CommentView{Comment: c, Replies: newCommentViews(c.Replies, canReply), CanReply: canReply}
+	}
+	return views
+}
+
+func countComments(views []CommentView) int {
+	n := len(views)
+	for _, v := range views {
+		n += countComments(v.Replies)
+	}
+	return n
+}
 func (h *CommentHandler) CreateComment(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	postID, err := strconv.Atoi(r.PathValue("id"))
@@ -51,7 +75,7 @@ func (h *CommentHandler) CreateComment(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "invalid parent id", http.StatusBadRequest)
 			return
 		}
-		comment.ParentID = id
+		comment.ParentID = &id
 	}
 
 	err = h.service.CreateComment(ctx, &comment)
@@ -59,9 +83,10 @@ func (h *CommentHandler) CreateComment(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	w.Header().Set("Content-type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(comment)
+
+	// Land on the new comment (#comment-N) so the reload scrolls straight to it.
+	http.Redirect(w, r, "/posts/"+strconv.Itoa(postID)+"#comment-"+strconv.Itoa(comment.ID), http.StatusSeeOther)
+
 }
 
 func (h *CommentHandler) GetCommentsByPost(w http.ResponseWriter, r *http.Request) {
