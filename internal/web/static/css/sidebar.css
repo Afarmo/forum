@@ -5,6 +5,7 @@
 .sidebar {
     width: 100%;
     flex-shrink: 0;
+    align-self: start;
 
     padding: 20px;
     margin: 10px;
@@ -51,6 +52,17 @@
     text-decoration: none;
 }
 
+.category-all {
+    margin-bottom: 8px;
+    padding-bottom: 14px;
+
+    border-bottom: 1px solid #e7ddc3;
+    border-radius: 8px 8px 0 0;
+
+    font-weight: 700;
+    color: #a22b24;
+}
+
 .category-icon {
     font-size: 16px;
     line-height: 1;
@@ -65,12 +77,59 @@
 
     margin-bottom: 10px;
 
-    color: #fff;
+    color: #000000;
     font-weight: 700;
 }
 
 .category-link.active:hover {
     background: #a22b24;
+}
+/* 1. Completely hide the functional checkbox wrapper */
+.dropdown-checkbox {
+    display: none;
+}
+
+/* 2. Style the toggle button to match a category link profile */
+.dropdown-trigger {
+    display: block;
+    padding: 8px 12px;
+    margin-top: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #315b4a; /* Accent color for the link */
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.dropdown-trigger:hover {
+    color: #1f3d31;
+;
+    text-decoration: underline;
+}
+
+/* 3. Hide the extra categories by default */
+.dropdown-content {
+    display: none;
+}
+
+/* 4. Ensure links inside the dropdown wrap vertically just like the main nav */
+.dropdown-content .category-link {
+    display: block;
+}
+
+/* 5. THE PURE CSS TOGGLE: Reveal categories when checkbox is ticked */
+.dropdown-checkbox:checked ~ .dropdown-content {
+    display: block;
+}
+
+/* 6. Dynamically swap the button text based on the active state */
+.dropdown-checkbox:not(:checked) ~ .dropdown-trigger::after {
+    content: "+ Show More Categories";
+}
+
+.dropdown-checkbox:checked ~ .dropdown-trigger::after {
+    content: "- Show Less";
 }
 
 
