@@ -10,7 +10,6 @@ type Comment struct {
 	Content   string    `json:"content"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
-	// Author details, filled in when comments are listed for a post.
 	AuthorName    string    `json:"author_name,omitempty"`
 	AuthorPicture string    `json:"author_picture,omitempty"`
 	Replies       []Comment `json:"replies,omitempty"`
