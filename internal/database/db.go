@@ -40,5 +40,10 @@ func InitializeSchema(db *sql.DB) error {
 		return err
 	}
 
+	err = SeedDemoData(db)
+	if err != nil {
+		return err
+	}
+
 	return err
 }
