@@ -184,7 +184,7 @@ func (r *PostRepository) SearchPosts(ctx context.Context, search string) ([]mode
 	if strings.TrimSpace(search) == ""{
 		return r.GetAllPosts(ctx,0) 
 	}
-	query := `SELECT id, POSTS.user_id, POSTS.title, POSTS.content, POSTS.picture_content, POSTS.created_at, POSTS.updated_at FROM POSTS_SEARCH JOIN POSTS ON POSTS.id = POSTS_SEARCH.row_id WHERE POSTS_SEARCH MATCH ? ORDER BY bm25(POSTS_SEARCH), POSTS.created_at DESC`
+	query := `SELECT id, POSTS.user_id, POSTS.title, POSTS.content, POSTS.picture_content, POSTS.created_at, POSTS.updated_at FROM POSTS_SEARCH JOIN POSTS ON POSTS.id = POSTS_SEARCH.rowid WHERE POSTS_SEARCH MATCH ? ORDER BY bm25(POSTS_SEARCH), POSTS.created_at DESC`
 	rows, err := r.db.QueryContext(ctx, query, search)
 	if err != nil {
 		return nil, err

@@ -78,6 +78,7 @@
 	content='POSTS',
 	content_rowid='id'
 	);
+
 	CREATE TRIGGER IF NOT EXISTS posts_search_insert AFTER INSERT ON POSTS BEGIN
 	INSERT INTO POSTS_SEARCH(rowid, title, content)
 	VALUES(NEW.id, NEW.title, NEW.content);
@@ -85,18 +86,16 @@
 
 	CREATE TRIGGER IF NOT EXISTS posts_search_update AFTER UPDATE ON POSTS BEGIN
 	INSERT INTO POSTS_SEARCH(POSTS_SEARCH, rowid, title, content)
-	VALUES(`delete`,OLD.id, OLD.title, OLD.content);
+	VALUES('delete',OLD.id, OLD.title, OLD.content);
 
 	INSERT INTO POSTS_SEARCH(rowid, title, content)
-	VALUES(`delete`,NEW.id, NEW.title, NEW.content);
-	END;
-	CREATE TRIGGER IF NOT EXISTS posts_search_delete AFTER DELETE ON POSTS BEGIN
-	INSERT INTO POSTS_SEARCH(POSTS_SEARCH, rowid, title, content)
-	VALUES(`delete`,OLD.id, OLD.title, OLD.content);
+	VALUES('delete',NEW.id, NEW.title, NEW.content);
 	END;
 
-	CREATE TABLE IF NOT EXISTS SCHEMA_MIGRATIONS (
-    name TEXT PRIMARY KEY
-	);
+	CREATE TRIGGER IF NOT EXISTS posts_search_delete AFTER DELETE ON POSTS BEGIN
+	INSERT INTO POSTS_SEARCH(POSTS_SEARCH, rowid, title, content)
+	VALUES('delete',OLD.id, OLD.title, OLD.content);
+	END;
+
 
 	

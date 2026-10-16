@@ -45,26 +45,5 @@ func InitializeSchema(db *sql.DB) error {
 		return err
 	}
 
-	return err
-	var initialized bool
-
-    err = db.QueryRow(`SELECT EXISTS(SELECT 1 FROM SCHEMA_MIGRATIONS WHERE name = ?)`, "fts5_rebuild").Scan(&initialized)
-
-    if err != nil {
-        return err
-    }
-
-    if !initialized {
-        _, err = db.Exec(`INSERT INTO POSTS_SEARCH(POSTS_SEARCH) VALUES ('rebuild')`)
-        if err != nil {
-            return err
-        }
-
-        _, err = db.Exec(`INSERT INTO SCHEMA_MIGRATIONS(name) VALUES (?)`, "fts5_rebuild")
-        if err != nil {
-            return err
-        }
-    }
-
     return nil
 }
