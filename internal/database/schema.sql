@@ -75,26 +75,32 @@
 	CREATE VIRTUAL TABLE IF NOT EXISTS POSTS_SEARCH USING fts5(
 	title,
 	content,
-	content='POSTS',
-	content_rowid='id'
+	username
 	);
+	INSERT INTO POSTS_SEARCH(rowid, title, content, username)
+	SELECT POSTS.id, POSTS.title, POSTS.content, USERS.username
+	FROM POSTS
+	JOIN USERS ON USERS.id = POSTS.user_id;
 
 	CREATE TRIGGER IF NOT EXISTS posts_search_insert AFTER INSERT ON POSTS BEGIN
-	INSERT INTO POSTS_SEARCH(rowid, title, content)
-	VALUES(NEW.id, NEW.title, NEW.content);
+	INSERT INTO POSTS_SEARCH(rowid, title, content, username)
+	SELECT NEW.id, NEW.title, NEW.content, USERS.username
+	FROM USERS 
+	WHERE USERS.id = NEW.user_id;
 	END;
 
 	CREATE TRIGGER IF NOT EXISTS posts_search_update AFTER UPDATE ON POSTS BEGIN
-	INSERT INTO POSTS_SEARCH(POSTS_SEARCH, rowid, title, content)
-	VALUES('delete',OLD.id, OLD.title, OLD.content);
-
-	INSERT INTO POSTS_SEARCH(rowid, title, content)
-	VALUES('delete',NEW.id, NEW.title, NEW.content);
+	DELETE FROM POSTS_SEARCH 
+	WHERE rowid = OLD.id;
+	INSERT INTO POSTS_SEARCH(rowid, title, content, username)
+	SELECT NEW.id, NEW.title, NEW.content, USERS.username
+	FROM USERS 
+	WHERE USERS.id = NEW.user_id;
 	END;
 
 	CREATE TRIGGER IF NOT EXISTS posts_search_delete AFTER DELETE ON POSTS BEGIN
-	INSERT INTO POSTS_SEARCH(POSTS_SEARCH, rowid, title, content)
-	VALUES('delete',OLD.id, OLD.title, OLD.content);
+	DELETE FROM POSTS_SEARCH 
+	WHERE rowid = OLD.id ;
 	END;
 
 
