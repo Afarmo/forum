@@ -71,3 +71,32 @@
 	FOREIGN KEY (user_id) REFERENCES USERS (id),
 	FOREIGN KEY (comment_id) REFERENCES COMMENTS (id)
 	);
+
+	CREATE VIRTUAL TABLE IF NOT EXISTS POSTS_SEARCH USING fts5(
+	title,
+	content,
+	content='POSTS',
+	content_rowid='id'
+	);
+	CREATE TRIGGER IF NOT EXISTS posts_search_insert AFTER INSERT ON POSTS BEGIN
+	INSERT INTO POSTS_SEARCH(rowid, title, content)
+	VALUES(NEW.id, NEW.title, NEW.content);
+	END;
+
+	CREATE TRIGGER IF NOT EXISTS posts_search_update AFTER UPDATE ON POSTS BEGIN
+	INSERT INTO POSTS_SEARCH(POSTS_SEARCH, rowid, title, content)
+	VALUES(`delete`,OLD.id, OLD.title, OLD.content);
+
+	INSERT INTO POSTS_SEARCH(rowid, title, content)
+	VALUES(`delete`,NEW.id, NEW.title, NEW.content);
+	END;
+	CREATE TRIGGER IF NOT EXISTS posts_search_delete AFTER DELETE ON POSTS BEGIN
+	INSERT INTO POSTS_SEARCH(POSTS_SEARCH, rowid, title, content)
+	VALUES(`delete`,OLD.id, OLD.title, OLD.content);
+	END;
+
+	CREATE TABLE IF NOT EXISTS SCHEMA_MIGRATIONS (
+    name TEXT PRIMARY KEY
+	);
+
+	
