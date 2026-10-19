@@ -30,6 +30,7 @@ func main() {
 	if err := database.InitializeSchema(db); err != nil {
 		log.Fatal(err)
 	}
+	
 
 	tmpl := template.Must(template.New("").ParseGlob("internal/web/templates/*.html"))
 	template.Must(tmpl.ParseGlob("internal/web/templates/partials/*.html"))

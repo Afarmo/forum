@@ -45,5 +45,5 @@ func InitializeSchema(db *sql.DB) error {
 		return err
 	}
 
-	return err
+    return nil
 }
