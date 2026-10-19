@@ -3,8 +3,8 @@
 <div class="search-box">
   <span class="search-icon"></span>
   <!-- here we will call search api -->
-  <form method="POST" action="/search" enctype="multipart/form-data">
-    <input type="text" class="search-input" placeholder="Search..." />
+  <form method="GET" action="/">
+    <input type="text" name="query" class="search-input" placeholder="Search..." value="{{ .Query}}" />
   </form>
 </div>
 

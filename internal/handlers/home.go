@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/Afarmo/forum/internal/middleware"
 	"github.com/Afarmo/forum/internal/models"
@@ -31,6 +32,7 @@ type HomePageData struct {
 	User       *models.User
 	Categories []models.Category
 	Posts      []models.Post
+	Query      string
 }
 
 func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
@@ -56,7 +58,14 @@ func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	posts, err := h.postService.GetAllPosts(r.Context(), categoryID)
+	var posts []models.Post
+
+	query := strings.TrimSpace(r.URL.Query().Get("query"))
+	if query != "" {
+		posts, err = h.postService.SearchPosts(r.Context(), query)
+	} else {
+		posts, err = h.postService.GetAllPosts(r.Context(), categoryID)
+	}
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -69,6 +78,7 @@ func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
 		User:       user,
 		Categories: categories,
 		Posts:      posts,
+		Query:      query,
 	}
 
 	var buf bytes.Buffer
