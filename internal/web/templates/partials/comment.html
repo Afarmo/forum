@@ -7,7 +7,7 @@
       {{ else }}
       <span class="user-avatar default-avatar">👤</span>
       {{ end }}
-      <span class="author-name">User {{ .UserID }}</span>
+      <span class="author-name">{{ .AuthorName }}</span>
       <time class="meta-date">{{ .CreatedAt.Format "Jan 2" }}</time>
     </div>
     <p class="comment-content">{{ .Content }}</p>

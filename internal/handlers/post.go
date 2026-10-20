@@ -40,6 +40,7 @@ type PostPageData struct {
 	Post         *models.Post
 	Comments     []CommentView
 	CommentCount int
+	Query        string
 }
 
 func (h *PostHandler) CreatePostPage(w http.ResponseWriter, r *http.Request) {

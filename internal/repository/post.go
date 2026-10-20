@@ -181,10 +181,11 @@ func (r *PostRepository) GetPostById(ctx context.Context, postID int) (*models.P
 }
 
 func (r *PostRepository) SearchPosts(ctx context.Context, search string) ([]models.Post, error) {
-
-	query := `SELECT id, user_id, title, content, picture_content, created_at, updated_at FROM POSTS WHERE LOWER(title) LIKE ? OR LOWER(content) LIKE ? ORDER BY created_at DESC`
-	search = "%" + search + "%"
-	rows, err := r.db.QueryContext(ctx, query, search, search)
+	if strings.TrimSpace(search) == ""{
+		return r.GetAllPosts(ctx,0) 
+	}
+	query := `SELECT POSTS.id, POSTS.user_id, POSTS.title, POSTS.content, POSTS.picture_content, POSTS.created_at, POSTS.updated_at FROM POSTS_SEARCH JOIN POSTS ON POSTS.id = POSTS_SEARCH.rowid WHERE POSTS_SEARCH MATCH ? ORDER BY bm25(POSTS_SEARCH, 10.0, 5.0, 2.0), POSTS.created_at DESC`
+	rows, err := r.db.QueryContext(ctx, query, search)
 	if err != nil {
 		return nil, err
 	}

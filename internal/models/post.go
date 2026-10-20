@@ -13,7 +13,6 @@ type Post struct {
 	PictureContent string    `json:"picture_content"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`
-	// Author details, filled in when a single post is loaded.
 	AuthorName    string `json:"author_name,omitempty"`
 	AuthorPicture string `json:"author_picture,omitempty"`
 }

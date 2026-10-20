@@ -8,7 +8,9 @@
         </div>
     
         <div>
+            {{if .User}}
                 <a class="nav-button" href="#writePost-modal">Write Post</a>
+            {{end}}
         </div>
     </div>
    
@@ -18,6 +20,7 @@
         <article class="post-card" id="post-{{ .PostID }}">
             <a class="post-link" href="/posts/{{ .PostID }}">
                 <h3 class="post-title">{{ .Title }}</h3>
+                <span class="post-author-name">{{ .AuthorName }}</span>
                 {{ if .PictureContent }}
                 <img class="post-image" src="{{ .ImageSrc }}" alt="{{ .Title }}">
                 {{ end }}

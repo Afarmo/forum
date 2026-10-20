@@ -14,7 +14,10 @@
 .post-card .post-title {
   margin: 0 0 8px;
 }
-
+.post-author-name {
+    font-weight: 700;
+    color: #2a241c;
+}
 .post-card .post-image {
   max-width: 100%;
   border-radius: 4px;

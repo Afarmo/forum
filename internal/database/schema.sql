@@ -71,3 +71,37 @@
 	FOREIGN KEY (user_id) REFERENCES USERS (id),
 	FOREIGN KEY (comment_id) REFERENCES COMMENTS (id)
 	);
+
+	CREATE VIRTUAL TABLE IF NOT EXISTS POSTS_SEARCH USING fts5(
+	title,
+	content,
+	username
+	);
+	INSERT INTO POSTS_SEARCH(rowid, title, content, username)
+	SELECT POSTS.id, POSTS.title, POSTS.content, USERS.username
+	FROM POSTS
+	JOIN USERS ON USERS.id = POSTS.user_id;
+
+	CREATE TRIGGER IF NOT EXISTS posts_search_insert AFTER INSERT ON POSTS BEGIN
+	INSERT INTO POSTS_SEARCH(rowid, title, content, username)
+	SELECT NEW.id, NEW.title, NEW.content, USERS.username
+	FROM USERS 
+	WHERE USERS.id = NEW.user_id;
+	END;
+
+	CREATE TRIGGER IF NOT EXISTS posts_search_update AFTER UPDATE ON POSTS BEGIN
+	DELETE FROM POSTS_SEARCH 
+	WHERE rowid = OLD.id;
+	INSERT INTO POSTS_SEARCH(rowid, title, content, username)
+	SELECT NEW.id, NEW.title, NEW.content, USERS.username
+	FROM USERS 
+	WHERE USERS.id = NEW.user_id;
+	END;
+
+	CREATE TRIGGER IF NOT EXISTS posts_search_delete AFTER DELETE ON POSTS BEGIN
+	DELETE FROM POSTS_SEARCH 
+	WHERE rowid = OLD.id ;
+	END;
+
+
+	
