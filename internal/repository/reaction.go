@@ -108,3 +108,95 @@ func (r *ReactionRepository) GetPostReactionCount(ctx context.Context, postID in
 
 	return likes, dislikes, err
 }
+
+// ----- Comment Reactions -----
+
+func (r *ReactionRepository) GetCommentReaction(ctx context.Context, commentID, userID int) (*models.CommentReaction, error) {
+	query := `
+		SELECT comment_id, user_id, reaction 
+		FROM comment_reactions 
+		WHERE comment_id = ? AND user_id = ?
+	`
+	reaction := &models.CommentReaction{}
+	if err := r.db.QueryRowContext(
+		ctx,
+		query,
+		commentID,
+		userID,
+	).Scan(
+		&reaction.CommentID,
+		&reaction.UserID,
+		&reaction.Reaction,
+	); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, apperrors.ErrNotFound
+		}
+		return nil, err
+	}
+
+	return reaction, nil
+}
+
+func (r *ReactionRepository) CreateCommentReaction(ctx context.Context, reaction *models.CommentReaction) error {
+	query := `
+		INSERT INTO comment_reactions(comment_id, user_id, reaction) 
+		VALUES(?,?,?)
+	`
+	_, err := r.db.ExecContext(
+		ctx,
+		query,
+		reaction.CommentID,
+		reaction.UserID,
+		reaction.Reaction,
+	)
+
+	return err
+}
+
+func (r *ReactionRepository) UpdateCommentReaction(ctx context.Context, reaction *models.CommentReaction) error {
+	query := `
+		UPDATE comment_reactions 
+		SET reaction = ? 
+		WHERE comment_id = ? AND user_id = ?
+	`
+
+	_, err := r.db.ExecContext(
+		ctx,
+		query,
+		reaction.Reaction,
+		reaction.CommentID,
+		reaction.UserID,
+	)
+
+	return err
+}
+
+func (r *ReactionRepository) DeleteCommentReaction(ctx context.Context, commentID, userID int) error {
+	query := `
+		DELETE FROM comment_reactions 
+		WHERE comment_id = ? AND user_id = ?
+	`
+	_, err := r.db.ExecContext(ctx, query, commentID, userID)
+
+	return err
+}
+
+func (r *ReactionRepository) GetCommentReactionCount(ctx context.Context, commentID int) (int, int, error) {
+	query := `
+		SELECT
+			COUNT(CASE WHEN reaction = 1 THEN 1 END),
+			COUNT(CASE WHEN reaction = -1 THEN 1 END)
+		FROM comment_reactions
+		WHERE comment_id = ?
+	`
+
+	var likes int
+	var dislikes int
+
+	err := r.db.QueryRowContext(ctx, query, commentID).Scan(
+		&likes,
+		&dislikes,
+	)
+
+	return likes, dislikes, err
+}
