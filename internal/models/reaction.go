@@ -7,7 +7,7 @@ type PostReaction struct {
 }
 
 type CommentReaction struct {
-	PostID   int `json:"post_id"`
-	UserID   int `json:"user_id"`
-	Reaction int `json:"reaction"`
+	CommentID int `json:"comment_id"`
+	UserID    int `json:"user_id"`
+	Reaction  int `json:"reaction"`
 }
