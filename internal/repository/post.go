@@ -99,7 +99,6 @@ func (r *PostRepository) GetPostByUser(ctx context.Context, userId int) ([]model
 		}
 		posts = append(posts, post)
 	}
-	fmt.Println("Number of user post in repo:", len(posts))
 	return posts, rows.Err()
 }
 

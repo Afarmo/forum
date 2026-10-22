@@ -3,13 +3,14 @@ package handlers
 import (
 	"bytes"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
+	"path/filepath"
 
 	// "strconv"
 
@@ -70,8 +71,7 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("Number of user post:", len(myPosts))
-
+	// TODO: here get liked post by user service will be called
 	likedPost, err := h.postService.GetPostByUser(r.Context(), user.ID)
 	if err != nil {
 		log.Println(err)
@@ -124,7 +124,8 @@ func (h *UserHandler) UploadProfilePicture(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	picturePath := "internal/web/static/img/profile/" + header.Filename
+	filename := filepath.Base(header.Filename)
+	picturePath := filepath.Join("internal", "web", "static", "img", "profile", filename)
 	destination, err := os.Create(picturePath)
 	if err != nil {
 		http.Error(w, "failed to create file", http.StatusInternalServerError) // TODO
@@ -138,16 +139,12 @@ func (h *UserHandler) UploadProfilePicture(w http.ResponseWriter, r *http.Reques
 	}
 	user := middleware.UserFromContext(r.Context())
 
-	if err = h.userService.UpdateProfilePicture(r.Context(), user.ID, picturePath); err != nil {
+	pictureURL := "/static/img/profile/" + url.PathEscape(filename)
+	if err = h.userService.UpdateProfilePicture(r.Context(), user.ID, pictureURL); err != nil {
 		http.Error(w, "failed to update profile picture", http.StatusInternalServerError)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"message":  "file received successfully",
-		"filename": header.Filename,
-		"size":     header.Size,
-	})
+	// Redirect the POST to a GET so the browser reloads the updated profile
+	// without resubmitting the upload when the page is refreshed.
+	http.Redirect(w, r, fmt.Sprintf("/users/%d", user.ID), http.StatusSeeOther)
 }

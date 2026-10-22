@@ -15,14 +15,15 @@
     <p class="profile-edit-subtitle">Update your profile details.</p>
 
     <!-- TODO: call user update api with this form data -->
+    <!-- Upload/Update profile image -->
     <form
-      method=""
-      action="/users/{{ .User.ID}}"
+      method="POST"
+      action="/users/profile_picture"
       enctype="multipart/form-data"
-      data-confirm="Are you sure you want to save these profile changes?"
+      data-confirm="Are you sure you want to save this profile picture?"
     >
       <div class="profile-edit-avatar-field">
-        <div class="profile-avatar profile-avatar-small">
+        <div id="avatar-preview" class="profile-avatar profile-avatar-small">
           {{ if .User.ProfilePicture }}
           <img
             src="{{ .User.ProfilePicture }}"
@@ -34,10 +35,31 @@
         </div>
         <label class="profile-picture-button">
           Change picture
-          <input type="file" name="profile_picture" accept="image/*" />
+          <input
+            id="profile-picture-input"
+            type="file"
+            name="profile_picture"
+            accept="image/*"
+          />
         </label>
+        <button
+          id="save-picture"
+          type="submit"
+          class="profile-picture-save-button"
+          hidden
+        >
+          Save
+        </button>
       </div>
+    </form>
 
+    <!--  Update user name -->
+    <form
+      method="POST"
+      action="/users/{{ .User.ID}}"
+      enctype="multipart/form-data"
+      data-confirm="Are you sure you want to save these profile changes?"
+    >
       <div class="profile-edit-field">
         <label for="profile-username">USERNAME</label>
         <input
@@ -57,37 +79,6 @@
           value="{{ .User.Email }}"
           disabled
         />
-      </div>
-
-      <input
-        class="password-toggle-input"
-        type="checkbox"
-        id="password-toggle"
-      />
-      <label class="change-password-button" for="password-toggle">
-        Change password
-      </label>
-
-      <div class="password-fields">
-        <div class="profile-edit-field">
-          <label for="current-password">CURRENT PASSWORD</label>
-          <input
-            id="current-password"
-            type="password"
-            name="current_password"
-            autocomplete="current-password"
-          />
-        </div>
-        <div class="profile-edit-field">
-          <label for="new-password">NEW PASSWORD</label>
-          <input
-            id="new-password"
-            type="password"
-            name="new_password"
-            minlength="6"
-            autocomplete="new-password"
-          />
-        </div>
       </div>
 
       <button type="submit" class="profile-save-button">Save changes</button>
