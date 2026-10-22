@@ -77,10 +77,6 @@
 	content,
 	username
 	);
-	INSERT INTO POSTS_SEARCH(rowid, title, content, username)
-	SELECT POSTS.id, POSTS.title, POSTS.content, USERS.username
-	FROM POSTS
-	JOIN USERS ON USERS.id = POSTS.user_id;
 
 	CREATE TRIGGER IF NOT EXISTS posts_search_insert AFTER INSERT ON POSTS BEGIN
 	INSERT INTO POSTS_SEARCH(rowid, title, content, username)
