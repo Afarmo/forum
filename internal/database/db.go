@@ -40,10 +40,15 @@ func InitializeSchema(db *sql.DB) error {
 		return err
 	}
 
+	// var count int
+	// err = db.QueryRow("SELECT COUNT(*) FROM users").Scan(&count)
+	// if err == nil && count == 0 {
+	// 	// Run your seed inserts here
+	// }
 	err = SeedDemoData(db)
 	if err != nil {
 		return err
 	}
 
-    return nil
+	return nil
 }

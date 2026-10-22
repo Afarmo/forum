@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"io"
 	"log"
 	"net/http"
 	"os"
-	"strconv"
+
+	// "strconv"
 
 	"github.com/Afarmo/forum/internal/apperrors"
 	"github.com/Afarmo/forum/internal/middleware"
@@ -38,6 +40,7 @@ type UserPageData struct {
 	User       *models.User
 	Categories []models.Category
 	Posts      []models.Post
+	LikedPosts []models.Post
 }
 
 func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
@@ -49,17 +52,27 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	categoryID := 0
-	if categoryIDStr := r.URL.Query().Get("category_id"); categoryIDStr != "" {
-		var convErr error
-		categoryID, convErr = strconv.Atoi(categoryIDStr)
-		if convErr != nil {
-			http.Error(w, "invalid category_id", http.StatusBadRequest)
-			return
-		}
+	// categoryID := 0
+	// if categoryIDStr := r.URL.Query().Get("category_id"); categoryIDStr != "" {
+	// 	var convErr error
+	// 	categoryID, convErr = strconv.Atoi(categoryIDStr)
+	// 	if convErr != nil {
+	// 		http.Error(w, "invalid category_id", http.StatusBadRequest)
+	// 		return
+	// 	}
+	// }
+	user := middleware.UserFromContext(r.Context())
+
+	myPosts, err := h.postService.GetPostByUser(r.Context(), user.ID)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
 	}
 
-	posts, err := h.postService.GetPostByUser(r.Context(), categoryID)
+	fmt.Println("Number of user post:", len(myPosts))
+
+	likedPost, err := h.postService.GetPostByUser(r.Context(), user.ID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -74,12 +87,12 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := middleware.UserFromContext(r.Context())
 	data := &UserPageData{
 		Title:      "User",
 		User:       user,
 		Categories: categories,
-		Posts:      posts,
+		Posts:      myPosts,
+		LikedPosts: likedPost,
 	}
 
 	var buf bytes.Buffer

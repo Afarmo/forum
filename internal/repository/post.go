@@ -99,6 +99,7 @@ func (r *PostRepository) GetPostByUser(ctx context.Context, userId int) ([]model
 		}
 		posts = append(posts, post)
 	}
+	fmt.Println("Number of user post in repo:", len(posts))
 	return posts, rows.Err()
 }
 
@@ -181,8 +182,8 @@ func (r *PostRepository) GetPostById(ctx context.Context, postID int) (*models.P
 }
 
 func (r *PostRepository) SearchPosts(ctx context.Context, search string) ([]models.Post, error) {
-	if strings.TrimSpace(search) == ""{
-		return r.GetAllPosts(ctx,0) 
+	if strings.TrimSpace(search) == "" {
+		return r.GetAllPosts(ctx, 0)
 	}
 	query := `SELECT POSTS.id, POSTS.user_id, POSTS.title, POSTS.content, POSTS.picture_content, POSTS.created_at, POSTS.updated_at FROM POSTS_SEARCH JOIN POSTS ON POSTS.id = POSTS_SEARCH.rowid WHERE POSTS_SEARCH MATCH ? ORDER BY bm25(POSTS_SEARCH, 10.0, 1.0, 5.0), POSTS.created_at DESC`
 	rows, err := r.db.QueryContext(ctx, query, search)
@@ -191,7 +192,7 @@ func (r *PostRepository) SearchPosts(ctx context.Context, search string) ([]mode
 	}
 	defer rows.Close()
 	var posts []models.Post
-	for rows.Next(){
+	for rows.Next() {
 		var post models.Post
 		err := rows.Scan(
 			&post.PostID,
@@ -202,7 +203,7 @@ func (r *PostRepository) SearchPosts(ctx context.Context, search string) ([]mode
 			&post.CreatedAt,
 			&post.UpdatedAt,
 		)
-		if err != nil{
+		if err != nil {
 			return nil, err
 		}
 		posts = append(posts, post)
