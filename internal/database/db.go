@@ -38,9 +38,6 @@ func BackfillPostSearch(db *sql.DB) error {
 }
 
 func InitializeSchema(db *sql.DB) error {
-	if err := BackfillPostSearch(db); err != nil {
-		return err
-	}
 	schemaBytes, err := os.ReadFile("internal/database/schema.sql")
 	if err != nil {
 		return err
@@ -51,7 +48,9 @@ func InitializeSchema(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
-
+	if err := BackfillPostSearch(db); err != nil {
+		return err
+	}
 	err = SeedCategories(db)
 	if err != nil {
 		return err
