@@ -40,6 +40,7 @@ type PostPageData struct {
 	Post         *models.Post
 	Comments     []CommentView
 	CommentCount int
+	SearchQuery  string
 }
 
 func (h *PostHandler) CreatePostPage(w http.ResponseWriter, r *http.Request) {
@@ -257,7 +258,12 @@ func (h *PostHandler) SearchPosts(w http.ResponseWriter, r *http.Request) {
 		posts, err = h.service.SearchPosts(ctx, search)
 	}
 	if err != nil {
+		log.Println("search posts error:", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if posts == nil {
+		posts = []models.Post{}
 	}
 
 	w.Header().Set("Content-Type", "application/json")

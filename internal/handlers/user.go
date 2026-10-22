@@ -42,6 +42,7 @@ type UserPageData struct {
 	Categories []models.Category
 	Posts      []models.Post
 	LikedPosts []models.Post
+	SearchQuery string
 }
 
 func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {

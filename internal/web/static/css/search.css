@@ -15,6 +15,8 @@
 }
 
 .search-box form {
+  display: flex;
+  align-items: center;
   flex: 1;
   min-width: 0;
 }
@@ -50,11 +52,28 @@
   font-size: 12px;
   color: #315b4a;
   background: transparent;
-  width: 100%;
+  width: 0;
+  min-width: 0;
+}
+
+.search-input::-webkit-search-cancel-button {
+  display: none;
 }
 
 .search-input::placeholder {
   color: #315b4a;
+}
+
+.search-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-left: 8px;
+  background: center / contain no-repeat
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23315b4a' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 6 12 12M18 6 6 18'/%3E%3C/svg%3E");
 }
 
 /* Small screens */

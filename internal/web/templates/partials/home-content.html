@@ -1,45 +1,47 @@
 {{ define "home-content" }}
 
-<div >
-    <div class="discussion-header">
-        <div>
-            <h3>All Discussions</h3>
-            <p>Explore the latest thoughts from the Literary Lions community.</p>
-        </div>
-    
-        <div>
-            {{if .User}}
-                <a class="nav-button" href="#writePost-modal">Write Post</a>
-            {{end}}
-        </div>
-    </div>
-   
-    
-    <div id="post-feed">
-        {{ range .Posts }}
-        <article class="post-card" id="post-{{ .PostID }}">
-            <a class="post-link" href="/posts/{{ .PostID }}">
-                <h3 class="post-title">{{ .Title }}</h3>
-                {{ if .PictureContent }}
-                <img class="post-image" src="{{ .ImageSrc }}" alt="{{ .Title }}">
-                {{ end }}
-                <p class="post-content">{{ .Content }}</p>
-                <time class="post-date">{{ .CreatedAt.Format "Jan 2, 2006 3:04 PM" }}</time>
-            </a>
-            {{ if $.User }}
-            <div class="post-card-footer">
-                <form method="POST" action="/posts/{{ .PostID }}/like">
-                    <button type="submit" class="like-button" title="Like">
-                        <span aria-hidden="true">♡</span> Like
-                    </button>
-                </form>
-            </div>
-            {{ end }}
-        </article>
-        {{ end }}
+<div>
+  <div class="discussion-header">
+    <div>
+      <h3>All Discussions</h3>
+      <p>Explore the latest thoughts from the Literary Lions community.</p>
     </div>
 
+    <div>
+      {{if .User}}
+      <a class="nav-button" href="#writePost-modal">Write Post</a>
+      {{end}}
+    </div>
+  </div>
+
+  <div id="post-feed">
+    {{ range .Posts }}
+    <article class="post-card" id="post-{{ .PostID }}">
+      <a class="post-link" href="/posts/{{ .PostID }}">
+        <h3 class="post-title">{{ .Title }}</h3>
+        {{ if .PictureContent }}
+        <img class="post-image" src="{{ .ImageSrc }}" alt="{{ .Title }}" />
+        {{ end }}
+        <p class="post-content">{{ .Content }}</p>
+        <time class="post-date"
+          >{{ .CreatedAt.Format "Jan 2, 2006 3:04 PM" }}</time
+        >
+      </a>
+      {{ if $.User }}
+      <div class="post-card-footer">
+        <form method="POST" action="/posts/{{ .PostID }}/like">
+          <button type="submit" class="like-button" title="Like">
+            <span aria-hidden="true">♡</span> Like
+          </button>
+        </form>
+      </div>
+      {{ end }}
+    </article>
+    {{ end }}
+  </div>
+  <p id="post-feed-empty" role="status" {{ if .Posts }}hidden{{ end }}>
+    No Post Found.
+  </p>
 </div>
 
-{{ template "writePost-modal" . }}
-{{ end }}
+{{ template "writePost-modal" . }} {{ end }}
