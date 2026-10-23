@@ -49,7 +49,28 @@
 .post-card {
   scroll-margin-top: 40vh;
 }
+.post-author-avatar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
 
+.user-avatar-feed {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #759e8e;
+  flex-shrink: 0;
+    display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color: #e8eee9;
+  font-size: 18px;
+  line-height: 1;
+}
 /* After publishing, the feed loads at #post-N: briefly highlight that card. */
 @keyframes post-added {
   from { background-color: #fbf3dc; }
@@ -58,6 +79,7 @@
 .post-card:target {
   animation: post-added 2s ease-out;
 }
+
 
 /* "Write Post" is a link (it opens the modal via #writePost-modal) but should
    look exactly like the <button> it replaced: buttons use the system font,

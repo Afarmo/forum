@@ -20,9 +20,18 @@
         <article class="post-card" id="post-{{ .PostID }}">
             <a class="post-link" href="/posts/{{ .PostID }}">
                 <h3 class="post-title">{{ .Title }}</h3>
+  
+                <div class="post-author-avatar">
+                {{ if .AuthorPicture }}
+                    <img class="user-avatar-feed" src="{{ .AuthorPicture }}" alt="">
+                {{ else }}
+                    <div class="user-avatar-feed" aria-label="Default user avatar">👤</div>
+                {{ end }}
                 <span class="post-author-name">{{ .AuthorName }}</span>
+                </div>
+
                 {{ if .PictureContent }}
-                <img class="post-image" src="{{ .ImageSrc }}" alt="{{ .Title }}">
+                <img class="post-image" src="{{ .PictureContent }}" alt="{{ .Title }}">
                 {{ end }}
                 <p class="post-content">{{ .Content }}</p>
                 <time class="post-date">{{ .CreatedAt.Format "Jan 2, 2006 3:04 PM" }}</time>

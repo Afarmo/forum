@@ -51,14 +51,21 @@ func (r *PostRepository) CreatePost(ctx context.Context, post *models.Post, cate
 }
 
 func (r *PostRepository) GetAllPosts(ctx context.Context, categoryID int) ([]models.Post, error) {
-	query := `SELECT id, user_id, title, content, picture_content, created_at FROM posts ORDER BY created_at DESC`
+	query := `
+		SELECT p.id, p.user_id, p.title, p.content, COALESCE(p.picture_content, ''), p.created_at,
+		       COALESCE(u.username, ''), COALESCE(u.profile_picture, '')
+		FROM posts p
+		LEFT JOIN users u ON u.id = p.user_id
+		ORDER BY p.created_at DESC`
 	args := []any{}
 
 	if categoryID > 0 {
 		query = `
-			SELECT p.id, p.user_id, p.title, p.content, p.picture_content, p.created_at
+			SELECT p.id, p.user_id, p.title, p.content, COALESCE(p.picture_content, ''), p.created_at,
+			       COALESCE(u.username, ''), COALESCE(u.profile_picture, '')
 			FROM posts p
 			JOIN post_categories pc ON pc.post_id = p.id
+			LEFT JOIN users u ON u.id = p.user_id
 			WHERE pc.category_id = ?
 			ORDER BY p.created_at DESC`
 		args = append(args, categoryID)
@@ -72,7 +79,7 @@ func (r *PostRepository) GetAllPosts(ctx context.Context, categoryID int) ([]mod
 	var posts []models.Post
 	for rows.Next() {
 		var post models.Post
-		err := rows.Scan(&post.PostID, &post.UserID, &post.Title, &post.Content, &post.PictureContent, &post.CreatedAt)
+		err := rows.Scan(&post.PostID, &post.UserID, &post.Title, &post.Content, &post.PictureContent, &post.CreatedAt, &post.AuthorName, &post.AuthorPicture)
 		if err != nil {
 			return nil, err
 		}
@@ -82,7 +89,13 @@ func (r *PostRepository) GetAllPosts(ctx context.Context, categoryID int) ([]mod
 }
 
 func (r *PostRepository) GetPostByUser(ctx context.Context, userId int) ([]models.Post, error) {
-	query := `SELECT id, user_id, title, content, picture_content, created_at FROM posts WHERE user_id = ? ORDER BY created_at DESC`
+	query := `
+		SELECT p.id, p.user_id, p.title, p.content, COALESCE(p.picture_content, ''), p.created_at,
+		       COALESCE(u.username, ''), COALESCE(u.profile_picture, '')
+		FROM posts p
+		LEFT JOIN users u ON u.id = p.user_id
+		WHERE p.user_id = ?
+		ORDER BY p.created_at DESC`
 
 	rows, err := r.db.QueryContext(ctx, query, userId)
 	if err != nil {
@@ -93,7 +106,7 @@ func (r *PostRepository) GetPostByUser(ctx context.Context, userId int) ([]model
 
 	for rows.Next() {
 		var post models.Post
-		err := rows.Scan(&post.PostID, &post.UserID, &post.Title, &post.Content, &post.PictureContent, &post.CreatedAt)
+		err := rows.Scan(&post.PostID, &post.UserID, &post.Title, &post.Content, &post.PictureContent, &post.CreatedAt, &post.AuthorName, &post.AuthorPicture)
 		if err != nil {
 			return nil, err
 		}
@@ -182,9 +195,16 @@ func (r *PostRepository) GetPostById(ctx context.Context, postID int) (*models.P
 
 func (r *PostRepository) SearchPosts(ctx context.Context, search string) ([]models.Post, error) {
 	if strings.TrimSpace(search) == ""{
-		return r.GetAllPosts(ctx,0) 
+		return r.GetAllPosts(ctx,0)
 	}
-	query := `SELECT POSTS.id, POSTS.user_id, POSTS.title, POSTS.content, POSTS.picture_content, POSTS.created_at, POSTS.updated_at FROM POSTS_SEARCH JOIN POSTS ON POSTS.id = POSTS_SEARCH.rowid WHERE POSTS_SEARCH MATCH ? ORDER BY bm25(POSTS_SEARCH, 10.0, 5.0, 2.0), POSTS.created_at DESC`
+	query := `
+		SELECT p.id, p.user_id, p.title, p.content, COALESCE(p.picture_content, ''), p.created_at, p.updated_at,
+		       COALESCE(u.username, ''), COALESCE(u.profile_picture, '')
+		FROM POSTS_SEARCH ps
+		JOIN posts p ON p.id = ps.rowid
+		LEFT JOIN users u ON u.id = p.user_id
+		WHERE ps MATCH ?
+		ORDER BY bm25(ps, 10.0, 5.0, 2.0), p.created_at DESC`
 	rows, err := r.db.QueryContext(ctx, query, search)
 	if err != nil {
 		return nil, err
@@ -201,6 +221,8 @@ func (r *PostRepository) SearchPosts(ctx context.Context, search string) ([]mode
 			&post.PictureContent,
 			&post.CreatedAt,
 			&post.UpdatedAt,
+			&post.AuthorName,
+			&post.AuthorPicture,
 		)
 		if err != nil{
 			return nil, err
