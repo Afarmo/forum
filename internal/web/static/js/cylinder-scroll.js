@@ -2,11 +2,11 @@ const carousel = document.getElementById('carousel');
 const cells = carousel.querySelectorAll('.carousel-cell');
 const cellCount = cells.length;
 const theta = 360 / cellCount;
-const cellWidth = 140;
+const cellHeight = 56;
 
 // Optimal radius calculation
 const radius = Math.round(
-  (cellWidth / 2) /
+  (cellHeight / 2) /
   Math.tan(Math.PI / cellCount)
 );
 
@@ -14,15 +14,23 @@ let currentIndex = 0;
 
 // Position each cell in 3D space
 cells.forEach((cell, i) => {
-  const angle = theta * i;
+  const angle = theta * i * -1;
   cell.style.transform =
-    `rotateY(${angle}deg) translateZ(${radius}px)`;
+    `rotateX(${angle}deg) translateZ(${radius}px)`;
 });
 
 // Carousel rotation
 function rotateCarousel(direction) {
-  currentIndex += direction;
-  const angle = theta * currentIndex * -1;
+  const nextIndex = currentIndex + direction;
+  if (nextIndex < 0 || nextIndex >= cellCount) return false;
+
+  currentIndex = nextIndex;
+  const angle = theta * currentIndex;
   carousel.style.transform =
-    `rotateY(${angle}deg)`;
+    `rotateX(${angle}deg)`;
+  return true;
+}
+
+function isCarouselAtEnd() {
+  return currentIndex === cellCount - 1;
 }

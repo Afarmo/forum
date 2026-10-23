@@ -1,47 +1,98 @@
-/* Scene: defines the 3D perspective */
+/* Vertical cylinder carousel */
 .carousel-scene {
-  width: 320px;
-  height: 220px;
+  width: 100%;
+  height: 500px;
   perspective: 1000px;
-  position: relative;
+  isolation: isolate;
 }
 
-/* Carousel: preserve-3d for 3D space */
+.sidebar-label::after {
+  content: "";
+  display: block;
+  height: 38px;
+  margin-top: 18px;
+  background:
+    radial-gradient(circle at 8.3% 50%, #c5bebe 0 13px, #9f9797 14px, #d2cccc 17px, transparent 18px),
+    radial-gradient(circle at 25% 50%, #c5bebe 0 13px, #9f9797 14px, #d2cccc 17px, transparent 18px),
+    radial-gradient(circle at 41.7% 50%, #c5bebe 0 13px, #9f9797 14px, #d2cccc 17px, transparent 18px),
+    radial-gradient(circle at 58.3% 50%, #c5bebe 0 13px, #9f9797 14px, #d2cccc 17px, transparent 18px),
+    radial-gradient(circle at 75% 50%, #c5bebe 0 13px, #9f9797 14px, #d2cccc 17px, transparent 18px),
+    radial-gradient(circle at 91.7% 50%, #c5bebe 0 13px, #9f9797 14px, #d2cccc 17px, transparent 18px);
+  filter: drop-shadow(2px 3px 2px rgba(92, 84, 84, 0.36));
+}
+
+.sidebar-label,
+.carousel-cell {
+  font-family: system-ui, sans-serif;
+}
+
 .carousel-3d {
   width: 100%;
   height: 100%;
   position: relative;
+  top: 92px;
+  z-index: 1;
   transform-style: preserve-3d;
   transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Cell: absolute positioning + centered */
 .carousel-cell {
   position: absolute;
-  width: 140px;
-  height: 180px;
-  left: 50%;
+  width: 100%;
+  height: 56px;
+  left: 0;
   top: 50%;
-  margin-left: -70px;
-  margin-top: -90px;
-  border-radius: 16px;
+  margin-top: -28px;
+  box-sizing: border-box;
   backface-visibility: hidden;
+  justify-content: center;
+  padding: 0 8px;
+  border-radius: 12px;
+  color: #8d79a0;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
+  text-transform: lowercase;
+  text-shadow: 2px 3px 3px rgba(83, 71, 89, 0.3);
+  overflow: hidden;
 }
 
-/* Disable animations for sensitive users */
+.carousel-cell:hover {
+  color: #735d89;
+  background: transparent;
+}
+
+.carousel-cell.category-all {
+  margin: 0;
+  padding: 0 8px;
+  border: 0;
+  color: #c52b46;
+  font-weight: 900;
+}
+
+.carousel-cell:focus-visible {
+  outline: 2px solid #735d89;
+  outline-offset: -3px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .carousel-3d {
     transition: none;
   }
 }
 
-/* Visible focus for keyboard navigation */
-.carousel-btn:focus-visible {
-  outline: 2px solid #6366f1;
-  outline-offset: 2px;
-}
+@media (max-width: 768px) {
+  .carousel-scene {
+    height: min(320px, 42vh);
+    min-height: 220px;
+  }
 
-/* ARIA labels for screen readers */
-/* <div role="region" aria-label="Carousel 3D"> */
-/* <button aria-label="Previous element"> */
-/* <button aria-label="Next element"> */
+  .sidebar-label {
+    font-size: 23px;
+  }
+
+  .carousel-cell {
+    font-size: 16px;
+  }
+}

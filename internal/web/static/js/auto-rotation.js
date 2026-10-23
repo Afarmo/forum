@@ -4,8 +4,12 @@ const AUTO_ROTATE_DELAY = 3000; // 3 secondes
 // Start auto-rotation
 function startAutoRotate() {
   stopAutoRotate();
+  if (isCarouselAtEnd()) return;
+
   autoRotateInterval = setInterval(() => {
-    rotateCarousel(1);
+    if (!rotateCarousel(1) || isCarouselAtEnd()) {
+      stopAutoRotate();
+    }
   }, AUTO_ROTATE_DELAY);
 }
 
@@ -22,6 +26,21 @@ const scene = document.querySelector('.carousel-scene');
 
 scene.addEventListener('mouseenter', stopAutoRotate);
 scene.addEventListener('mouseleave', startAutoRotate);
+
+// Rotate the cylinder vertically when the pointer wheel is used over it.
+scene.addEventListener('wheel', (event) => {
+  if (event.deltaY === 0) return;
+
+  const moved = rotateCarousel(event.deltaY > 0 ? 1 : -1);
+  if (!moved) {
+    if (isCarouselAtEnd()) stopAutoRotate();
+    return;
+  }
+
+  event.preventDefault();
+  stopAutoRotate();
+  if (!isCarouselAtEnd()) setTimeout(startAutoRotate, 5000);
+}, { passive: false });
 
 // Pause on button click
 document.querySelectorAll('.carousel-btn').forEach(btn => {
