@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"time"
 	"uuid"
@@ -65,7 +66,8 @@ func (m *AuthMiddleware) OptionalAuth(next http.Handler) http.Handler {
 func (m *AuthMiddleware) RequireAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if UserFromContext(r.Context()) == nil {
-			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			log.Println("Unauthenticated: redirecting to /")
+			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
 		}
 		next.ServeHTTP(w, r)
