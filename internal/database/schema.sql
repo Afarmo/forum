@@ -63,13 +63,13 @@
 
 	);
 
-	CREATE TABLE IF NOT EXISTS COMMENT_REACTION (
-	user_id INTEGER NOT NULL,
+	CREATE TABLE IF NOT EXISTS COMMENT_REACTIONS (
 	comment_id INTEGER NOT NULL,
+	user_id INTEGER NOT NULL,
 	reaction INTEGER CHECK (reaction IN (-1, 1)),
-	PRIMARY KEY (user_id, comment_id),
-	FOREIGN KEY (user_id) REFERENCES USERS (id),
-	FOREIGN KEY (comment_id) REFERENCES COMMENTS (id)
+	PRIMARY KEY (comment_id, user_id),
+	FOREIGN KEY (comment_id) REFERENCES COMMENTS (id),
+	FOREIGN KEY (user_id) REFERENCES USERS (id)
 	);
 
 	CREATE VIRTUAL TABLE IF NOT EXISTS POSTS_SEARCH USING fts5(
@@ -77,10 +77,6 @@
 	content,
 	username
 	);
-	INSERT INTO POSTS_SEARCH(rowid, title, content, username)
-	SELECT POSTS.id, POSTS.title, POSTS.content, USERS.username
-	FROM POSTS
-	JOIN USERS ON USERS.id = POSTS.user_id;
 
 	CREATE TRIGGER IF NOT EXISTS posts_search_insert AFTER INSERT ON POSTS BEGIN
 	INSERT INTO POSTS_SEARCH(rowid, title, content, username)
