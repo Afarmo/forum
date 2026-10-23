@@ -79,6 +79,7 @@ func (r *UserRepository) FindUserByEmail(ctx context.Context, email string) (*mo
 		}
 		return nil, err
 	}
+	user.ProfilePicture = profilePicture.String
 
 	return user, nil
 }
@@ -102,6 +103,7 @@ func (r *UserRepository) FindUserById(ctx context.Context, id int) (*models.User
 		}
 		return nil, err
 	}
+	user.ProfilePicture = profilePicture.String
 
 	return user, nil
 }

@@ -18,6 +18,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 2px solid #759e8e;
   width: 88px;
   height: 88px;
   flex: 0 0 88px;
@@ -30,6 +31,8 @@
 }
 
 .profile-avatar img {
+  border: 2px solid #759e8e;
+
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -87,6 +90,7 @@
   align-items: center;
   gap: 16px;
   margin-bottom: 24px;
+  min-width: 0;
 }
 
 .profile-avatar-small {
@@ -97,6 +101,7 @@
 }
 
 .profile-picture-button {
+  min-width: 0;
   color: #315b4a;
   cursor: pointer;
   font-size: 13px;
@@ -105,10 +110,13 @@
 
 .profile-picture-button input {
   display: block;
+  width: 100%;
   max-width: 220px;
+  min-width: 0;
   margin-top: 7px;
   color: #5c6b64;
   font-size: 12px;
+  box-sizing: border-box;
 }
 
 .profile-edit-field {
@@ -185,6 +193,24 @@
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
+}
+
+.profile-picture-save-button {
+  width: auto;
+  flex: 0 0 auto;
+  margin-top: 8px;
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 4px;
+  background: #315b4a;
+  color: #f7f5f0;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.profile-picture-save-button:hover {
+  background: #264938;
 }
 
 .profile-save-button:hover {
@@ -344,6 +370,8 @@
   }
 
   .profile-avatar {
+    border: 2px solid #759e8e;
+
     width: 72px;
     height: 72px;
     flex-basis: 72px;
@@ -360,5 +388,30 @@
 
   .profile-tab-list {
     gap: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-edit-avatar-field {
+    border: 2px solid #759e8e;
+
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .profile-picture-button {
+    flex: 1 1 auto;
+  }
+
+  .profile-picture-button input {
+    font-size: 11px;
+  }
+
+  .profile-picture-save-button {
+    width: auto;
+    flex: 0 0 auto;
+    margin-top: 0;
+    padding: 6px 10px;
+    font-size: 12px;
   }
 }

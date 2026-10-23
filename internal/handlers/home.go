@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/Afarmo/forum/internal/middleware"
 	"github.com/Afarmo/forum/internal/models"
@@ -27,10 +28,11 @@ func NewHomeHandler(tmpl *template.Template, categoryService *service.CategorySe
 }
 
 type HomePageData struct {
-	Title      string
-	User       *models.User
-	Categories []models.Category
-	Posts      []models.Post
+	Title       string
+	User        *models.User
+	Categories  []models.Category
+	Posts       []models.Post
+	SearchQuery string
 }
 
 func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
@@ -56,19 +58,33 @@ func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	posts, err := h.postService.GetAllPosts(r.Context(), categoryID)
-	if err != nil {
-		log.Println(err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
+	searchQuery := strings.TrimSpace(r.URL.Query().Get("query"))
+	var posts []models.Post
+	if searchQuery != "" {
+		posts, err = h.postService.SearchPosts(r.Context(), searchQuery)
+		if err != nil {
+			log.Println("search posts error:", err)
+			posts = []models.Post{}
+		}
+	} else {
+		posts, err = h.postService.GetAllPosts(r.Context(), categoryID)
+		if err != nil {
+			log.Println(err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+	}
+	if posts == nil {
+		posts = []models.Post{}
 	}
 
 	user := middleware.UserFromContext(r.Context())
 	data := &HomePageData{
-		Title:      "Home",
-		User:       user,
-		Categories: categories,
-		Posts:      posts,
+		Title:       "Home",
+		User:        user,
+		Categories:  categories,
+		Posts:       posts,
+		SearchQuery: searchQuery,
 	}
 
 	var buf bytes.Buffer

@@ -51,18 +51,30 @@ func (r *PostRepository) CreatePost(ctx context.Context, post *models.Post, cate
 }
 
 func (r *PostRepository) GetAllPosts(ctx context.Context, categoryID int) ([]models.Post, error) {
-	query := `SELECT id, user_id, title, content, picture_content, created_at FROM posts ORDER BY created_at DESC`
+	// Posts require an author, while profile pictures and categories are optional.
+	// COALESCE maps those optional values to empty strings for the feed model.
+	query := `
+		SELECT p.id, p.user_id, p.title, p.content, p.picture_content, p.created_at,
+			u.username, COALESCE(u.profile_picture, ''),
+			COALESCE((
+				SELECT GROUP_CONCAT(DISTINCT c.name)
+				FROM post_categories pc
+				JOIN categories c ON c.id = pc.category_id
+				WHERE pc.post_id = p.id
+			), '')
+		FROM posts p
+		JOIN users u ON u.id = p.user_id`
 	args := []any{}
 
 	if categoryID > 0 {
-		query = `
-			SELECT p.id, p.user_id, p.title, p.content, p.picture_content, p.created_at
-			FROM posts p
-			JOIN post_categories pc ON pc.post_id = p.id
-			WHERE pc.category_id = ?
-			ORDER BY p.created_at DESC`
+		query += `
+			WHERE EXISTS (
+				SELECT 1 FROM post_categories pc_filter
+				WHERE pc_filter.post_id = p.id AND pc_filter.category_id = ?
+			)`
 		args = append(args, categoryID)
 	}
+	query += ` ORDER BY p.created_at DESC`
 
 	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
@@ -72,7 +84,11 @@ func (r *PostRepository) GetAllPosts(ctx context.Context, categoryID int) ([]mod
 	var posts []models.Post
 	for rows.Next() {
 		var post models.Post
-		err := rows.Scan(&post.PostID, &post.UserID, &post.Title, &post.Content, &post.PictureContent, &post.CreatedAt)
+		err := rows.Scan(
+			&post.PostID, &post.UserID, &post.Title, &post.Content,
+			&post.PictureContent, &post.CreatedAt, &post.AuthorName,
+			&post.AuthorPicture, &post.CategoryNames,
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -181,17 +197,33 @@ func (r *PostRepository) GetPostById(ctx context.Context, postID int) (*models.P
 }
 
 func (r *PostRepository) SearchPosts(ctx context.Context, search string) ([]models.Post, error) {
-	if strings.TrimSpace(search) == ""{
-		return r.GetAllPosts(ctx,0) 
+	if strings.TrimSpace(search) == "" {
+		return r.GetAllPosts(ctx, 0)
 	}
-	query := `SELECT POSTS.id, POSTS.user_id, POSTS.title, POSTS.content, POSTS.picture_content, POSTS.created_at, POSTS.updated_at FROM POSTS_SEARCH JOIN POSTS ON POSTS.id = POSTS_SEARCH.rowid WHERE POSTS_SEARCH MATCH ? ORDER BY bm25(POSTS_SEARCH, 10.0, 1.0, 5.0), POSTS.created_at DESC`
+	//  FTS5 column weights: prioritize title, then username, then content.
+	//  Lower BM25 scores are more relevant, so the best matches come first.
+	query := `
+		SELECT p.id, p.user_id, p.title, p.content, p.picture_content, p.created_at, p.updated_at,
+			u.username, COALESCE(u.profile_picture, ''),
+			COALESCE((
+				SELECT GROUP_CONCAT(DISTINCT c.name)
+				FROM post_categories pc
+				JOIN categories c ON c.id = pc.category_id
+				WHERE pc.post_id = p.id
+			), '')
+		FROM POSTS_SEARCH
+		JOIN POSTS p ON p.id = POSTS_SEARCH.rowid
+		JOIN users u ON u.id = p.user_id
+		WHERE POSTS_SEARCH MATCH ?
+		
+		ORDER BY bm25(POSTS_SEARCH, 10.0, 1.0, 5.0), p.created_at DESC`
 	rows, err := r.db.QueryContext(ctx, query, search)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 	var posts []models.Post
-	for rows.Next(){
+	for rows.Next() {
 		var post models.Post
 		err := rows.Scan(
 			&post.PostID,
@@ -201,8 +233,11 @@ func (r *PostRepository) SearchPosts(ctx context.Context, search string) ([]mode
 			&post.PictureContent,
 			&post.CreatedAt,
 			&post.UpdatedAt,
+			&post.AuthorName,
+			&post.AuthorPicture,
+			&post.CategoryNames,
 		)
-		if err != nil{
+		if err != nil {
 			return nil, err
 		}
 		posts = append(posts, post)
