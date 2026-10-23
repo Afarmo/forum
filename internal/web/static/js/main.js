@@ -79,3 +79,35 @@ document.querySelectorAll(".category-picker").forEach((picker) => {
   boxes.forEach((box) => box.addEventListener("change", validate));
   validate();
 });
+
+//script for profile image preview
+document.addEventListener("DOMContentLoaded", function () {
+  const input = document.getElementById("profile-picture-input");
+  const preview = document.getElementById("avatar-preview");
+  const saveButton = document.getElementById("save-picture");
+
+  if (!input || !preview || !saveButton) return;
+
+  let previewUrl;
+
+  input.addEventListener("change", function () {
+    const file = input.files && input.files[0];
+
+    if (!file) {
+      preview.replaceChildren();
+      saveButton.hidden = true;
+      return;
+    }
+
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+
+    previewUrl = URL.createObjectURL(file);
+
+    const image = document.createElement("img");
+    image.src = previewUrl;
+    image.alt = "Selected profile picture";
+
+    preview.replaceChildren(image);
+    saveButton.hidden = false;
+  });
+});

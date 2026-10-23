@@ -19,12 +19,11 @@ main {
 }
 
 .page-body {
-  margin-top: 24px;
-  margin-left: 24px;
   display: grid;
-  grid-template-columns: 1fr 3fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
   gap: 2rem;
-  max-width: 100%;
+  width: 100%;
+  max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
   flex: 1;
@@ -43,16 +42,25 @@ main {
 }
 
 .main-content {
+  width: 100%;
+  min-width: 0;
+  max-width: 960px;
+  justify-self: center;
   padding: 20px;
-  margin: 10px;
+  margin: 10px 0;
+  box-sizing: border-box;
 }
 
 /* Small screens */
 @media (max-width: 768px) {
   .page-body {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
-    padding: 1rem;
+    gap: 0.5rem;
+    padding: 16px;
+  }
+  .main-content {
+    padding: 8px;
+    margin: 4px 0;
   }
   .site-footer {
     font-size: 12px;

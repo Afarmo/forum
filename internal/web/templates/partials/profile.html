@@ -46,7 +46,22 @@
     </section>
 
     <section class="profile-tab-panel liked-posts-panel" aria-labelledby="liked-posts-tab">
-      <p class="profile-empty-state">Liked posts will appear here.</p>
+      <!-- <p class="profile-empty-state">Liked posts will appear here.</p> -->
+       {{ if .LikedPosts }}
+      <div class="profile-post-list">
+        {{ range .Posts }}
+        <article class="profile-post">
+          <div class="profile-post-meta">
+            <time datetime="{{ .CreatedAt.Format "2006-01-02T15:04:05Z07:00" }}">{{ .CreatedAt.Format "Jan 2, 2006" }}</time>
+          </div>
+          <h2>{{ .Title }}</h2>
+          <p>{{ .Content }}</p>
+        </article>
+        {{ end }}
+      </div>
+      {{ else }}
+      <p class="profile-empty-state">You have not written any posts yet.</p>
+      {{ end }}
     </section>
   </div>
 </div>

@@ -3,13 +3,16 @@ package handlers
 import (
 	"bytes"
 	"database/sql"
-	"encoding/json"
+	"fmt"
 	"html/template"
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
-	"strconv"
+	"path/filepath"
+
+	// "strconv"
 
 	"github.com/Afarmo/forum/internal/apperrors"
 	"github.com/Afarmo/forum/internal/middleware"
@@ -38,6 +41,8 @@ type UserPageData struct {
 	User       *models.User
 	Categories []models.Category
 	Posts      []models.Post
+	LikedPosts []models.Post
+	SearchQuery string
 }
 
 func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
@@ -49,17 +54,26 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	categoryID := 0
-	if categoryIDStr := r.URL.Query().Get("category_id"); categoryIDStr != "" {
-		var convErr error
-		categoryID, convErr = strconv.Atoi(categoryIDStr)
-		if convErr != nil {
-			http.Error(w, "invalid category_id", http.StatusBadRequest)
-			return
-		}
+	// categoryID := 0
+	// if categoryIDStr := r.URL.Query().Get("category_id"); categoryIDStr != "" {
+	// 	var convErr error
+	// 	categoryID, convErr = strconv.Atoi(categoryIDStr)
+	// 	if convErr != nil {
+	// 		http.Error(w, "invalid category_id", http.StatusBadRequest)
+	// 		return
+	// 	}
+	// }
+	user := middleware.UserFromContext(r.Context())
+
+	myPosts, err := h.postService.GetPostByUser(r.Context(), user.ID)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
 	}
 
-	posts, err := h.postService.GetPostByUser(r.Context(), categoryID)
+	// TODO: here get liked post by user service will be called
+	likedPost, err := h.postService.GetPostByUser(r.Context(), user.ID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -74,12 +88,12 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := middleware.UserFromContext(r.Context())
 	data := &UserPageData{
 		Title:      "User",
 		User:       user,
 		Categories: categories,
-		Posts:      posts,
+		Posts:      myPosts,
+		LikedPosts: likedPost,
 	}
 
 	var buf bytes.Buffer
@@ -111,7 +125,8 @@ func (h *UserHandler) UploadProfilePicture(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	picturePath := "internal/web/static/img/profile/" + header.Filename
+	filename := filepath.Base(header.Filename)
+	picturePath := filepath.Join("internal", "web", "static", "img", "profile", filename)
 	destination, err := os.Create(picturePath)
 	if err != nil {
 		http.Error(w, "failed to create file", http.StatusInternalServerError) // TODO
@@ -125,16 +140,12 @@ func (h *UserHandler) UploadProfilePicture(w http.ResponseWriter, r *http.Reques
 	}
 	user := middleware.UserFromContext(r.Context())
 
-	if err = h.userService.UpdateProfilePicture(r.Context(), user.ID, picturePath); err != nil {
+	pictureURL := "/static/img/profile/" + url.PathEscape(filename)
+	if err = h.userService.UpdateProfilePicture(r.Context(), user.ID, pictureURL); err != nil {
 		http.Error(w, "failed to update profile picture", http.StatusInternalServerError)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"message":  "file received successfully",
-		"filename": header.Filename,
-		"size":     header.Size,
-	})
+	// Redirect the POST to a GET so the browser reloads the updated profile
+	// without resubmitting the upload when the page is refreshed.
+	http.Redirect(w, r, fmt.Sprintf("/users/%d", user.ID), http.StatusSeeOther)
 }

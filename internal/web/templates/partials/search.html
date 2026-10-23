@@ -2,10 +2,19 @@
 
 <div class="search-box">
   <span class="search-icon"></span>
-  <!-- here we will call search api -->
-  <form method="POST" action="/search" enctype="multipart/form-data">
-    <input type="text" class="search-input" placeholder="Search..." />
+  <form method="GET" action="/" role="search">
+    <input
+      type="search"
+      name="query"
+      class="search-input"
+      placeholder="Search..."
+      aria-label="Search posts"
+      value="{{ .SearchQuery }}"
+    />
   </form>
+  {{ if .SearchQuery }}
+  <a class="search-clear" href="/" aria-label="Clear search" title="Clear search"></a>
+  {{ end }}
 </div>
 
 {{ end}}
