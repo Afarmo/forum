@@ -21,13 +21,13 @@ import (
 )
 
 func main() {
-	db, seed, err := database.Open()
+	db, err := database.Open()
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
-	if err := database.InitializeSchema(db, seed); err != nil {
+	if err := database.InitializeSchema(db); err != nil {
 		log.Fatal(err)
 	}
 
