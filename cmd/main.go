@@ -30,7 +30,6 @@ func main() {
 	if err := database.InitializeSchema(db); err != nil {
 		log.Fatal(err)
 	}
-	
 
 	tmpl := template.Must(template.New("").ParseGlob("internal/web/templates/*.html"))
 	template.Must(tmpl.ParseGlob("internal/web/templates/partials/*.html"))
@@ -60,6 +59,7 @@ func main() {
 	commentHandler := handlers.NewCommentHandler(commentService)
 	reactionHandler := handlers.NewReactionHandler(reactionService)
 
+	authMiddleware := middleware.NewAuthMiddleware(sessionRepo, userRepo)
 	mux := router.NewRouter(
 		homeHandler,
 		userHandler,
@@ -68,10 +68,9 @@ func main() {
 		categoryHandler,
 		commentHandler,
 		reactionHandler,
+		authMiddleware,
 	)
 
-	// middleware
-	authMiddleware := middleware.NewAuthMiddleware(sessionRepo, userRepo)
 	handler := middleware.Recover(
 		middleware.Logger(
 			authMiddleware.OptionalAuth(mux),
