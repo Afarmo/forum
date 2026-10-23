@@ -21,16 +21,15 @@ import (
 )
 
 func main() {
-	db, err := database.Open()
+	db, seed, err := database.Open()
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
-	if err := database.InitializeSchema(db); err != nil {
+	if err := database.InitializeSchema(db, seed); err != nil {
 		log.Fatal(err)
 	}
-	
 
 	tmpl := template.Must(template.New("").ParseGlob("internal/web/templates/*.html"))
 	template.Must(tmpl.ParseGlob("internal/web/templates/partials/*.html"))
