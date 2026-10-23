@@ -38,6 +38,7 @@ type UserPageData struct {
 	User       *models.User
 	Categories []models.Category
 	Posts      []models.Post
+	Query		string
 }
 
 func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
@@ -48,18 +49,13 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+    userID , err := strconv.Atoi(r.PathValue("id"))
+    if err != nil {
+        http.Error(w, "invalid user id", http.StatusBadRequest)
+        return
+    }
 
-	categoryID := 0
-	if categoryIDStr := r.URL.Query().Get("category_id"); categoryIDStr != "" {
-		var convErr error
-		categoryID, convErr = strconv.Atoi(categoryIDStr)
-		if convErr != nil {
-			http.Error(w, "invalid category_id", http.StatusBadRequest)
-			return
-		}
-	}
-
-	posts, err := h.postService.GetPostByUser(r.Context(), categoryID)
+	posts, err := h.postService.GetPostByUser(r.Context(), userID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
