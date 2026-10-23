@@ -1,26 +1,11 @@
 {{ define "sidebar" }}
-<aside class="sidebar">
+<aside class="carousel-scene">
     <span class="sidebar-label">Categories</span>
-    <nav class="category-list">
+    <nav class="carousel-3d"id="carousel">
         <a href="/" class="category-link category-all">All Categories</a>
-        {{ if le (len .Categories) 6 }}
-            {{ range .Categories }}
-            <a href="/?category_id={{ .ID }}" class="category-link">{{ .Name }}</a>
-        {{ end }}
-        {{else}}
-
-        {{range slice  .Categories 0 6 }}
-            <a href="/?category_id={{ .ID }}" class="category-link">{{ .Name }}</a>
-            {{ end }}
-
-            <input type ="checkbox" id ="sidebar-toggle" class ="dropdown-checkbox">
-            <label for = "sidebar-toggle" class = "dropdown-trigger" ></label>
-            <div class = "dropdown-content">
-                {{ range slice .Categories 6}}
-                <a href = "/?category_id={{ .ID }}"  class = "category-link">{{ .Name}}</a>
+                {{ range .Categories}}
+                <a href = "/?category_id={{ .ID }}"  class = "carousel-cell">{{ .Name}}</a>
                 {{end}}
-            </div>
-        {{end}}
     </nav>
 </aside>
 {{ end }}
