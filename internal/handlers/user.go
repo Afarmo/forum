@@ -41,12 +41,8 @@ type UserPageData struct {
 	User       *models.User
 	Categories []models.Category
 	Posts      []models.Post
-<<<<<<< HEAD
-	Query		string
-=======
 	LikedPosts []models.Post
 	SearchQuery string
->>>>>>> 643c3e6a68c643f69174716d494105c65b0eda06
 }
 
 func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
@@ -57,15 +53,7 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-    userID , err := strconv.Atoi(r.PathValue("id"))
-    if err != nil {
-        http.Error(w, "invalid user id", http.StatusBadRequest)
-        return
-    }
 
-<<<<<<< HEAD
-	posts, err := h.postService.GetPostByUser(r.Context(), userID)
-=======
 	// categoryID := 0
 	// if categoryIDStr := r.URL.Query().Get("category_id"); categoryIDStr != "" {
 	// 	var convErr error
@@ -86,7 +74,6 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: here get liked post by user service will be called
 	likedPost, err := h.postService.GetPostByUser(r.Context(), user.ID)
->>>>>>> 643c3e6a68c643f69174716d494105c65b0eda06
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
