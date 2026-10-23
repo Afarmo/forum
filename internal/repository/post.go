@@ -194,24 +194,29 @@ func (r *PostRepository) GetPostById(ctx context.Context, postID int) (*models.P
 }
 
 func (r *PostRepository) SearchPosts(ctx context.Context, search string) ([]models.Post, error) {
-	if strings.TrimSpace(search) == ""{
-		return r.GetAllPosts(ctx,0)
+	if strings.TrimSpace(search) == "" {
+		return r.GetAllPosts(ctx, 0)
 	}
+
+	keyword := strings.TrimSpace(search)
+	likeQuery := "%" + keyword + "%"
+
 	query := `
-		SELECT p.id, p.user_id, p.title, p.content, COALESCE(p.picture_content, ''), p.created_at, p.updated_at,
+		SELECT p.id, p.user_id, p.title, p.content, COALESCE(p.picture_content, ''), p.created_at,
 		       COALESCE(u.username, ''), COALESCE(u.profile_picture, '')
-		FROM POSTS_SEARCH ps
-		JOIN posts p ON p.id = ps.rowid
+		FROM posts p
 		LEFT JOIN users u ON u.id = p.user_id
-		WHERE ps MATCH ?
-		ORDER BY bm25(ps, 10.0, 5.0, 2.0), p.created_at DESC`
-	rows, err := r.db.QueryContext(ctx, query, search)
+		WHERE p.title LIKE ? OR p.content LIKE ? OR u.username LIKE ?
+		ORDER BY p.created_at DESC`
+
+	rows, err := r.db.QueryContext(ctx, query, likeQuery, likeQuery, likeQuery)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
+
 	var posts []models.Post
-	for rows.Next(){
+	for rows.Next() {
 		var post models.Post
 		err := rows.Scan(
 			&post.PostID,
@@ -220,11 +225,10 @@ func (r *PostRepository) SearchPosts(ctx context.Context, search string) ([]mode
 			&post.Content,
 			&post.PictureContent,
 			&post.CreatedAt,
-			&post.UpdatedAt,
 			&post.AuthorName,
 			&post.AuthorPicture,
 		)
-		if err != nil{
+		if err != nil {
 			return nil, err
 		}
 		posts = append(posts, post)
