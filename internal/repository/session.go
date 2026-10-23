@@ -53,7 +53,7 @@ func (r *SessionRepository) FindByID(ctx context.Context, id uuid.UUID) (*models
 func (r *SessionRepository) DeleteSession(ctx context.Context, id uuid.UUID) error {
 	_, err := r.db.ExecContext(ctx, `
 		DELETE from sessions
-		WHERE id ?
+		WHERE id = ?
 	`, id.String(),
 	)
 
