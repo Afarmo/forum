@@ -15,6 +15,7 @@ func RenderError(w http.ResponseWriter, tmpl *template.Template, status int) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(status)
 	buf.WriteTo(w)
 }
