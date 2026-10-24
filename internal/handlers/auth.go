@@ -4,8 +4,10 @@ import (
 	"errors"
 	"html/template"
 	"net/http"
+	"uuid"
 
 	"github.com/Afarmo/forum/internal/apperrors"
+	"github.com/Afarmo/forum/internal/auth"
 	"github.com/Afarmo/forum/internal/service"
 )
 
@@ -66,10 +68,27 @@ func (h *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session_id",
 		Value:    session.ID.String(),
+		Path:     "/",
 		Expires:  session.ExpiresAt,
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
 	})
 
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (h *AuthHandler) LogoutHandler(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("session_id")
+	if err == nil {
+		sessionID, err := uuid.Parse(cookie.Value)
+		if err == nil {
+			if err := h.service.Logout(r.Context(), sessionID); err != nil {
+				http.Error(w, "failed to log out", http.StatusInternalServerError)
+				return
+			}
+		}
+	}
+
+	auth.ClearSessionCookie(w)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

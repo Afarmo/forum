@@ -2,11 +2,14 @@ package middleware
 
 import (
 	"context"
+	"errors"
 	"log"
 	"net/http"
 	"time"
 	"uuid"
 
+	"github.com/Afarmo/forum/internal/apperrors"
+	"github.com/Afarmo/forum/internal/auth"
 	"github.com/Afarmo/forum/internal/models"
 	"github.com/Afarmo/forum/internal/repository"
 )
@@ -36,23 +39,43 @@ func (m *AuthMiddleware) OptionalAuth(next http.Handler) http.Handler {
 
 		sessionID, err := uuid.Parse(cookie.Value)
 		if err != nil {
+			auth.ClearSessionCookie(w)
 			next.ServeHTTP(w, r)
 			return
 		}
 
 		session, err := m.sessionRepo.FindByID(r.Context(), sessionID)
 		if err != nil {
+			if errors.Is(err, apperrors.ErrNotFound) {
+				auth.ClearSessionCookie(w)
+			} else {
+				apperrors.Log(err)
+			}
+
 			next.ServeHTTP(w, r)
 			return
 		}
 
-		if time.Now().After(session.ExpiresAt) {
+		if !time.Now().Before(session.ExpiresAt) {
+			if err := m.sessionRepo.DeleteSession(r.Context(), sessionID); err != nil {
+				apperrors.Log(err)
+			}
+
+			auth.ClearSessionCookie(w)
 			next.ServeHTTP(w, r)
 			return
 		}
 
 		user, err := m.userRepo.FindUserById(r.Context(), session.UserID)
 		if err != nil {
+			if errors.Is(err, apperrors.ErrNotFound) {
+				auth.ClearSessionCookie(w)
+				if err = m.sessionRepo.DeleteSession(r.Context(), sessionID); err != nil {
+					apperrors.Log(err)
+				}
+			} else {
+				apperrors.Log(err)
+			}
 			next.ServeHTTP(w, r)
 			return
 		}
