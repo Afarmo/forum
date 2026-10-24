@@ -1,4 +1,3 @@
-
 .PHONY: run up build down re logs ps
 
 # Run the forum locally without Docker
@@ -18,9 +17,7 @@ down:
 	docker compose down
 
 # Rebuild and restart Docker
-re:
-	$(MAKE) down
-	$(MAKE) build
+re: down build
 
 # Follow application logs
 logs:
