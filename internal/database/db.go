@@ -23,27 +23,41 @@ func Open() (*sql.DB, error) {
 	return db, nil
 }
 
+func BackfillPostSearch(db *sql.DB) error {
+	_, err := db.Exec(`
+        INSERT INTO POSTS_SEARCH(rowid, title, content, username)
+        SELECT POSTS.id, POSTS.title, POSTS.content, USERS.username
+        FROM POSTS
+        JOIN USERS ON USERS.id = POSTS.user_id
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM POSTS_SEARCH
+            WHERE POSTS_SEARCH.rowid = POSTS.id
+        )
+    `)
+
+	return err
+}
+
 func InitializeSchema(db *sql.DB) error {
 	schemaBytes, err := os.ReadFile("internal/database/schema.sql")
 	if err != nil {
 		return err
 	}
 
-	_, err = db.Exec(string(schemaBytes))
-
-	if err != nil {
+	if _, err := db.Exec(string(schemaBytes)); err != nil {
 		return err
 	}
+
 	if err := BackfillPostSearch(db); err != nil {
 		return err
 	}
-	err = SeedCategories(db)
-	if err != nil {
+
+	if err := SeedCategories(db); err != nil {
 		return err
 	}
 
-	err = SeedDemoData(db)
-	if err != nil {
+	if err := SeedDemoData(db); err != nil {
 		return err
 	}
 
