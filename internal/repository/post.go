@@ -159,20 +159,36 @@ func (r *PostRepository) UpdatePost(ctx context.Context, userID int, update *mod
 }
 
 func (r *PostRepository) DeletePost(ctx context.Context, postID *int) error {
-	tx, txErr := r.db.BeginTx(ctx, nil)
-	if txErr != nil {
-		return apperrors.ErrTransactionStart
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("%w: %w", apperrors.ErrTransactionStart, err)
 	}
-
 	defer tx.Rollback()
 
-	queries := []string{`DELETE FROM comment_reaction WHERE comment_id IN(SELECT id FROM comments WHERE post_id = ?)`, `DELETE FROM comments WHERE post_id = ?`, `DELETE FROM post_reactions WHERE post_id = ?`, `DELETE FROM post_categories WHERE post_id = ?`, `DELETE FROM posts WHERE id = ?`}
+	queries := []string{`DELETE FROM comment_reaction WHERE comment_id IN(SELECT id FROM comments WHERE post_id = ?)`, `DELETE FROM comments WHERE post_id = ?`, `DELETE FROM post_reactions WHERE post_id = ?`, `DELETE FROM post_categories WHERE post_id = ?`}
 	for _, query := range queries {
-		_, err := tx.ExecContext(ctx, query, postID)
+		_, err := tx.ExecContext(ctx, query, *postID)
 		if err != nil {
 			return err
 		}
+
 	}
+
+	query := `DELETE FROM posts WHERE id = ?`
+	result, err := tx.ExecContext(ctx, query, *postID)
+	if err != nil {
+		return err
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rows == 0 {
+		return apperrors.ErrNotFound
+	}
+
 	return tx.Commit()
 }
 

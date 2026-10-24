@@ -2,10 +2,12 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"html/template"
 	"net/http"
 	"strconv"
 
+	"github.com/Afarmo/forum/internal/apperrors"
 	"github.com/Afarmo/forum/internal/middleware"
 	"github.com/Afarmo/forum/internal/models"
 	"github.com/Afarmo/forum/internal/service"
@@ -16,9 +18,10 @@ type CommentHandler struct {
 	tmpl    *template.Template
 }
 
-func NewCommentHandler(service *service.CommentService) *CommentHandler {
+func NewCommentHandler(service *service.CommentService, tmpl *template.Template) *CommentHandler {
 	return &CommentHandler{
 		service: service,
+		tmpl:    tmpl,
 	}
 }
 
@@ -46,28 +49,25 @@ func countComments(views []CommentView) int {
 	return n
 }
 func (h *CommentHandler) CreateComment(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
 	postID, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		http.Error(w, "invalid post id", http.StatusBadRequest)
 		return
 	}
-	content := r.FormValue("content")
 
+	content := r.FormValue("content")
 	if content == "" {
 		http.Error(w, "content is required", http.StatusBadRequest)
 		return
 	}
 
-	var comment models.Comment
 	user := middleware.UserFromContext(r.Context())
-	if user == nil {
-		http.Error(w, "authentication required", http.StatusUnauthorized)
-		return
-	}
+
+	var comment models.Comment
 	comment.UserID = user.ID
 	comment.PostID = postID
 	comment.Content = content
+
 	parentID := r.FormValue("parent_id")
 	if parentID != "" {
 		id, err := strconv.Atoi(parentID)
@@ -78,31 +78,36 @@ func (h *CommentHandler) CreateComment(w http.ResponseWriter, r *http.Request) {
 		comment.ParentID = &id
 	}
 
-	err = h.service.CreateComment(ctx, &comment)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	if err = h.service.CreateComment(r.Context(), &comment); err != nil {
+		switch {
+		case errors.Is(err, apperrors.ErrInvalidInput):
+			http.Error(w, "invalid comment", http.StatusBadRequest)
+		default:
+			apperrors.Log(err)
+			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
+		}
+
 		return
 	}
 
 	// Land on the new comment (#comment-N) so the reload scrolls straight to it.
 	http.Redirect(w, r, "/posts/"+strconv.Itoa(postID)+"#comment-"+strconv.Itoa(comment.ID), http.StatusSeeOther)
-
 }
 
 func (h *CommentHandler) GetCommentsByPost(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	id := r.PathValue("id")
-	postID, err := strconv.Atoi(id)
+	postID, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
-		http.Error(w, "invalid user id", http.StatusBadRequest)
+		http.Error(w, "invalid post ID", http.StatusBadRequest)
 		return
 	}
 
-	posts, err := h.service.GetCommentsByPost(ctx, postID)
+	posts, err := h.service.GetCommentsByPost(r.Context(), postID)
 	if err != nil {
-		http.Error(w, "failed to get the user posts", http.StatusInternalServerError)
+		apperrors.Log(err)
+		http.Error(w, "failed to get comments", http.StatusInternalServerError)
 		return
 	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(posts)
