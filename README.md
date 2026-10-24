@@ -1,34 +1,63 @@
 # forum
 Literary Lions Forum is a full‑stack web forum built in Go with SQLite, designed to help book club members discuss literature, share insights, and organize conversations through categories.
 
-## Running the Forum with Docker
+## Running the Forum
 
-### Start the application
+### Run locally without Docker
 
 From the project root, run:
 
 ```bash
-docker compose up --build -d
+make run
 ```
 
-Open the forum at http://localhost:8080.
+This runs the Go application locally with the SQLite FTS5 build tag. Make sure the required dependencies are installed.
 
-### Stop the application
+### Running the Forum with Docker
+
+#### Start the application
 
 ```bash
-docker compose down
+make up
 ```
 
-### View logs
+
+### Access the Forum
+
+Open [http://localhost:8000](http://localhost:8000) in your browser.
+
+
+#### Rebuild and start the application
+
+After changing Go code or the Dockerfile, run:
 
 ```bash
-docker compose logs -f
+make build
+```
+
+#### Stop the application
+
+```bash
+make down
+```
+
+#### View logs
+
+```bash
+make logs
 ```
 
 Press `Ctrl+C` to stop viewing the logs without stopping the application.
 
-### Check container status
+#### Check container status
 
 ```bash
-docker compose ps
+make ps
 ```
+
+#### Restart the application with a rebuild
+
+```bash
+make re
+```
+
