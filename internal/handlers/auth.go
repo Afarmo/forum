@@ -83,7 +83,9 @@ func (h *AuthHandler) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 		sessionID, err := uuid.Parse(cookie.Value)
 		if err == nil {
 			if err := h.service.Logout(r.Context(), sessionID); err != nil {
-				http.Error(w, "failed to log out", http.StatusInternalServerError)
+				apperrors.Log(err)
+				auth.ClearSessionCookie(w)
+				apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 				return
 			}
 		}
