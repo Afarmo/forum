@@ -24,7 +24,7 @@ make up
 
 ### Access the Forum
 
-Open [http://localhost:8000](http://localhost:8000) in your browser.
+Open [http://localhost:8080](http://localhost:8080) in your browser.
 
 
 #### Rebuild and start the application
