@@ -1,20 +1,25 @@
 package handlers
 
 import (
+	"errors"
+	"html/template"
 	"net/http"
 	"strconv"
 
+	"github.com/Afarmo/forum/internal/apperrors"
 	"github.com/Afarmo/forum/internal/middleware"
 	"github.com/Afarmo/forum/internal/service"
 )
 
 type ReactionHandler struct {
 	reactionService *service.ReactionService
+	tmpl            *template.Template
 }
 
-func NewReactionHandler(reactionService *service.ReactionService) *ReactionHandler {
+func NewReactionHandler(reactionService *service.ReactionService, tmpl *template.Template) *ReactionHandler {
 	return &ReactionHandler{
 		reactionService: reactionService,
+		tmpl:            tmpl,
 	}
 }
 
@@ -39,6 +44,15 @@ func (h *ReactionHandler) ReactToPost(w http.ResponseWriter, r *http.Request) {
 		user.ID,
 		reaction,
 	); err != nil {
+		switch {
+		case errors.Is(err, apperrors.ErrInvalidInput):
+			http.Error(w, "invalid reaction", http.StatusBadRequest)
+
+		default:
+			apperrors.Log(err)
+			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
+		}
+
 		return
 	}
 
@@ -72,6 +86,15 @@ func (h *ReactionHandler) ReactToComment(w http.ResponseWriter, r *http.Request)
 		user.ID,
 		reaction,
 	); err != nil {
+		switch {
+		case errors.Is(err, apperrors.ErrInvalidInput):
+			http.Error(w, "invalid reaction", http.StatusBadRequest)
+
+		default:
+			apperrors.Log(err)
+			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
+		}
+
 		return
 	}
 

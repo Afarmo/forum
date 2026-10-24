@@ -45,28 +45,30 @@ type PostPageData struct {
 
 func (h *PostHandler) CreatePostPage(w http.ResponseWriter, r *http.Request) {
 
-	num, er := strconv.Atoi(r.PathValue("id"))
-	if er != nil {
+	num, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
 		http.Error(w, "invalid post id", http.StatusBadRequest)
 		return
 	}
-	ctx := r.Context()
-	post, err := h.service.GetPostById(ctx, num)
 
+	ctx := r.Context()
+
+	post, err := h.service.GetPostById(ctx, num)
 	if err != nil {
 		if errors.Is(err, apperrors.ErrNotFound) {
-			http.Error(w, "post not found", http.StatusNotFound)
+			apperrors.RenderError(w, h.tmpl, http.StatusNotFound)
 			return
 		}
+
 		log.Println("get post error:", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 		return
 	}
 
 	comments, err := h.commentService.GetCommentThreads(ctx, num)
 	if err != nil {
 		log.Println("get comments error:", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 		return
 	}
 
@@ -83,65 +85,74 @@ func (h *PostHandler) CreatePostPage(w http.ResponseWriter, r *http.Request) {
 
 	var buf bytes.Buffer
 	if err := h.tmpl.ExecuteTemplate(&buf, "post_page.html", data); err != nil {
-		log.Println("Error rendering template:", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		log.Println("error rendering template:", err)
+		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 		return
 	}
+
 	if _, err := buf.WriteTo(w); err != nil {
-		log.Println("Error writing response:", err)
+		log.Println("error writing response:", err)
 	}
 
 }
 
 func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
 	title := r.FormValue("title")
 	if title == "" {
 		http.Error(w, "title is required", http.StatusBadRequest)
 		return
 	}
+
 	content := r.FormValue("content")
 	if content == "" {
 		http.Error(w, "content is required", http.StatusBadRequest)
 		return
 	}
+
 	category_id := r.FormValue("category_id")
 	if category_id == "" {
 		http.Error(w, "category is required", http.StatusBadRequest)
 		return
 	}
+
 	categoryID, err := strconv.Atoi(category_id)
 	if err != nil {
 		http.Error(w, "invalid category", http.StatusBadRequest)
 		return
 	}
+
 	var post models.Post
 	user := middleware.UserFromContext(r.Context())
 	if user == nil {
 		http.Error(w, "authentication required", http.StatusUnauthorized)
 		return
 	}
-	post.UserID = user.ID
-	post.Content = content
+
 	post.Title = title
-	file, header, err := r.FormFile("picture") // WIP
+	post.Content = content
+	post.UserID = user.ID
+
+	file, header, err := r.FormFile("picture")
 	if err == nil {
 		defer file.Close()
 
 		err = os.MkdirAll("internal/web/static/img/post", 0755)
 		if err != nil {
-			http.Error(w, "failed to create directory", http.StatusInternalServerError)
+			apperrors.Log(err)
+			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 			return
 		}
 		destination, err := os.Create("internal/web/static/img/post/" + header.Filename)
 		if err != nil {
-			http.Error(w, "failed to create file", http.StatusInternalServerError)
+			apperrors.Log(err)
+			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 			return
 		}
 		defer destination.Close()
 
 		if _, err := io.Copy(destination, file); err != nil {
-			http.Error(w, "failed to save uploaded file", http.StatusInternalServerError)
+			apperrors.Log(err)
+			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 			return
 		}
 
@@ -155,34 +166,37 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		post.PictureContent = imageURL
 	}
 
-	err = h.service.CreatePost(ctx, &post, categoryID)
+	err = h.service.CreatePost(r.Context(), &post, categoryID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		if errors.Is(err, apperrors.ErrInvalidInput) {
+			http.Error(w, "invalid post data", http.StatusBadRequest)
+			return
+		}
+		apperrors.Log(err)
+		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 	}
 	// Back to the feed, scrolled to the new post's card (#post-N).
 	http.Redirect(w, r, "/#post-"+strconv.Itoa(post.PostID), http.StatusSeeOther)
 }
 
 func (h *PostHandler) GetAllPosts(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	categoryID := 0
+	var categoryID int
 	if categoryIDStr := r.URL.Query().Get("category_id"); categoryIDStr != "" {
-		var convErr error
-		categoryID, convErr = strconv.Atoi(categoryIDStr)
-		if convErr != nil {
-			http.Error(w, "invalid category_id", http.StatusBadRequest)
+		var err error
+		categoryID, err = strconv.Atoi(categoryIDStr)
+		if err != nil {
+			http.Error(w, "invalid category id", http.StatusBadRequest)
 			return
 		}
 	}
 
-	posts, err := h.service.GetAllPosts(ctx, categoryID)
+	posts, err := h.service.GetAllPosts(r.Context(), categoryID)
 	if err != nil {
-		log.Println("Get post error:", err)
+		apperrors.Log(err)
 		http.Error(w, "failed to get the posts", http.StatusInternalServerError)
 		return
 	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(posts)
@@ -199,6 +213,7 @@ func (h *PostHandler) GetPostByUser(w http.ResponseWriter, r *http.Request) {
 
 	posts, err := h.service.GetPostByUser(ctx, userID)
 	if err != nil {
+		apperrors.Log(err)
 		http.Error(w, "failed to get the user posts", http.StatusInternalServerError)
 		return
 	}
@@ -208,7 +223,6 @@ func (h *PostHandler) GetPostByUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
 	PostID, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		http.Error(w, "invalid Post ID", http.StatusBadRequest)
@@ -221,28 +235,46 @@ func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid Json", http.StatusBadRequest)
 		return
 	}
-	err = h.service.UpdatePost(ctx, &PostID, &update)
+	err = h.service.UpdatePost(r.Context(), &PostID, &update)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		switch {
+		case errors.Is(err, apperrors.ErrNotFound):
+			http.Error(w, "post not found", http.StatusNotFound)
+		case errors.Is(err, apperrors.ErrInvalidInput):
+			http.Error(w, "invalid post data", http.StatusBadRequest)
+		default:
+			apperrors.Log(err)
+			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
+		}
+
 		return
 	}
+
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("post updated successfully"))
 }
 
 func (h *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
 	postID, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		http.Error(w, "invalid post ID", http.StatusBadRequest)
 		return
 	}
-	err = h.service.DeletePost(ctx, &postID)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+
+	if err = h.service.DeletePost(r.Context(), &postID); err != nil {
+		switch {
+		case errors.Is(err, apperrors.ErrInvalidInput):
+			http.Error(w, "invalid post ID", http.StatusBadRequest)
+		case errors.Is(err, apperrors.ErrNotFound):
+			http.Error(w, "post not found", http.StatusNotFound)
+		default:
+			apperrors.Log(err)
+			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
+		}
+
 		return
 	}
+
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("post deleted successfully"))
 }
@@ -258,8 +290,8 @@ func (h *PostHandler) SearchPosts(w http.ResponseWriter, r *http.Request) {
 		posts, err = h.service.SearchPosts(ctx, search)
 	}
 	if err != nil {
-		log.Println("search posts error:", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		apperrors.Log(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 	if posts == nil {

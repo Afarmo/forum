@@ -29,17 +29,18 @@ func (h *AuthHandler) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 
 	if err := h.service.Register(r.Context(), username, email, password); err != nil {
-		apperrors.Log(err)
 		switch {
 		case errors.Is(err, apperrors.ErrInvalidUsername),
 			errors.Is(err, apperrors.ErrInvalidEmail),
-			errors.Is(err, apperrors.ErrInvalidPassword),
-			errors.Is(err, apperrors.ErrDuplicateKey):
+			errors.Is(err, apperrors.ErrInvalidPassword):
 			http.Error(w, err.Error(), http.StatusBadRequest)
 
-		default:
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		case errors.Is(err, apperrors.ErrDuplicateKey):
+			http.Error(w, err.Error(), http.StatusConflict)
 
+		default:
+			apperrors.Log(err)
+			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 		}
 		return
 	}
@@ -53,14 +54,13 @@ func (h *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	session, err := h.service.Login(r.Context(), email, password)
 	if err != nil {
-		apperrors.Log(err)
 		switch {
 		case errors.Is(err, apperrors.ErrInvalidCredentials):
 			http.Error(w, "Invalid email or password", http.StatusUnauthorized)
 
 		default:
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-
+			apperrors.Log(err)
+			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 		}
 		return
 	}
