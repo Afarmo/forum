@@ -1,5 +1,5 @@
 .post-page-body {
-    background: #f1eadb;
+    background: var(--egg);
 }
 
 .post-page {
@@ -10,10 +10,10 @@
 
 .post-detail,
 .card {
-    background: #fbf8f2;
-    border: 1px solid #e7ddc3;
-    border-radius: 6px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+    background: var(--egg);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 24px;
+    box-shadow: var(--neu-egg);
 }
 
 .post-detail {
@@ -32,10 +32,12 @@
 }
 
 .post-detail-title {
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: 2.2rem;
-    line-height: 1.25;
-    color: #2a241c;
+    font-family: var(--font-display);
+    font-size: 3.2rem;
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    color: var(--black);
     margin: 0 0 24px;
 }
 
@@ -44,15 +46,15 @@
     align-items: center;
     gap: 14px;
     padding-bottom: 24px;
-    border-bottom: 1px solid #e7ddc3;
+    border-bottom: 1px solid var(--line);
 }
 
 .avatar {
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    border: 2px solid #e7ddc3;
-    background: #f8f4e7;
+    border: 2px solid var(--blue);
+    background: var(--grape);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -73,20 +75,19 @@
 }
 
 .author-name {
-    font-weight: 700;
-    color: #2a241c;
+    font-weight: 600;
+    color: var(--black);
 }
 
 .meta-date {
-    font-family: "Courier New", monospace;
-    font-size: 0.9rem;
-    color: #8a7d63;
+    font-size: 0.85rem;
+    color: var(--muted);
 }
 
 .post-detail-content {
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     line-height: 1.8;
-    color: #3a3226;
+    color: var(--ink-soft);
     padding: 24px 0;
     white-space: pre-line; /* keeps the line breaks the user typed */
 }
@@ -96,7 +97,7 @@
     justify-content: space-between;
     align-items: center;
     padding-top: 20px;
-    border-top: 1px solid #e7ddc3;
+    border-top: 1px solid var(--line);
     /* after liking, the page reloads at #post-reactions: keep the button
        roughly where it was on screen instead of snapping it to the top */
     scroll-margin-top: 40vh;
@@ -107,10 +108,10 @@
     align-items: center;
     gap: 6px;
     padding: 6px 14px;
-    border: 1px solid #e7ddc3;
+    border: 1px solid var(--line);
     border-radius: 999px;
-    background: #fff;
-    color: #8a7d63;
+    background: var(--white);
+    color: var(--muted);
     font: inherit;
     font-size: 0.9rem;
 }
@@ -120,14 +121,14 @@
 }
 
 .like-button:hover {
-    border-color: #c0392b;
-    color: #c0392b;
+    border-color: var(--blue);
+    color: var(--blue);
 }
 
 .like-button.liked {
-    border-color: #c0392b;
-    background: #fdecea;
-    color: #c0392b;
+    border-color: var(--blue);
+    background: var(--blue);
+    color: var(--egg);
 }
 
 .discussion {
@@ -135,16 +136,18 @@
 }
 
 .discussion-title {
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: 1.8rem;
-    color: #2a241c;
+    font-family: var(--font-display);
+    font-size: 2.6rem;
+    font-weight: 400;
+    line-height: 1.05;
+    color: var(--black);
 }
 
 .sign-in-prompt {
     text-align: center;
     padding: 32px;
     margin-bottom: 20px;
-    color: #6b5f4a;
+    color: var(--muted);
 }
 
 .comment-form {
@@ -155,13 +158,25 @@
     margin-bottom: 20px;
 }
 
-.comment-form textarea {
-    min-height: 90px;
-    padding: 10px;
-    border: 1px solid #e7ddc3;
-    border-radius: 4px;
+.comment-form textarea,
+.reply-form textarea {
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--white);
     font: inherit;
     resize: vertical;
+}
+
+.comment-form textarea:focus,
+.reply-form textarea:focus {
+    outline: none;
+    border-color: var(--blue);
+    box-shadow: var(--focus-ring);
+}
+
+.comment-form textarea {
+    min-height: 90px;
 }
 
 .comment-form .nav-button {
@@ -181,12 +196,12 @@
 
 .comment-content {
     line-height: 1.7;
-    color: #3a3226;
+    color: var(--ink-soft);
     margin: 12px 0 0;
 }
 
 .no-comments {
-    color: #8a7d63;
+    color: var(--muted);
     text-align: center;
 }
 
@@ -195,7 +210,7 @@
 .replies {
     margin-left: 24px;
     padding-left: 16px;
-    border-left: 2px solid #e7ddc3;
+    border-left: 2px solid var(--grape-deep);
 }
 
 .replies:empty {
@@ -212,8 +227,9 @@
 
 .reply-box summary {
     cursor: pointer;
-    color: #8a7d63;
+    color: var(--blue);
     font-size: 0.9rem;
+    font-weight: 500;
     width: fit-content;
 }
 
@@ -226,11 +242,6 @@
 
 .reply-form textarea {
     min-height: 70px;
-    padding: 10px;
-    border: 1px solid #e7ddc3;
-    border-radius: 4px;
-    font: inherit;
-    resize: vertical;
 }
 
 .reply-form .nav-button {
@@ -244,9 +255,19 @@
 }
 
 @keyframes comment-added {
-    from { background-color: #fbf3dc; }
+    from { background-color: var(--hivis); }
 }
 
 .comment-thread:target > .comment {
     animation: comment-added 2s ease-out;
+}
+
+@media (max-width: 600px) {
+    .post-detail-body {
+        padding: 24px 20px;
+    }
+
+    .post-detail-title {
+        font-size: 2.4rem;
+    }
 }

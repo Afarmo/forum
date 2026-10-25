@@ -4,7 +4,13 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{ .Title }}</title>
-    <link rel="stylesheet" href="/static/css/style.css?v=signin-neumorphic" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Poppins:wght@400;500;600;700&display=swap"
+    />
+    <link rel="stylesheet" href="/static/css/style.css?v=speed-limit" />
   </head>
   <body>
     <div class="page-header">
@@ -24,8 +30,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
     <script src="/static/js/main.js?v=confirm-modal"></script>
-    <script src="/static/js/cylinder-scroll.js?v=vertical-cylinder-category-order"></script>
-    <script src="/static/js/auto-rotation.js?v=vertical-cylinder-stop-at-end"></script>
+    <script src="/static/js/cylinder-scroll.js?v=speed-limit"></script>
   </body>
 </html>
 {{ end }}

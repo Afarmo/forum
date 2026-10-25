@@ -19,8 +19,6 @@
   align-items: center;
   gap: 7px;
 
-  /* padding: 4px 4px; */
-
   border: none;
   background: transparent;
 
@@ -33,12 +31,17 @@
   height: 36px;
 
   border-radius: 50%;
-  border: 2px solid #759e8e;
+  border: 2px solid var(--blue);
 
   object-fit: cover;
 
   display: block;
   box-sizing: border-box;
+}
+
+/* In the blue header the avatar ring switches to eggshell */
+.header .user-avatar {
+  border-color: var(--egg);
 }
 
 /* Default avatar */
@@ -47,14 +50,14 @@
   align-items: center;
   justify-content: center;
 
-  background-color: #e8eee9;
+  background-color: var(--grape);
   font-size: 24px;
 }
 
 /* Username */
 .user-name {
-  color: #252424;
-  font-size: 24px;
+  color: var(--egg);
+  font-size: 22px;
   font-weight: 600;
   white-space: nowrap;
 }
@@ -66,17 +69,18 @@
 .user-dropdown {
   position: absolute;
 
-  top: calc(100% + 6px);
+  top: calc(100% + 8px);
   right: 0;
 
-  width: 100px;
+  width: 120px;
+  overflow: hidden;
 
-  background: #fffaf2;
+  background: var(--egg);
 
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+  border: 1px solid var(--black);
+  border-radius: 12px;
 
-  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
 
   z-index: 9999;
 }
@@ -85,9 +89,9 @@
 .dropdown-item {
   display: block;
 
-  padding: 12px 10px;
+  padding: 12px 14px;
 
-  color: #315b4a !important;
+  color: var(--black) !important;
   text-decoration: none;
 
   font-size: 14px;
@@ -95,18 +99,18 @@
 }
 
 .dropdown-item:hover {
-  background: #f1eadf;
+  background: var(--grape);
 }
 
 /* Divider */
 .dropdown-divider {
   height: 1px;
-  background: #d1d5db;
+  background: var(--line);
 }
 
 /* Sign out */
 .signout-item {
-  color: #b8452a !important;
+  color: var(--blue) !important;
 }
 /* Responsive Design for Mobile Screens */
 @media (max-width: 600px) {

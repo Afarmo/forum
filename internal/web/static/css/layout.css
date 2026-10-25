@@ -30,15 +30,21 @@ main {
   box-sizing: border-box;
 }
 
-.site-footer {
+/* The post page's footer has no class, so it's matched as body > footer */
+.site-footer,
+body > footer {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
-  font-size: 18px;
-  padding: 10px 16px;
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 18px 16px;
   box-sizing: border-box;
   text-align: center;
+  background: var(--black);
+  color: var(--egg);
 }
 
 .main-content {
@@ -62,8 +68,10 @@ main {
     padding: 8px;
     margin: 4px 0;
   }
-  .site-footer {
-    font-size: 12px;
-    padding: 10px 16px;
+  .site-footer,
+  body > footer {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    padding: 14px 16px;
   }
 }
