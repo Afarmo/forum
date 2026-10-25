@@ -21,11 +21,17 @@ func NewCommentRepository(db *sql.DB) *CommentRepository {
 
 func (r *CommentRepository) CreateComment(ctx context.Context, comment *models.Comment) error {
 
-	query := `INSERT INTO comments(user_id, post_id, parent_id, content) VALUES(?,?,?,?)`
+	query := `INSERT INTO comments(user_id, post_id, parent_id, content) SELECT ?, ?, ?, ? 
+		WHERE EXISTS (SELECT 1 FROM posts WHERE id = ? AND deleted_at IS NULL)`
 	now := time.Now()
-	result, err := r.db.ExecContext(ctx, query, comment.UserID, comment.PostID, comment.ParentID, comment.Content)
+	result, err := r.db.ExecContext(ctx, query, comment.UserID, comment.PostID, comment.ParentID, comment.Content, comment.PostID)
 	if err != nil {
 		return err
+	}
+	if n, err := result.RowsAffected(); err != nil {
+		return err
+	} else if n == 0 {
+		return apperrors.ErrNotFound
 	}
 	id, err := result.LastInsertId()
 	if err != nil {
@@ -42,7 +48,7 @@ func (r *CommentRepository) GetCommentsByPost(ctx context.Context, postID int) (
 			COALESCE(u.username, ''), COALESCE(u.profile_picture, '')
 		FROM comments c
 		LEFT JOIN users u ON u.id = c.user_id
-		WHERE c.post_id = ? AND c.deleted_at IS NULL
+		WHERE c.post_id = ?
 		ORDER BY c.created_at DESC, c.id DESC`
 
 	rows, err := r.db.QueryContext(ctx, query, postID)
@@ -97,10 +103,7 @@ func (r *CommentRepository) DeleteComment(ctx context.Context, commentID int) er
 		return apperrors.ErrNotFound
 	}
 
-	_, err = r.db.ExecContext(ctx, `UPDATE comments SET deleted_at = CURRENT_TIMESTAMP WHERE parent_id = ? AND deleted_at IS NULL`, commentID)
-	if err != nil {
-		return err
-	}
+	// Only the comment itself is soft deleted; replies to it are kept intact.
 
 	_, err = r.db.ExecContext(ctx, `DELETE FROM comment_reactions WHERE comment_id = ?`, commentID)
 	if err != nil {

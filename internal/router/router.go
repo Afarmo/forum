@@ -40,7 +40,7 @@ func NewRouter(homeHandler *handlers.HomeHandler,
 	}
 
 	protected("PATCH /posts/{id}", postHandler.UpdatePost)
-	protected("DELETE /posts/{id}", postHandler.DeletePost)
+	protected("POST /posts/{id}/delete", postHandler.DeletePost)
 	protected("POST /writePosts", postHandler.CreatePost)
 	protected("POST /posts/{id}/comments", commentHandler.CreateComment)
 	protected("POST /comments/{id}/delete", commentHandler.DeleteComment)

@@ -48,7 +48,8 @@ func (h *ReactionHandler) ReactToPost(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case errors.Is(err, apperrors.ErrInvalidInput):
 			http.Error(w, "invalid reaction", http.StatusBadRequest)
-
+		case errors.Is(err, apperrors.ErrNotFound):
+			http.Error(w, "not found", http.StatusNotFound)
 		default:
 			apperrors.Log(err)
 			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
@@ -124,7 +125,8 @@ func (h *ReactionHandler) ReactToComment(w http.ResponseWriter, r *http.Request)
 		switch {
 		case errors.Is(err, apperrors.ErrInvalidInput):
 			http.Error(w, "invalid reaction", http.StatusBadRequest)
-
+		case errors.Is(err, apperrors.ErrNotFound):
+			http.Error(w, "not found", http.StatusNotFound)
 		default:
 			apperrors.Log(err)
 			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)

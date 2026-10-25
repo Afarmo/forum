@@ -231,25 +231,32 @@ func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid Post ID", http.StatusBadRequest)
 		return
 	}
+
+	user := middleware.UserFromContext(r.Context())
+	if user == nil {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
 	var update models.UpdatePost
 
 	err = json.NewDecoder(r.Body).Decode(&update)
 	if err != nil {
-		http.Error(w, "invalid Json", http.StatusBadRequest)
+		http.Error(w, "invalid json", http.StatusBadRequest)
 		return
 	}
-	err = h.service.UpdatePost(r.Context(), &PostID, &update)
+	err = h.service.UpdatePost(r.Context(), &PostID, user.ID, &update)
 	if err != nil {
 		switch {
 		case errors.Is(err, apperrors.ErrNotFound):
 			http.Error(w, "post not found", http.StatusNotFound)
 		case errors.Is(err, apperrors.ErrInvalidInput):
 			http.Error(w, "invalid post data", http.StatusBadRequest)
+		case errors.Is(err, apperrors.ErrForbidden):
+			http.Error(w, "you cannot edit this post", http.StatusForbidden)
 		default:
 			apperrors.Log(err)
 			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 		}
-
 		return
 	}
 
@@ -259,27 +266,32 @@ func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 
 func (h *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
 	postID, err := strconv.Atoi(r.PathValue("id"))
+	user := middleware.UserFromContext(r.Context())
+	if user == nil {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+
 	if err != nil {
 		http.Error(w, "invalid post ID", http.StatusBadRequest)
 		return
 	}
 
-	if err = h.service.DeletePost(r.Context(), &postID); err != nil {
+	if err = h.service.DeletePost(r.Context(), &postID, user.ID); err != nil {
 		switch {
 		case errors.Is(err, apperrors.ErrInvalidInput):
 			http.Error(w, "invalid post ID", http.StatusBadRequest)
 		case errors.Is(err, apperrors.ErrNotFound):
 			http.Error(w, "post not found", http.StatusNotFound)
+		case errors.Is(err, apperrors.ErrForbidden):
+			http.Error(w, "you cannot delete this post", http.StatusForbidden)
 		default:
 			apperrors.Log(err)
 			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 		}
-
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("post deleted successfully"))
+	http.Redirect(w, r, "/posts/"+strconv.Itoa(postID), http.StatusSeeOther)
 }
 
 func (h *PostHandler) SearchPosts(w http.ResponseWriter, r *http.Request) {

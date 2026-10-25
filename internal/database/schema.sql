@@ -24,6 +24,7 @@
 	picture_content TEXT,
 	created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 	updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+	deleted_at DATETIME,
 	FOREIGN KEY (user_id) REFERENCES USERS (id) 
 	);
 	
