@@ -22,6 +22,7 @@ func NewRouter(homeHandler *handlers.HomeHandler,
 	mux.HandleFunc("GET /", homeHandler.HomePageHandler)
 	mux.HandleFunc("POST /register", authHandler.RegisterHandler)
 	mux.HandleFunc("POST /login", authHandler.LoginHandler)
+	mux.HandleFunc("GET /logout", authHandler.LogoutHandler)
 
 	mux.HandleFunc("GET /posts", postHandler.GetAllPosts)
 	mux.HandleFunc("GET /posts/{id}", postHandler.CreatePostPage)

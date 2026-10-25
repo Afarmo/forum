@@ -3,11 +3,11 @@ package handlers
 import (
 	"bytes"
 	"html/template"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
 
+	"github.com/Afarmo/forum/internal/apperrors"
 	"github.com/Afarmo/forum/internal/middleware"
 	"github.com/Afarmo/forum/internal/models"
 	"github.com/Afarmo/forum/internal/service"
@@ -37,23 +37,22 @@ type HomePageData struct {
 
 func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
-		http.Error(w, "404 Not Found", http.StatusNotFound)
+		apperrors.RenderError(w, h.tmpl, http.StatusNotFound)
 		return
 	}
 
 	categories, err := h.categoryService.GetAllCategories(r.Context())
 	if err != nil {
-		log.Println(err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		apperrors.Log(err)
+		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 		return
 	}
 
-	categoryID := 0
+	var categoryID int
 	if categoryIDStr := r.URL.Query().Get("category_id"); categoryIDStr != "" {
-		var convErr error
-		categoryID, convErr = strconv.Atoi(categoryIDStr)
-		if convErr != nil {
-			http.Error(w, "invalid category_id", http.StatusBadRequest)
+		categoryID, err = strconv.Atoi(categoryIDStr)
+		if err != nil {
+			http.Error(w, "Invalid category_id", http.StatusBadRequest)
 			return
 		}
 	}
@@ -63,17 +62,19 @@ func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
 	if searchQuery != "" {
 		posts, err = h.postService.SearchPosts(r.Context(), searchQuery)
 		if err != nil {
-			log.Println("search posts error:", err)
-			posts = []models.Post{}
+			apperrors.Log(err)
+			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
+			return
 		}
 	} else {
 		posts, err = h.postService.GetAllPosts(r.Context(), categoryID)
 		if err != nil {
-			log.Println(err)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			apperrors.Log(err)
+			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 			return
 		}
 	}
+
 	if posts == nil {
 		posts = []models.Post{}
 	}
@@ -90,13 +91,13 @@ func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
 	var buf bytes.Buffer
 
 	if err := h.tmpl.ExecuteTemplate(&buf, "home", data); err != nil {
-		log.Println(err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		apperrors.Log(err)
+		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 		return
 	}
 
 	if _, err := buf.WriteTo(w); err != nil {
-		log.Println(err)
+		apperrors.Log(err)
 		return
 	}
 }

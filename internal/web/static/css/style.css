@@ -1,64 +1,15 @@
-@import "login/register.css?v=palette-swans";
-@import "writepost.css?v=palette-swans";
-@import "header.css?v=palette-swans";
-@import "sidebar.css?v=carousel-cleanup";
-@import "search.css?v=palette-swans";
-@import "layout.css?v=palette-swans";
-@import "feed.css?v=palette-swans";
-@import "usermenu.css?v=palette-swans";
-@import "home.css?v=palette-swans-2";
-@import "profile.css?v=palette-swans";
-@import "post.css?v=palette-swans";
-@import "scrollsidebar.css?v=speed-limit";
+@import "login/register.css";
+@import "writepost.css";
+@import "header.css";
+@import "sidebar.css";
+@import "search.css";
+@import "layout.css";
+@import "feed.css";
+@import "usermenu.css";
+@import "home.css";
+@import "profile.css";
+@import "post.css";
+@import "errors.css";
+@import "scrollsidebar.css";
+@import "styleguide.css";
 
-/* =========================
-   DESIGN TOKENS
-   Palette: Electric Blue, Eggshell, Black, Frosty Grape, Hi-Vis.
-   Hi-Vis is only ever a fill behind black text — it is unreadable as text.
-   ========================= */
-
-:root {
-  --blue: #054ff0;
-  --blue-deep: #0339b8;
-  --egg: #f9f8f3;
-  --black: #000000;
-  --grape: #e1d2f3;
-  --grape-deep: #c4b0de;
-  --hivis: #dcfc73;
-
-  --white: #ffffff;
-  --ink-soft: #2b2b2b;
-  --muted: #5e5e5e;
-  --line: rgba(0, 0, 0, 0.12);
-  --focus-ring: 0 0 0 3px rgba(5, 79, 240, 0.18);
-
-  /* Neumorphic shadows: a darker and a lighter tint of the surface underneath */
-  --neu-egg-dark: #d8d5c8;
-  --neu-egg-light: #ffffff;
-  --neu-blue-dark: #0336a3;
-  --neu-blue-light: #2d6cff;
-  --neu-egg: 8px 8px 16px var(--neu-egg-dark), -8px -8px 16px var(--neu-egg-light);
-  --neu-egg-lg: 12px 12px 24px var(--neu-egg-dark), -12px -12px 24px var(--neu-egg-light);
-  --neu-blue: 7px 7px 15px var(--neu-blue-dark), -7px -7px 15px var(--neu-blue-light);
-
-  --font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
-  --font-body: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-}
-
-body {
-  background: var(--egg);
-  color: var(--black);
-  font-family: var(--font-body);
-}
-
-button,
-input,
-textarea,
-select {
-  font-family: inherit;
-}
-
-::selection {
-  background: var(--hivis);
-  color: var(--black);
-}

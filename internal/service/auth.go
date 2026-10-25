@@ -77,6 +77,10 @@ func (s *AuthService) Login(ctx context.Context, email, password string) (*model
 	return session, nil
 }
 
+func (s *AuthService) Logout(ctx context.Context, sessionID uuid.UUID) error {
+	return s.sessionRepo.DeleteSession(ctx, sessionID)
+}
+
 func validateRegistration(username, email, password string) error {
 	if username == "" ||
 		len(username) < minUsernameLength ||

@@ -55,9 +55,9 @@ func main() {
 	postHandler := handlers.NewPostHandler(postService, tmpl, commentService)
 	authHandler := handlers.NewAuthHandler(authService, tmpl)
 	homeHandler := handlers.NewHomeHandler(tmpl, categoryService, postService)
-	categoryHandler := handlers.NewCategoryHandler(categoryService)
-	commentHandler := handlers.NewCommentHandler(commentService)
-	reactionHandler := handlers.NewReactionHandler(reactionService)
+	categoryHandler := handlers.NewCategoryHandler(categoryService, tmpl)
+	commentHandler := handlers.NewCommentHandler(commentService, tmpl)
+	reactionHandler := handlers.NewReactionHandler(reactionService, tmpl)
 
 	authMiddleware := middleware.NewAuthMiddleware(sessionRepo, userRepo)
 	mux := router.NewRouter(
@@ -75,6 +75,7 @@ func main() {
 		middleware.Logger(
 			authMiddleware.OptionalAuth(mux),
 		),
+		tmpl,
 	)
 
 	srv := &http.Server{

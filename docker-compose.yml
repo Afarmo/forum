@@ -1,0 +1,9 @@
+services:
+  forum:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./forum.db:/app/forum.db
+      - ./internal/web/static/img/profile:/app/internal/web/static/img/profile
+      - ./internal/web/static/img/post:/app/internal/web/static/img/post

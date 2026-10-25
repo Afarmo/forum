@@ -23,7 +23,6 @@ func Open() (*sql.DB, error) {
 	return db, nil
 }
 
-
 func BackfillPostSearch(db *sql.DB) error {
 	_, err := db.Exec(`
         INSERT INTO POSTS_SEARCH(rowid, title, content, username)
@@ -36,6 +35,7 @@ func BackfillPostSearch(db *sql.DB) error {
             WHERE POSTS_SEARCH.rowid = POSTS.id
         )
     `)
+
 	return err
 }
 
@@ -45,21 +45,19 @@ func InitializeSchema(db *sql.DB) error {
 		return err
 	}
 
-	_, err = db.Exec(string(schemaBytes))
-
-	if err != nil {
+	if _, err := db.Exec(string(schemaBytes)); err != nil {
 		return err
 	}
+
 	if err := BackfillPostSearch(db); err != nil {
 		return err
 	}
-	err = SeedCategories(db)
-	if err != nil {
+
+	if err := SeedCategories(db); err != nil {
 		return err
 	}
 
-	err = SeedDemoData(db)
-	if err != nil {
+	if err := SeedDemoData(db); err != nil {
 		return err
 	}
 
