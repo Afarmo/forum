@@ -43,6 +43,7 @@ func NewRouter(homeHandler *handlers.HomeHandler,
 	protected("DELETE /posts/{id}", postHandler.DeletePost)
 	protected("POST /writePosts", postHandler.CreatePost)
 	protected("POST /posts/{id}/comments", commentHandler.CreateComment)
+	protected("POST /comments/{id}/delete", commentHandler.DeleteComment)
 	protected("POST /posts/{id}/reaction", reactionHandler.ReactToPost)
 	protected("POST /posts/{postID}/comments/{commentID}/reaction", reactionHandler.ReactToComment)
 	protected("POST /users/profile_picture", userHandler.UploadProfilePicture)
