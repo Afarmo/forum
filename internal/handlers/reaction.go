@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"errors"
 	"html/template"
 	"net/http"
@@ -53,6 +54,40 @@ func (h *ReactionHandler) ReactToPost(w http.ResponseWriter, r *http.Request) {
 			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 		}
 
+		return
+	}
+
+	if r.Header.Get("Accept") == "application/json" {
+		likes, dislikes, err := h.reactionService.GetPostReactionCount(r.Context(), postID)
+		if err != nil {
+			apperrors.Log(err)
+			http.Error(w, "failed to load updated reaction counts", http.StatusInternalServerError)
+			return
+		}
+
+		userReaction := 0
+		current, err := h.reactionService.GetPostReaction(r.Context(), postID, user.ID)
+		if err != nil && !errors.Is(err, apperrors.ErrNotFound) {
+			apperrors.Log(err)
+			http.Error(w, "failed to load updated reaction state", http.StatusInternalServerError)
+			return
+		}
+		if current != nil {
+			userReaction = current.Reaction
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(struct {
+			LikeCount    int `json:"like_count"`
+			DislikeCount int `json:"dislike_count"`
+			UserReaction int `json:"user_reaction"`
+		}{
+			LikeCount:    likes,
+			DislikeCount: dislikes,
+			UserReaction: userReaction,
+		}); err != nil {
+			apperrors.Log(err)
+		}
 		return
 	}
 

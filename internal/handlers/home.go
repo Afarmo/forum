@@ -58,16 +58,19 @@ func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	searchQuery := strings.TrimSpace(r.URL.Query().Get("query"))
+	user := middleware.UserFromContext(r.Context())
+	currentUserID := middleware.UserIDFromContext(r.Context())
+
 	var posts []models.Post
 	if searchQuery != "" {
-		posts, err = h.postService.SearchPosts(r.Context(), searchQuery)
+		posts, err = h.postService.SearchPosts(r.Context(), searchQuery, currentUserID)
 		if err != nil {
 			apperrors.Log(err)
 			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 			return
 		}
 	} else {
-		posts, err = h.postService.GetAllPosts(r.Context(), categoryID)
+		posts, err = h.postService.GetAllPosts(r.Context(), categoryID, currentUserID)
 		if err != nil {
 			apperrors.Log(err)
 			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
@@ -79,7 +82,6 @@ func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
 		posts = []models.Post{}
 	}
 
-	user := middleware.UserFromContext(r.Context())
 	data := &HomePageData{
 		Title:       "Home",
 		User:        user,

@@ -71,7 +71,10 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	profileUserPosts, err := h.postService.GetPostByUser(r.Context(), userID)
+	viewer := middleware.UserFromContext(r.Context())
+	currentUserID := middleware.UserIDFromContext(r.Context())
+
+	profileUserPosts, err := h.postService.GetPostByUser(r.Context(), userID, currentUserID)
 	if err != nil {
 		apperrors.Log(err)
 		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
@@ -79,7 +82,7 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO: here get liked post by user service will be called
-	profileUserlikedPosts, err := h.postService.GetPostByUser(r.Context(), userID)
+	profileUserlikedPosts, err := h.postService.GetPostByUser(r.Context(), userID, currentUserID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			http.Error(w, apperrors.ErrNotFound.Error(), http.StatusNotFound)
@@ -91,11 +94,9 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := middleware.UserFromContext(r.Context())
-
 	data := &UserPageData{
 		Title:       "User",
-		User:        user,
+		User:        viewer,
 		ProfileUser: profileUser,
 		Categories:  categories,
 		Posts:       profileUserPosts,

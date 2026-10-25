@@ -50,6 +50,10 @@ func (s *ReactionService) GetPostReactionCount(ctx context.Context, postID int) 
 	return s.reactionRepo.GetPostReactionCount(ctx, postID)
 }
 
+func (s *ReactionService) GetPostReaction(ctx context.Context, postID, userID int) (*models.PostReaction, error) {
+	return s.reactionRepo.GetPostReaction(ctx, postID, userID)
+}
+
 func (s *ReactionService) ReactToComment(ctx context.Context, commentID, userID, reaction int) error {
 	if reaction != 1 && reaction != -1 {
 		return apperrors.ErrInvalidInput

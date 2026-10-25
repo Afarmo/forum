@@ -103,3 +103,11 @@ func UserFromContext(ctx context.Context) *models.User {
 	user, _ := ctx.Value(userContextKey{}).(*models.User)
 	return user
 }
+
+func UserIDFromContext(ctx context.Context) int {
+	user := UserFromContext(ctx)
+	if user == nil {
+		return 0
+	}
+	return user.ID
+}

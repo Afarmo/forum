@@ -52,8 +52,10 @@ func (h *PostHandler) CreatePostPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
+	user := middleware.UserFromContext(ctx)
+	currentUserID := middleware.UserIDFromContext(ctx)
 
-	post, err := h.service.GetPostById(ctx, num)
+	post, err := h.service.GetPostById(ctx, num, currentUserID)
 	if err != nil {
 		if errors.Is(err, apperrors.ErrNotFound) {
 			apperrors.RenderError(w, h.tmpl, http.StatusNotFound)
@@ -72,7 +74,6 @@ func (h *PostHandler) CreatePostPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := middleware.UserFromContext(ctx)
 	views := newCommentViews(comments, user != nil)
 
 	data := &PostPageData{
@@ -190,7 +191,8 @@ func (h *PostHandler) GetAllPosts(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	posts, err := h.service.GetAllPosts(r.Context(), categoryID)
+	currentUserID := middleware.UserIDFromContext(r.Context())
+	posts, err := h.service.GetAllPosts(r.Context(), categoryID, currentUserID)
 	if err != nil {
 		apperrors.Log(err)
 		http.Error(w, "failed to get the posts", http.StatusInternalServerError)
@@ -211,7 +213,8 @@ func (h *PostHandler) GetPostByUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	posts, err := h.service.GetPostByUser(ctx, userID)
+	currentUserID := middleware.UserIDFromContext(ctx)
+	posts, err := h.service.GetPostByUser(ctx, userID, currentUserID)
 	if err != nil {
 		apperrors.Log(err)
 		http.Error(w, "failed to get the user posts", http.StatusInternalServerError)
@@ -281,13 +284,14 @@ func (h *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
 
 func (h *PostHandler) SearchPosts(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	currentUserID := middleware.UserIDFromContext(ctx)
 	search := strings.TrimSpace(r.URL.Query().Get("query"))
 	var posts []models.Post
 	var err error
 	if search == "" {
-		posts, err = h.service.GetAllPosts(ctx, 0)
+		posts, err = h.service.GetAllPosts(ctx, 0, currentUserID)
 	} else {
-		posts, err = h.service.SearchPosts(ctx, search)
+		posts, err = h.service.SearchPosts(ctx, search, currentUserID)
 	}
 	if err != nil {
 		apperrors.Log(err)

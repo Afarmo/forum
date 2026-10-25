@@ -31,12 +31,12 @@ func (s *PostService) CreatePost(ctx context.Context, post *models.Post, categor
 	return s.repo.CreatePost(ctx, post, categoryID)
 }
 
-func (s *PostService) GetAllPosts(ctx context.Context, categoryID int) ([]models.Post, error) {
-	return s.repo.GetAllPosts(ctx, categoryID)
+func (s *PostService) GetAllPosts(ctx context.Context, categoryID, currentUserID int) ([]models.Post, error) {
+	return s.repo.GetAllPosts(ctx, categoryID, currentUserID)
 }
 
-func (s *PostService) GetPostByUser(ctx context.Context, userId int) ([]models.Post, error) {
-	return s.repo.GetPostByUser(ctx, userId)
+func (s *PostService) GetPostByUser(ctx context.Context, userID, currentUserID int) ([]models.Post, error) {
+	return s.repo.GetPostByUser(ctx, userID, currentUserID)
 }
 
 func (s *PostService) UpdatePost(ctx context.Context, PostID *int, update *models.UpdatePost) error {
@@ -63,17 +63,17 @@ func (s *PostService) DeletePost(ctx context.Context, PostID *int) error {
 	return s.repo.DeletePost(ctx, PostID)
 }
 
-func (s *PostService) GetPostById(ctx context.Context, postId int) (*models.Post, error) {
+func (s *PostService) GetPostById(ctx context.Context, postId, currentUserID int) (*models.Post, error) {
 	if postId <= 0 {
 		return nil, apperrors.ErrInvalidInput
 	}
 
-	return s.repo.GetPostById(ctx, postId)
+	return s.repo.GetPostById(ctx, postId, currentUserID)
 }
 
-func (s *PostService) SearchPosts(ctx context.Context, search string) ([]models.Post, error) {
+func (s *PostService) SearchPosts(ctx context.Context, search string, currentUserID int) ([]models.Post, error) {
 	if search == "" {
 		return nil, apperrors.ErrNotFound
 	}
-	return s.repo.SearchPosts(ctx, search)
+	return s.repo.SearchPosts(ctx, search, currentUserID)
 }

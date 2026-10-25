@@ -1,0 +1,51 @@
+{{ define "post-card" }}
+<article class="post-card" id="post-{{ .PostID }}">
+  {{ if .PictureContent }}
+  <a class="post-image-link" href="/posts/{{ .PostID }}" tabindex="-1" aria-hidden="true">
+    <img class="post-image" src="{{ .ImageSrc }}" alt="" />
+  </a>
+  {{ end }}
+  <a class="post-link" href="/posts/{{ .PostID }}">
+    <div class="post-card-body">
+      {{ if .CategoryNames }}
+      <div class="post-categories">
+        <span class="post-category">{{ .CategoryNames }}</span>
+      </div>
+      {{ end }}
+      <h3 class="post-title">{{ .Title }}</h3>
+      <p class="post-content">{{ .Preview }}</p>
+    </div>
+  </a>
+  <div class="post-card-footer">
+    <a class="post-link" href="/users/{{ .UserID }}">
+      <div class="post-author">
+        {{ if .AuthorPicture }}
+        <img class="post-author-avatar" src="{{ .AuthorPicture }}" alt="" />
+        {{ else }}
+        <span class="post-author-avatar post-author-avatar-empty" aria-hidden="true">✦</span>
+        {{ end }}
+        <span class="post-author-name">{{ .AuthorName }}</span>
+        <span class="post-meta-separator" aria-hidden="true">·</span>
+        <time class="post-date" datetime="{{ .CreatedAt.Format "2006-01-02T15:04:05Z07:00" }}">{{ .TimeAgo }}</time>
+      </div>
+    </a>
+    <div class="post-card-actions">
+      <button type="button" class="post-card-action reaction-button like-button{{ if eq .UserReaction 1 }} liked{{ end }}" data-post-id="{{ .PostID }}" data-reaction="1" aria-pressed="{{ if eq .UserReaction 1 }}true{{ else }}false{{ end }}" title="Like">
+        <span class="reaction-icon" aria-hidden="true"></span>
+        <span class="reaction-count">{{ .LikeCount }}</span>
+      </button>
+      <button type="button" class="post-card-action reaction-button dislike-button{{ if eq .UserReaction -1 }} disliked{{ end }}" data-post-id="{{ .PostID }}" data-reaction="-1" aria-pressed="{{ if eq .UserReaction -1 }}true{{ else }}false{{ end }}" title="Dislike">
+        <span class="reaction-icon" aria-hidden="true"></span>
+        <span class="reaction-count">{{ .DislikeCount }}</span>
+      </button>
+      <a class="post-card-action post-comments-link" href="/posts/{{ .PostID }}">
+        <svg class="post-comments-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+          <path d="M2 2.75A1.75 1.75 0 0 1 3.75 1h8.5A1.75 1.75 0 0 1 14 2.75v6.5A1.75 1.75 0 0 1 12.25 11H7l-3.5 3v-3.25A1.75 1.75 0 0 1 2 9.25z" />
+        </svg>
+        {{ .CommentCount }}
+      </a>
+    </div>
+    <span class="reaction-status" role="status" aria-live="polite"></span>
+  </div>
+</article>
+{{ end }}

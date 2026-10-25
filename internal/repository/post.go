@@ -50,7 +50,7 @@ func (r *PostRepository) CreatePost(ctx context.Context, post *models.Post, cate
 	return tx.Commit()
 }
 
-func (r *PostRepository) GetAllPosts(ctx context.Context, categoryID int) ([]models.Post, error) {
+func (r *PostRepository) GetAllPosts(ctx context.Context, categoryID, currentUserID int) ([]models.Post, error) {
 	// Posts require an author, while profile pictures and categories are optional.
 	// COALESCE maps those optional values to empty strings for the feed model.
 	query := `
@@ -61,10 +61,14 @@ func (r *PostRepository) GetAllPosts(ctx context.Context, categoryID int) ([]mod
 				FROM post_categories pc
 				JOIN categories c ON c.id = pc.category_id
 				WHERE pc.post_id = p.id
-			), '')
+			), ''),
+			(SELECT COUNT(*) FROM post_reactions pr WHERE pr.post_id = p.id AND pr.reaction = 1),
+			(SELECT COUNT(*) FROM post_reactions pr WHERE pr.post_id = p.id AND pr.reaction = -1),
+			(SELECT COUNT(*) FROM comments cm WHERE cm.post_id = p.id AND cm.deleted_at IS NULL),
+			COALESCE((SELECT pr.reaction FROM post_reactions pr WHERE pr.post_id = p.id AND pr.user_id = ?), 0)
 		FROM posts p
 		JOIN users u ON u.id = p.user_id`
-	args := []any{}
+	args := []any{currentUserID}
 
 	if categoryID > 0 {
 		query += `
@@ -87,7 +91,8 @@ func (r *PostRepository) GetAllPosts(ctx context.Context, categoryID int) ([]mod
 		err := rows.Scan(
 			&post.PostID, &post.UserID, &post.Title, &post.Content,
 			&post.PictureContent, &post.CreatedAt, &post.AuthorName,
-			&post.AuthorPicture, &post.CategoryNames,
+			&post.AuthorPicture, &post.CategoryNames, &post.LikeCount,
+			&post.DislikeCount, &post.CommentCount, &post.UserReaction,
 		)
 		if err != nil {
 			return nil, err
@@ -97,10 +102,18 @@ func (r *PostRepository) GetAllPosts(ctx context.Context, categoryID int) ([]mod
 	return posts, rows.Err()
 }
 
-func (r *PostRepository) GetPostByUser(ctx context.Context, userId int) ([]models.Post, error) {
-	query := `SELECT id, user_id, title, content, picture_content, created_at FROM posts WHERE user_id = ? ORDER BY created_at DESC`
+func (r *PostRepository) GetPostByUser(ctx context.Context, userID, currentUserID int) ([]models.Post, error) {
+	query := `
+		SELECT p.id, p.user_id, p.title, p.content, p.picture_content, p.created_at,
+			(SELECT COUNT(*) FROM post_reactions pr WHERE pr.post_id = p.id AND pr.reaction = 1),
+			(SELECT COUNT(*) FROM post_reactions pr WHERE pr.post_id = p.id AND pr.reaction = -1),
+			(SELECT COUNT(*) FROM comments cm WHERE cm.post_id = p.id AND cm.deleted_at IS NULL),
+			COALESCE((SELECT pr.reaction FROM post_reactions pr WHERE pr.post_id = p.id AND pr.user_id = ?), 0)
+		FROM posts p
+		WHERE p.user_id = ?
+		ORDER BY p.created_at DESC`
 
-	rows, err := r.db.QueryContext(ctx, query, userId)
+	rows, err := r.db.QueryContext(ctx, query, currentUserID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +122,11 @@ func (r *PostRepository) GetPostByUser(ctx context.Context, userId int) ([]model
 
 	for rows.Next() {
 		var post models.Post
-		err := rows.Scan(&post.PostID, &post.UserID, &post.Title, &post.Content, &post.PictureContent, &post.CreatedAt)
+		err := rows.Scan(
+			&post.PostID, &post.UserID, &post.Title, &post.Content,
+			&post.PictureContent, &post.CreatedAt, &post.LikeCount,
+			&post.DislikeCount, &post.CommentCount, &post.UserReaction,
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -192,17 +209,21 @@ func (r *PostRepository) DeletePost(ctx context.Context, postID *int) error {
 	return tx.Commit()
 }
 
-func (r *PostRepository) GetPostById(ctx context.Context, postID int) (*models.Post, error) {
+func (r *PostRepository) GetPostById(ctx context.Context, postID, currentUserID int) (*models.Post, error) {
 
 	query := `SELECT p.id, p.user_id, p.title, p.content, p.picture_content, p.created_at,
-			COALESCE(u.username, ''), COALESCE(u.profile_picture, '')
+			COALESCE(u.username, ''), COALESCE(u.profile_picture, ''),
+			(SELECT COUNT(*) FROM post_reactions pr WHERE pr.post_id = p.id AND pr.reaction = 1),
+			(SELECT COUNT(*) FROM post_reactions pr WHERE pr.post_id = p.id AND pr.reaction = -1),
+			(SELECT COUNT(*) FROM comments cm WHERE cm.post_id = p.id AND cm.deleted_at IS NULL),
+			COALESCE((SELECT pr.reaction FROM post_reactions pr WHERE pr.post_id = p.id AND pr.user_id = ?), 0)
 		FROM posts p
 		LEFT JOIN users u ON u.id = p.user_id
 		WHERE p.id = ?`
 
 	var post models.Post
-	err := r.db.QueryRowContext(ctx, query, postID).Scan(&post.PostID, &post.UserID, &post.Title, &post.Content, &post.PictureContent, &post.CreatedAt,
-		&post.AuthorName, &post.AuthorPicture)
+	err := r.db.QueryRowContext(ctx, query, currentUserID, postID).Scan(&post.PostID, &post.UserID, &post.Title, &post.Content, &post.PictureContent, &post.CreatedAt,
+		&post.AuthorName, &post.AuthorPicture, &post.LikeCount, &post.DislikeCount, &post.CommentCount, &post.UserReaction)
 	if err == sql.ErrNoRows {
 		return nil, apperrors.ErrNotFound
 	}
@@ -212,9 +233,9 @@ func (r *PostRepository) GetPostById(ctx context.Context, postID int) (*models.P
 	return &post, nil
 }
 
-func (r *PostRepository) SearchPosts(ctx context.Context, search string) ([]models.Post, error) {
+func (r *PostRepository) SearchPosts(ctx context.Context, search string, currentUserID int) ([]models.Post, error) {
 	if strings.TrimSpace(search) == "" {
-		return r.GetAllPosts(ctx, 0)
+		return r.GetAllPosts(ctx, 0, currentUserID)
 	}
 	//  FTS5 column weights: prioritize title, then username, then content.
 	//  Lower BM25 scores are more relevant, so the best matches come first.
@@ -226,14 +247,18 @@ func (r *PostRepository) SearchPosts(ctx context.Context, search string) ([]mode
 				FROM post_categories pc
 				JOIN categories c ON c.id = pc.category_id
 				WHERE pc.post_id = p.id
-			), '')
+			), ''),
+			(SELECT COUNT(*) FROM post_reactions pr WHERE pr.post_id = p.id AND pr.reaction = 1),
+			(SELECT COUNT(*) FROM post_reactions pr WHERE pr.post_id = p.id AND pr.reaction = -1),
+			(SELECT COUNT(*) FROM comments cm WHERE cm.post_id = p.id AND cm.deleted_at IS NULL),
+			COALESCE((SELECT pr.reaction FROM post_reactions pr WHERE pr.post_id = p.id AND pr.user_id = ?), 0)
 		FROM POSTS_SEARCH
 		JOIN POSTS p ON p.id = POSTS_SEARCH.rowid
 		JOIN users u ON u.id = p.user_id
 		WHERE POSTS_SEARCH MATCH ?
 		
 		ORDER BY bm25(POSTS_SEARCH, 10.0, 1.0, 5.0), p.created_at DESC`
-	rows, err := r.db.QueryContext(ctx, query, search)
+	rows, err := r.db.QueryContext(ctx, query, currentUserID, search)
 	if err != nil {
 		return nil, err
 	}
@@ -252,6 +277,10 @@ func (r *PostRepository) SearchPosts(ctx context.Context, search string) ([]mode
 			&post.AuthorName,
 			&post.AuthorPicture,
 			&post.CategoryNames,
+			&post.LikeCount,
+			&post.DislikeCount,
+			&post.CommentCount,
+			&post.UserReaction,
 		)
 		if err != nil {
 			return nil, err

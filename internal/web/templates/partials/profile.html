@@ -3,18 +3,20 @@
 <div class="profile-page">
   <section class="profile-intro" aria-labelledby="profile-name">
     <div class="profile-avatar">
-      {{ if .User.ProfilePicture }}
-      <img src="{{ .User.ProfilePicture }}" alt="{{ .User.UserName }} profile picture" />
+      {{ if .ProfileUser.ProfilePicture }}
+      <img src="{{ .ProfileUser.ProfilePicture }}" alt="{{ .ProfileUser.UserName }} profile picture" />
       {{ else }}
-      <span>{{ printf "%.1s" .User.UserName }}</span>
+      <span>{{ printf "%.1s" .ProfileUser.UserName }}</span>
       {{ end }}
     </div>
     <div class="profile-details">
-      <h1 id="profile-name">{{ .User.UserName }}</h1>
-      <p class="profile-meta">Member since {{ .User.CreatedAt.Format "Jan 2006" }}</p>
+      <h1 id="profile-name">{{ .ProfileUser.UserName }}</h1>
+      <p class="profile-meta">Member since {{ .ProfileUser.CreatedAt.Format "Jan 2006" }}</p>
+      {{ if and .User (eq .User.ID .ProfileUser.ID) }}
       <button type="button" class="profile-edit-button" onclick="openModal('edit-profile-modal')">
         Edit profile
       </button>
+      {{ end }}
     </div>
   </div>
 
@@ -31,13 +33,7 @@
       {{ if .Posts }}
       <div class="profile-post-list">
         {{ range .Posts }}
-        <article class="profile-post">
-          <div class="profile-post-meta">
-            <time datetime="{{ .CreatedAt.Format "2006-01-02T15:04:05Z07:00" }}">{{ .CreatedAt.Format "Jan 2, 2006" }}</time>
-          </div>
-          <h2>{{ .Title }}</h2>
-          <p>{{ .Content }}</p>
-        </article>
+        {{ template "post-card" . }}
         {{ end }}
       </div>
       {{ else }}
@@ -49,14 +45,8 @@
       <!-- <p class="profile-empty-state">Liked posts will appear here.</p> -->
        {{ if .LikedPosts }}
       <div class="profile-post-list">
-        {{ range .Posts }}
-        <article class="profile-post">
-          <div class="profile-post-meta">
-            <time datetime="{{ .CreatedAt.Format "2006-01-02T15:04:05Z07:00" }}">{{ .CreatedAt.Format "Jan 2, 2006" }}</time>
-          </div>
-          <h2>{{ .Title }}</h2>
-          <p>{{ .Content }}</p>
-        </article>
+        {{ range .LikedPosts }}
+        {{ template "post-card" . }}
         {{ end }}
       </div>
       {{ else }}
@@ -66,6 +56,8 @@
   </div>
 </div>
 
+{{ if and .User (eq .User.ID .ProfileUser.ID) }}
 {{ template "edit-profile-modal" . }}
+{{ end }}
 
 {{end}}

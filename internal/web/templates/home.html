@@ -6,7 +6,7 @@
     <title>{{ .Title }}</title>
     <link rel="stylesheet" href="/static/css/style.css" />
   </head>
-  <body>
+  <body data-authenticated="{{ if .User }}true{{ else }}false{{ end }}">
     <div class="page-header">
       {{ template "header" .}} {{ template "login-modal" . }} {{ template
       "register-modal" . }}

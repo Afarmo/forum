@@ -8,6 +8,71 @@ function closeModal(id) {
   if (modal) modal.hidden = true;
 }
 
+if (document.body.dataset.authenticated !== "true") {
+  document.querySelectorAll(".post-card .reaction-button").forEach((button) => {
+    button.disabled = true;
+    button.title =
+      button.dataset.reaction === "1"
+        ? "Sign in to like this post"
+        : "Sign in to dislike this post";
+  });
+}
+
+document.addEventListener("click", async function (event) {
+  const button = event.target.closest(".post-card .reaction-button[data-post-id]");
+  if (!button || button.disabled) return;
+
+  const postCard = button.closest(".post-card");
+  const actions = button.closest(".post-card-actions");
+  const status = postCard.querySelector(".reaction-status");
+  if (actions.dataset.reacting === "true") return;
+
+  actions.dataset.reacting = "true";
+  actions.querySelectorAll(".reaction-button").forEach((reactionButton) => {
+    reactionButton.disabled = true;
+  });
+  status.textContent = "";
+
+  try {
+    const response = await fetch(
+      "/posts/" + encodeURIComponent(button.dataset.postId) + "/reaction",
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({ reaction: button.dataset.reaction }),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error("Reaction request failed with status " + response.status);
+    }
+
+    const result = await response.json();
+    const likeButton = actions.querySelector('.reaction-button[data-reaction="1"]');
+    const dislikeButton = actions.querySelector('.reaction-button[data-reaction="-1"]');
+    likeButton.querySelector(".reaction-count").textContent = result.like_count;
+    dislikeButton.querySelector(".reaction-count").textContent = result.dislike_count;
+
+    const liked = result.user_reaction === 1;
+    const disliked = result.user_reaction === -1;
+    likeButton.classList.toggle("liked", liked);
+    dislikeButton.classList.toggle("disliked", disliked);
+    likeButton.setAttribute("aria-pressed", String(liked));
+    dislikeButton.setAttribute("aria-pressed", String(disliked));
+  } catch (error) {
+    console.error(error);
+    status.textContent = "Could not update reaction. Please try again.";
+  } finally {
+    delete actions.dataset.reacting;
+    actions.querySelectorAll(".reaction-button").forEach((reactionButton) => {
+      reactionButton.disabled = false;
+    });
+  }
+});
+
 // Auth modal tab-switching: any element with [data-auth-switch="login"|"register"]
 // closes both auth modals and opens the requested one.
 document.addEventListener("DOMContentLoaded", function () {
