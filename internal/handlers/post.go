@@ -73,7 +73,13 @@ func (h *PostHandler) CreatePostPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := middleware.UserFromContext(ctx)
-	views := newCommentViews(comments, user != nil)
+	viewerID := 0
+
+	if user != nil {
+		viewerID= user.ID
+	}
+
+	views := newCommentViews(comments, user != nil, viewerID)
 
 	data := &PostPageData{
 		Title:        post.Title,

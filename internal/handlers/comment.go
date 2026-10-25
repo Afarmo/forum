@@ -30,12 +30,13 @@ type CommentView struct {
 	models.Comment
 	Replies  []CommentView
 	CanReply bool
+	IsOwner  bool
 }
 
-func newCommentViews(comments []models.Comment, canReply bool) []CommentView {
+func newCommentViews(comments []models.Comment, canReply bool, viewerID int) []CommentView {
 	views := make([]CommentView, len(comments))
 	for i, c := range comments {
-		views[i] = CommentView{Comment: c, Replies: newCommentViews(c.Replies, canReply), CanReply: canReply}
+		views[i] = CommentView{Comment: c, Replies: newCommentViews(c.Replies, canReply, viewerID), CanReply: canReply, IsOwner: c.UserID == viewerID}
 	}
 	return views
 }
@@ -135,5 +136,5 @@ func (h *CommentHandler) DeleteComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	postID := comment.PostID
-    http.Redirect(w, r, "/posts/"+strconv.Itoa(postID)+"#comment-"+strconv.Itoa(commentID),http.StatusSeeOther)
+	http.Redirect(w, r, "/posts/"+strconv.Itoa(postID)+"#comment-"+strconv.Itoa(commentID), http.StatusSeeOther)
 }

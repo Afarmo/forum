@@ -186,6 +186,7 @@
 .comment {
     padding: 20px 24px;
     margin-bottom: 16px;
+    position: relative;
 }
 
 .comment-header {
