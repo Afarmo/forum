@@ -7,7 +7,6 @@ import (
 	"github.com/Afarmo/forum/internal/models"
 )
 
-
 type CategoryRepository struct {
 	db *sql.DB
 }
@@ -53,7 +52,7 @@ func (r *CategoryRepository) GetCategoryByUser(ctx context.Context, userId int) 
 
 	for rows.Next() {
 		var category models.Category
-		err := rows.Scan( &category.ID, &category.Name)
+		err := rows.Scan(&category.ID, &category.Name)
 		if err != nil {
 			return nil, err
 		}

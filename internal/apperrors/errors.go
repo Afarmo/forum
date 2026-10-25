@@ -16,6 +16,7 @@ var (
 	ErrInvalidEmail       = errors.New("invalid email")
 	ErrInvalidPassword    = errors.New("invalid password")
 	ErrInvalidCredentials = errors.New("invalid credentials")
+	ErrForbidden          = errors.New("forbidden")
 )
 
 func Log(err error) {
