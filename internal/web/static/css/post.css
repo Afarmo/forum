@@ -376,9 +376,9 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #e6fd96 0%, var(--hivis) 55%, #bedb5a 100%);
+  background: radial-gradient(circle at 35% 30%, #3a76ff 0%, var(--blue) 55%, var(--blue-deep) 100%);
   box-shadow:
-    1.5px 1.5px 3px rgba(78, 96, 10, 0.35),
+    1.5px 1.5px 3px rgba(2, 30, 100, 0.35),
     -1.5px -1.5px 3px var(--neu-egg-light);
 }
 @keyframes comment-added {

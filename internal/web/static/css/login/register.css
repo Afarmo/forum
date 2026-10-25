@@ -332,16 +332,60 @@
     }
 
     .modal-content {
-        padding: 40px 25px 30px;
+        padding: 32px 20px 24px;
         border-radius: 22px;
     }
 
+    .close-modal {
+        top: 16px;
+        right: 18px;
+    }
+
+    /* Empty placeholder for a logo: no space for it on small screens */
+    .lion-logo {
+        display: none;
+    }
+
     .modal-content h2 {
-        font-size: 40px;
+        font-size: 34px;
     }
 
     .subtitle {
+        margin: 8px 0 20px;
+        font-size: 15px;
+    }
+
+    .auth-tabs {
+        margin-bottom: 24px;
+    }
+
+    .auth-tab {
+        padding: 10px 10px 14px;
         font-size: 16px;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    .form-group label {
+        margin-bottom: 8px;
+    }
+
+    /* 16px is the smallest text iPhones show without zooming into the field */
+    .form-group input {
+        height: 50px;
+        font-size: 16px;
+    }
+
+    .login-button {
+        height: 52px;
+        font-size: 17px;
+    }
+
+    .register-text {
+        margin-top: 18px;
+        font-size: 15px;
     }
 
     .demo-buttons {
@@ -386,8 +430,38 @@
     border: 1px solid var(--line);
     border-radius: 14px;
     background: var(--white);
-    font-size: 16px;
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--black);
     resize: vertical;
+}
+
+.form-group textarea::placeholder {
+    color: var(--muted);
+}
+
+/* Dropdown styled like the text inputs; the native look is replaced so the
+   browser's own font and arrow don't show */
+.form-group select {
+    width: 100%;
+    box-sizing: border-box;
+    height: 60px;
+    padding: 0 48px 0 20px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--white) right 20px center / 16px no-repeat
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    appearance: none;
+    -webkit-appearance: none;
+    font-size: 18px;
+    color: var(--black);
+    cursor: pointer;
+}
+
+.form-group select:focus {
+    outline: none;
+    border-color: var(--blue);
+    box-shadow: var(--focus-ring);
 }
 
 .source-tabs { display: flex; gap: 10px; margin-bottom: 12px; }
@@ -396,7 +470,26 @@
 .modal-actions {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
     gap: 12px;
+}
+
+/* Publish button: sized to its text instead of stretching across the row
+   like the full-width login/register buttons */
+.modal-actions .login-button {
+    width: auto;
+    padding: 0 32px;
+    margin-top: 0;
+}
+
+/* Cancel matches the publish button's size and text */
+.modal-actions .btn-secondary {
+    justify-content: center;
+    height: 64px;
+    padding: 0 32px;
+    box-sizing: border-box;
+    font-size: 19px;
+    font-weight: 600;
 }
 
 .btn-secondary {
@@ -411,4 +504,26 @@
 
 .btn-secondary:hover {
     border-color: var(--black);
+}
+
+/* Write-post pop-up on phones: same reduction as the sign-in pop-up (the
+   shared padding, heading, labels and text inputs are in the MOBILE block
+   above; these are the parts only the write-post form has) */
+@media (max-width: 600px) {
+    .form-group select {
+        height: 50px;
+        font-size: 16px;
+    }
+
+    .form-group textarea {
+        height: 140px;
+        font-size: 16px;
+    }
+
+    .modal-actions .login-button,
+    .modal-actions .btn-secondary {
+        height: 52px;
+        padding: 0 24px;
+        font-size: 17px;
+    }
 }

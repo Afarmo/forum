@@ -1,70 +1,80 @@
-/* Vertical drum carousel — rows are positioned by cylinder-scroll.js */
+/* Category list: scrolled by the browser, with a visible scrollbar so users
+   can see how many categories there are. Snaps to whole items. */
 .carousel-scene {
   width: 100%;
-  height: 500px;
-  isolation: isolate;
-  /* vertical swipes turn the drum instead of scrolling the page */
-  touch-action: pan-x;
-  overscroll-behavior: contain;
-}
-
-/* Row of pressed-in grape dimples under the "Categories" label. One dimple per
-   42px tile; `space` fits as many whole tiles as the width allows, so a
-   narrower sidebar shows fewer dimples instead of overlapping them. */
-.sidebar-label::after {
-  content: "";
-  display: block;
-  height: 28px;
-  margin-top: 18px;
-  background: radial-gradient(circle at 50% 50%, var(--grape) 0 9px, var(--grape-deep) 10px, #f3ecfb 12px, transparent 13px);
-  background-size: 30px 28px;
-  background-repeat: space no-repeat;
-  filter: drop-shadow(2px 3px 2px rgba(96, 70, 140, 0.3));
+  height: 580px;
 }
 
 .sidebar-label {
   flex: none;
 }
 
-/* The window the rows move through. Perspective is viewed from the top edge,
-   where the front row sits, so lower rows read as curving away. */
+/* The scrolling window. Reaching either end doesn't scroll the page.
+   `direction: rtl` puts the scrollbar on the left; the items switch back to
+   left-to-right so their text isn't affected. */
 .carousel-3d {
-  position: relative;
   flex: 1;
   min-height: 0;
-  overflow: hidden;
-  perspective: 700px;
-  perspective-origin: 50% 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  overscroll-behavior: contain;
+  direction: rtl;
+  padding-left: 6px;
+}
+
+.carousel-3d > * {
+  direction: ltr;
+}
+
+/* Scrollbar: always visible in Chrome/Safari (styled scrollbars don't auto-hide
+   on Mac). Firefox uses the standard properties below and follows the system
+   setting for hiding. */
+.carousel-3d::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.carousel-3d::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.45);
+  border-radius: 999px;
+}
+
+.carousel-3d::-webkit-scrollbar-thumb {
+  background: rgba(96, 70, 140, 0.45);
+  border-radius: 999px;
+}
+
+.carousel-3d::-webkit-scrollbar-thumb:hover {
+  background: rgba(96, 70, 140, 0.65);
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  .carousel-3d {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(96, 70, 140, 0.45) rgba(255, 255, 255, 0.45);
+  }
 }
 
 .carousel-cell {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
   height: 56px;
   box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   padding: 0 8px;
   border-radius: 12px;
-  backface-visibility: hidden;
-  /* Keep each row on its own GPU layer, so the browser doesn't rebuild and
-     redraw it at the start and end of every move */
-  will-change: transform, opacity;
+  scroll-snap-align: start;
   color: var(--black);
   font-family: var(--font-body);
-  font-size: 17px;
+  font-size: 19px;
   font-weight: 600;
   line-height: 1.15;
   text-align: center;
   text-transform: lowercase;
   text-shadow: 1px 2px 3px rgba(96, 70, 140, 0.25);
   overflow: hidden;
-  transition:
-    transform 220ms cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 220ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .carousel-cell:hover {
@@ -85,53 +95,37 @@
   outline-offset: -3px;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .carousel-cell {
-    transition: none;
-  }
-}
-
-/* Mobile: a short horizontal strip under the dimples. The "Categories" text
-   is hidden (the nav keeps its aria-label) but its ::after dimples stay. */
+/* Mobile: a short horizontal strip. The title is hidden (the nav keeps its
+   aria-label) to keep the sidebar short. */
 @media (max-width: 1100px) {
   .carousel-scene {
     height: auto;
-    /* sideways swipes move the strip; vertical ones still scroll the page */
-    touch-action: pan-y;
   }
 
   .sidebar-label {
-    margin-bottom: 12px;
-    font-size: 0;
-    line-height: 0;
-    text-shadow: none;
+    display: none;
   }
 
-  /* Full-width sidebar: keep exactly six dimples spread across it */
-  .sidebar-label::after {
-    height: 22px;
-    margin-top: 0;
-    background:
-      radial-gradient(circle at 8.3% 50%, var(--grape) 0 6px, var(--grape-deep) 7px, #f3ecfb 8.5px, transparent 9.5px),
-      radial-gradient(circle at 25% 50%, var(--grape) 0 6px, var(--grape-deep) 7px, #f3ecfb 8.5px, transparent 9.5px),
-      radial-gradient(circle at 41.7% 50%, var(--grape) 0 6px, var(--grape-deep) 7px, #f3ecfb 8.5px, transparent 9.5px),
-      radial-gradient(circle at 58.3% 50%, var(--grape) 0 6px, var(--grape-deep) 7px, #f3ecfb 8.5px, transparent 9.5px),
-      radial-gradient(circle at 75% 50%, var(--grape) 0 6px, var(--grape-deep) 7px, #f3ecfb 8.5px, transparent 9.5px),
-      radial-gradient(circle at 91.7% 50%, var(--grape) 0 6px, var(--grape-deep) 7px, #f3ecfb 8.5px, transparent 9.5px);
-  }
-
+  /* Scrolls sideways, scrollbar along the bottom */
   .carousel-3d {
     flex: none;
-    height: 56px;
-    perspective-origin: 0 50%;
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    /* Back to left-to-right: in a sideways strip, rtl would start the list
+       from the right and reverse the scroll direction */
+    direction: ltr;
+    padding: 0 0 6px;
   }
 
-  /* Each item is as wide as its name; the JS adds an even gap between them */
+  /* Each item is as wide as its name */
   .carousel-cell,
   .carousel-cell.category-all {
     width: auto;
     padding: 0;
     white-space: nowrap;
-    font-size: 15px;
+    font-size: 16px;
   }
 }

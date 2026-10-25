@@ -9,32 +9,40 @@
 .discussion-header h3 {
     margin: 0 0 6px;
     font-family: var(--font-display);
-    font-size: 3rem;
+    font-size: 2rem;
     font-weight: 400;
-    line-height: 1;
+    line-height: 1.1;
     letter-spacing: -0.015em;
 }
 
 .discussion-header p {
     margin: 0;
     color: var(--muted);
-    font-size: 0.9rem;
+    font-size: 1.1rem;
 }
 
-/* Write Post: a slightly tighter pill than the default nav-button */
+/* Write Review: never squeezed by the long heading beside it — the heading
+   wraps instead, and the button text stays on one line */
+.discussion-header > div:last-child {
+    flex-shrink: 0;
+}
+
 .discussion-header .nav-button {
     min-width: 0;
     min-height: 52px;
     padding: 10px 20px;
+    margin-right: -20px;
+    white-space: nowrap;
 }
 
 @media (max-width: 600px) {
     .discussion-header h3 {
-        font-size: 2.3rem;
+        font-size: 1.5rem;
     }
 
     .discussion-header .nav-button {
         min-height: 38px;
         padding: 8px 12px;
+        margin-right: 8px;
     }
 }

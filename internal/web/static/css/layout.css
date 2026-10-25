@@ -20,7 +20,7 @@ main {
 
 .page-body {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2.5fr);
   gap: 2rem;
   width: 100%;
   max-width: 1280px;

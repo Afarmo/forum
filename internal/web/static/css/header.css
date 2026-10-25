@@ -70,7 +70,10 @@
 
 .header-search {
   grid-area: search;
-  max-width: none;
+  width: 100%;
+  max-width: 640px;
+  box-sizing: border-box;
+  justify-self: center;
   margin: 0;
   min-width: 0;
 }
@@ -191,9 +194,10 @@
     padding: 0 6px;
   }
 
-  .logo-text {
-    display: none;
+  .logo {
+    gap: 4px;
   }
+
   .logo-title {
     font-size: 20px;
     padding: 1px 2px;

@@ -1,11 +1,15 @@
 {{ define "sidebar" }}
 <aside class="sidebar carousel-scene">
-    <span class="sidebar-label">Categories</span>
-    <nav class="carousel-3d" id="carousel" aria-label="Categories">
-        <a href="/" class="carousel-cell category-link category-all">All Categories</a>
-                {{ range .Categories}}
-                <a href="/?category_id={{ .ID }}" class="carousel-cell category-link">{{ .Name}}</a>
-                {{end}}
-    </nav>
+  <span class="sidebar-label">Book Genres</span>
+  <nav class="carousel-3d" id="carousel" aria-label="Categories">
+    <a href="/" class="carousel-cell category-link category-all"
+      >All 25 Categories</a
+    >
+    {{ range .Categories}}
+    <a href="/?category_id={{ .ID }}" class="carousel-cell category-link"
+      >{{ .Name}}</a
+    >
+    {{end}}
+  </nav>
 </aside>
 {{ end }}
