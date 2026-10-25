@@ -97,14 +97,11 @@ func (r *CommentRepository) DeleteComment(ctx context.Context, commentID int) er
 		return apperrors.ErrNotFound
 	}
 
-	// Replies to a deleted comment are soft-deleted too, so they don't resurface
-	// as top-level comments once deleted comments are filtered out of reads.
 	_, err = r.db.ExecContext(ctx, `UPDATE comments SET deleted_at = CURRENT_TIMESTAMP WHERE parent_id = ? AND deleted_at IS NULL`, commentID)
 	if err != nil {
 		return err
 	}
 
-	// Reactions left on a deleted comment no longer apply, so remove them.
 	_, err = r.db.ExecContext(ctx, `DELETE FROM comment_reactions WHERE comment_id = ?`, commentID)
 	if err != nil {
 		return err
