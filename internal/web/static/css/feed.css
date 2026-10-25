@@ -1,7 +1,7 @@
 #post-feed {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 36px;
   margin-top: 24px;
 }
 
@@ -10,15 +10,15 @@
   border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: 24px;
   background: var(--egg);
-  box-shadow: var(--neu-egg);
+  box-shadow: var(--neu-egg-strong);
   transition:
     box-shadow 180ms ease,
     transform 180ms ease;
 }
 
 .post-card:hover {
-  box-shadow: var(--neu-egg-lg);
-  transform: translateY(-2px);
+  box-shadow: var(--neu-egg-strong-hover);
+  transform: translateY(-3px);
 }
 
 .post-image-link {
@@ -241,8 +241,7 @@
   animation: post-added 2s ease-out;
 }
 
-/* "Write Post" is a link (it opens the modal via #writePost-modal) but should
-   look exactly like the <button> it replaced. */
+
 a.nav-button {
   text-decoration: none;
   font-family: var(--font-body);

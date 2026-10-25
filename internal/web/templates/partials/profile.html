@@ -32,6 +32,18 @@
       <div class="profile-post-list">
         {{ range .Posts }}
         <article class="profile-post">
+          <details class="post-options">
+            <summary class="post-options-toggle" aria-label="Post options">
+              <span class="post-options-dot"></span>
+              <span class="post-options-dot"></span>
+              <span class="post-options-dot"></span>
+            </summary>
+            <div class="post-options-menu" role="menu">
+              <button type="button" class="post-options-item" role="menuitem">Edit</button>
+              <button type="button" class="post-options-item" role="menuitem">Soft delete</button>
+              <button type="button" class="post-options-item post-options-item--danger" role="menuitem">Hard delete</button>
+            </div>
+          </details>
           <div class="profile-post-meta">
             <time datetime="{{ .CreatedAt.Format "2006-01-02T15:04:05Z07:00" }}">{{ .CreatedAt.Format "Jan 2, 2006" }}</time>
           </div>

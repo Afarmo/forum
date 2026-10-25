@@ -61,6 +61,49 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
+// Post options menus (<details class="post-options">): only one open at a
+// time, closed by clicking outside or pressing Escape.
+document.addEventListener("click", function (event) {
+  document.querySelectorAll(".post-options[open]").forEach(function (menu) {
+    if (!menu.contains(event.target)) menu.open = false;
+  });
+});
+
+document.addEventListener("keydown", function (event) {
+  if (event.key !== "Escape") return;
+  document.querySelectorAll(".post-options[open]").forEach(function (menu) {
+    menu.open = false;
+  });
+});
+
+// Search clear button: if a search is active, go back to the full feed;
+// otherwise just empty the box without reloading.
+document.addEventListener("click", function (event) {
+  const button = event.target.closest(".search-clear");
+  if (!button) return;
+
+  if (button.hasAttribute("data-active-search")) {
+    window.location.href = "/";
+    return;
+  }
+
+  const input = button.form.querySelector(".search-input");
+  input.value = "";
+  input.focus();
+});
+
+// Comment and reply boxes: Enter sends, Shift+Enter adds a new line.
+// Skipped mid-composition so IME users can confirm characters with Enter.
+document.addEventListener("keydown", function (event) {
+  if (event.key !== "Enter" || event.shiftKey || event.isComposing) return;
+
+  const textarea = event.target.closest(".comment-form textarea, .reply-form textarea");
+  if (!textarea) return;
+
+  event.preventDefault();
+  textarea.form.requestSubmit();
+});
+
 // Category picker: checkboxes can't use `required` (that would mean "check
 // ALL of them"), so "pick at least one" is enforced manually via
 // setCustomValidity on the first checkbox in the group. That plugs into the

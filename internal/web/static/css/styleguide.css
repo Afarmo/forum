@@ -20,7 +20,22 @@
   --neu-blue-light: #2d6cff;
   --neu-egg: 8px 8px 16px var(--neu-egg-dark), -8px -8px 16px var(--neu-egg-light);
   --neu-egg-lg: 12px 12px 24px var(--neu-egg-dark), -12px -12px 24px var(--neu-egg-light);
+  --neu-egg-strong:
+    14px 14px 30px var(--neu-egg-dark),
+    -12px -12px 26px var(--neu-egg-light),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.9),
+    inset -3px -3px 6px rgba(0, 0, 0, 0.05);
+  --neu-egg-strong-hover:
+    18px 18px 38px var(--neu-egg-dark),
+    -14px -14px 32px var(--neu-egg-light),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.9),
+    inset -3px -3px 6px rgba(0, 0, 0, 0.05);
   --neu-blue: 7px 7px 15px var(--neu-blue-dark), -7px -7px 15px var(--neu-blue-light);
+  --neu-blue-strong:
+    12px 12px 26px var(--neu-blue-dark),
+    -10px -10px 22px var(--neu-blue-light),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.9),
+    inset -3px -3px 6px rgba(0, 0, 0, 0.08);
 
   --font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
   --font-body: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;

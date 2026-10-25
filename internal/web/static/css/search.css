@@ -13,7 +13,7 @@
   padding: 0 40px;
   margin: 0;
   box-sizing: border-box;
-  box-shadow: var(--neu-blue);
+  box-shadow: var(--neu-blue-strong);
 }
 
 .search-box form {
@@ -59,8 +59,16 @@
   width: 16px;
   height: 16px;
   margin-left: 8px;
+  padding: 0;
+  border: none;
+  cursor: pointer;
   background: center / contain no-repeat
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23054ff0' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 6 12 12M18 6 6 18'/%3E%3C/svg%3E");
+}
+
+/* Only show the clear button once there's text in the box */
+.search-input:placeholder-shown + .search-clear {
+  display: none;
 }
 
 /* Small screens */

@@ -255,7 +255,14 @@
 
     border-radius: 999px;
 
-    background: var(--blue);
+    /* Blue pill raised off the eggshell modal: inset bevel plus egg-tinted outer shadows */
+    background: radial-gradient(ellipse at 35% 30%, #3a76ff 0%, var(--blue) 55%, var(--blue-deep) 100%);
+
+    box-shadow:
+        inset 2px 3px 6px rgba(255, 255, 255, 0.35),
+        inset -3px -4px 8px rgba(2, 30, 100, 0.45),
+        12px 12px 26px var(--neu-egg-dark),
+        -10px -10px 22px var(--neu-egg-light);
 
     color: var(--egg);
 
@@ -266,10 +273,22 @@
     cursor: pointer;
 
     margin-top: 5px;
+
+    transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
 }
 
 .login-button:hover {
-    background: var(--blue-deep);
+    filter: brightness(1.06);
+    transform: translateY(-2px);
+}
+
+.login-button:active {
+    transform: translateY(1px);
+    box-shadow:
+        inset 4px 4px 10px rgba(2, 30, 100, 0.5),
+        inset -3px -3px 8px rgba(255, 255, 255, 0.2),
+        4px 4px 10px var(--neu-egg-dark),
+        -4px -4px 10px var(--neu-egg-light);
 }
 
 

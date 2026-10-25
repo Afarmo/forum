@@ -19,7 +19,12 @@
     background: radial-gradient(ellipse at center, #ece2f8 0%, var(--grape) 58%, #cdbbe4 100%);
     border: 1px solid rgba(255, 255, 255, 0.5);
     border-radius: 32px;
-    box-shadow: var(--neu-egg-lg);
+    /* Outer shadows fall on the eggshell page; the inset bevel is grape-tinted to match the sidebar's own surface */
+    box-shadow:
+        14px 14px 30px var(--neu-egg-dark),
+        -12px -12px 26px var(--neu-egg-light),
+        inset 2px 2px 5px rgba(255, 255, 255, 0.6),
+        inset -3px -3px 8px rgba(96, 70, 140, 0.2);
 
     box-sizing: border-box;
 }

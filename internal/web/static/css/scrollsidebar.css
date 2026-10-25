@@ -8,19 +8,17 @@
   overscroll-behavior: contain;
 }
 
-/* Row of pressed-in grape dimples under the "Categories" label */
+/* Row of pressed-in grape dimples under the "Categories" label. One dimple per
+   42px tile; `space` fits as many whole tiles as the width allows, so a
+   narrower sidebar shows fewer dimples instead of overlapping them. */
 .sidebar-label::after {
   content: "";
   display: block;
   height: 38px;
   margin-top: 18px;
-  background:
-    radial-gradient(circle at 8.3% 50%, var(--grape) 0 13px, var(--grape-deep) 14px, #f3ecfb 17px, transparent 18px),
-    radial-gradient(circle at 25% 50%, var(--grape) 0 13px, var(--grape-deep) 14px, #f3ecfb 17px, transparent 18px),
-    radial-gradient(circle at 41.7% 50%, var(--grape) 0 13px, var(--grape-deep) 14px, #f3ecfb 17px, transparent 18px),
-    radial-gradient(circle at 58.3% 50%, var(--grape) 0 13px, var(--grape-deep) 14px, #f3ecfb 17px, transparent 18px),
-    radial-gradient(circle at 75% 50%, var(--grape) 0 13px, var(--grape-deep) 14px, #f3ecfb 17px, transparent 18px),
-    radial-gradient(circle at 91.7% 50%, var(--grape) 0 13px, var(--grape-deep) 14px, #f3ecfb 17px, transparent 18px);
+  background: radial-gradient(circle at 50% 50%, var(--grape) 0 13px, var(--grape-deep) 14px, #f3ecfb 17px, transparent 18px);
+  background-size: 42px 38px;
+  background-repeat: space no-repeat;
   filter: drop-shadow(2px 3px 2px rgba(96, 70, 140, 0.3));
 }
 
@@ -106,8 +104,16 @@
     text-shadow: none;
   }
 
+  /* Full-width sidebar: keep exactly six dimples spread across it */
   .sidebar-label::after {
     margin-top: 0;
+    background:
+      radial-gradient(circle at 8.3% 50%, var(--grape) 0 13px, var(--grape-deep) 14px, #f3ecfb 17px, transparent 18px),
+      radial-gradient(circle at 25% 50%, var(--grape) 0 13px, var(--grape-deep) 14px, #f3ecfb 17px, transparent 18px),
+      radial-gradient(circle at 41.7% 50%, var(--grape) 0 13px, var(--grape-deep) 14px, #f3ecfb 17px, transparent 18px),
+      radial-gradient(circle at 58.3% 50%, var(--grape) 0 13px, var(--grape-deep) 14px, #f3ecfb 17px, transparent 18px),
+      radial-gradient(circle at 75% 50%, var(--grape) 0 13px, var(--grape-deep) 14px, #f3ecfb 17px, transparent 18px),
+      radial-gradient(circle at 91.7% 50%, var(--grape) 0 13px, var(--grape-deep) 14px, #f3ecfb 17px, transparent 18px);
   }
 
   .carousel-3d {
