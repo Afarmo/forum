@@ -4,3 +4,33 @@
     align-items: flex-start;
     width: 100%;
 }
+
+.success-notification {
+    position: fixed;
+    top: 1.25rem;
+    right: 1.25rem;
+    z-index: 1000;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    background: #237a45;
+    color: #fff;
+    box-shadow: 0 4px 16px rgb(0 0 0 / 20%);
+    animation: success-notification-dismiss 3s ease forwards;
+}
+
+.error-notification {
+    background: #a22b24;
+}
+
+@keyframes success-notification-dismiss {
+    0%,
+    82% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+}

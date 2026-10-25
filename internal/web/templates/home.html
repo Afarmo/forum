@@ -6,10 +6,14 @@
     <title>{{ .Title }}</title>
     <link rel="stylesheet" href="/static/css/style.css" />
   </head>
-  <body data-authenticated="{{ if .User }}true{{ else }}false{{ end }}">
+  <body
+    data-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
+    data-login-error="{{ .LoginError }}"
+    data-register-error="{{ .RegisterError }}"
+    data-login-success="{{ .LoginSuccess }}"
+  >
     <div class="page-header">
-      {{ template "header" .}} {{ template "login-modal" . }} {{ template
-      "register-modal" . }}
+      {{ template "header" .}} {{ template "register-modal" . }}
     </div>
     <div class="page-body">
       {{ template "sidebar" . }}

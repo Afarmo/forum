@@ -25,8 +25,8 @@
     <input type="radio" name="profile-tab" id="liked-posts-tab" />
 
     <nav class="profile-tab-list" aria-label="Profile posts">
-      <label for="my-posts-tab">My posts <span>{{ len .Posts }}</span></label>
-      <label for="liked-posts-tab">Liked posts</label>
+      <label for="my-posts-tab">{{ .ProfileUser.UserName }}'s posts <span>{{ len .Posts }}</span></label>
+      <label for="liked-posts-tab">Liked posts <span>{{ len .LikedPosts }}</span></label>
     </nav>
 
     <section class="profile-tab-panel my-posts-panel" aria-labelledby="my-posts-tab">
@@ -50,7 +50,7 @@
         {{ end }}
       </div>
       {{ else }}
-      <p class="profile-empty-state">You have not written any posts yet.</p>
+      <p class="profile-empty-state">You have not liked any posts yet.</p>
       {{ end }}
     </section>
   </div>

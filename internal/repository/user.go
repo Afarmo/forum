@@ -44,7 +44,14 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *models.User) erro
 
 	if err != nil {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
-			return apperrors.ErrDuplicateKey
+			switch {
+			case strings.Contains(err.Error(), "users.email"):
+				return apperrors.ErrDuplicateEmail
+			case strings.Contains(err.Error(), "users.username"):
+				return apperrors.ErrDuplicateUsername
+			default:
+				return apperrors.ErrDuplicateKey
+			}
 		}
 		return err
 	}

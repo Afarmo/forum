@@ -8,6 +8,17 @@ function closeModal(id) {
   if (modal) modal.hidden = true;
 }
 
+function showNotification(message, isError) {
+  const notification = document.createElement("div");
+  notification.className =
+    "success-notification" + (isError ? " error-notification" : "");
+  notification.setAttribute("role", isError ? "alert" : "status");
+  notification.setAttribute("aria-live", "polite");
+  notification.textContent = message;
+  document.body.appendChild(notification);
+  window.setTimeout(() => notification.remove(), 2000);
+}
+
 if (document.body.dataset.authenticated !== "true") {
   document.querySelectorAll(".post-card .reaction-button").forEach((button) => {
     button.disabled = true;
@@ -19,7 +30,9 @@ if (document.body.dataset.authenticated !== "true") {
 }
 
 document.addEventListener("click", async function (event) {
-  const button = event.target.closest(".post-card .reaction-button[data-post-id]");
+  const button = event.target.closest(
+    ".post-card .reaction-button[data-post-id]",
+  );
   if (!button || button.disabled) return;
 
   const postCard = button.closest(".post-card");
@@ -51,10 +64,15 @@ document.addEventListener("click", async function (event) {
     }
 
     const result = await response.json();
-    const likeButton = actions.querySelector('.reaction-button[data-reaction="1"]');
-    const dislikeButton = actions.querySelector('.reaction-button[data-reaction="-1"]');
+    const likeButton = actions.querySelector(
+      '.reaction-button[data-reaction="1"]',
+    );
+    const dislikeButton = actions.querySelector(
+      '.reaction-button[data-reaction="-1"]',
+    );
     likeButton.querySelector(".reaction-count").textContent = result.like_count;
-    dislikeButton.querySelector(".reaction-count").textContent = result.dislike_count;
+    dislikeButton.querySelector(".reaction-count").textContent =
+      result.dislike_count;
 
     const liked = result.user_reaction === 1;
     const disliked = result.user_reaction === -1;
@@ -76,6 +94,43 @@ document.addEventListener("click", async function (event) {
 // Auth modal tab-switching: any element with [data-auth-switch="login"|"register"]
 // closes both auth modals and opens the requested one.
 document.addEventListener("DOMContentLoaded", function () {
+  if (document.body.dataset.loginSuccess === "true") {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("login_success");
+    window.history.replaceState(null, "", url.pathname + url.search + url.hash);
+    showNotification("Successfully logged in.", false);
+  }
+
+  const profilePictureNotification =
+    document.body.dataset.profilePictureNotification;
+  if (profilePictureNotification) {
+    const url = new URL(window.location.href);
+    const isError = url.searchParams.get("profile_picture_status") === "error";
+    url.searchParams.delete("profile_picture_status");
+    window.history.replaceState(null, "", url.pathname + url.search + url.hash);
+    showNotification(profilePictureNotification, isError);
+  }
+
+  const loginError = document.body.dataset.loginError;
+  if (loginError) {
+    const error = document.getElementById("login-error");
+    if (error) {
+      error.textContent = loginError;
+      error.hidden = false;
+      openModal("login-modal");
+    }
+  }
+
+  const registerError = document.body.dataset.registerError;
+  if (registerError) {
+    const error = document.getElementById("register-error");
+    if (error) {
+      error.textContent = registerError;
+      error.hidden = false;
+      openModal("register-modal");
+    }
+  }
+
   document.querySelectorAll("[data-auth-switch]").forEach(function (el) {
     el.addEventListener("click", function () {
       closeModal("login-modal");
@@ -152,6 +207,19 @@ document.addEventListener("DOMContentLoaded", function () {
   const saveButton = document.getElementById("save-picture");
 
   if (!input || !preview || !saveButton) return;
+
+  const uploadForm = input.form;
+  uploadForm.addEventListener("submit", function (event) {
+    const file = input.files && input.files[0];
+    if (!file || file.size <= 5 * 1024 * 1024) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    showNotification(
+      "Failed to update profile picture. Image must be 5 MiB or smaller.",
+      true,
+    );
+  });
 
   let previewUrl;
 

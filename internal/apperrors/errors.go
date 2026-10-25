@@ -8,6 +8,8 @@ import (
 var (
 	ErrNotFound           = errors.New("record not found")
 	ErrDuplicateKey       = errors.New("duplicate key violation")
+	ErrDuplicateUsername  = errors.New("username already exists")
+	ErrDuplicateEmail     = errors.New("email already exists")
 	ErrInvalidInput       = errors.New("invalid input")
 	ErrInvalidID          = errors.New("invalid ID")
 	ErrTransactionStart   = errors.New("failed to begin transaction")

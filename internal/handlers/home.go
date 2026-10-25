@@ -28,11 +28,14 @@ func NewHomeHandler(tmpl *template.Template, categoryService *service.CategorySe
 }
 
 type HomePageData struct {
-	Title       string
-	User        *models.User
-	Categories  []models.Category
-	Posts       []models.Post
-	SearchQuery string
+	Title         string
+	User          *models.User
+	Categories    []models.Category
+	Posts         []models.Post
+	SearchQuery   string
+	LoginError    string
+	RegisterError string
+	LoginSuccess  bool
 }
 
 func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
@@ -88,6 +91,24 @@ func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
 		Categories:  categories,
 		Posts:       posts,
 		SearchQuery: searchQuery,
+	}
+	if r.URL.Query().Get("login_error") == "1" {
+		data.LoginError = "Invalid email or password"
+	}
+	data.LoginSuccess = r.URL.Query().Get("login_success") == "1"
+	switch r.URL.Query().Get("register_error") {
+	case "invalid_username":
+		data.RegisterError = "Username must be between 3 and 20 characters."
+	case "invalid_email":
+		data.RegisterError = "Enter a valid email address."
+	case "invalid_password":
+		data.RegisterError = "Password must be between 8 and 64 characters."
+	case "duplicate_email":
+		data.RegisterError = "An account with this email already exists."
+	case "duplicate_username":
+		data.RegisterError = "That username is already taken."
+	case "duplicate":
+		data.RegisterError = "An account with that information already exists."
 	}
 
 	var buf bytes.Buffer
