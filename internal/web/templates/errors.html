@@ -4,12 +4,37 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{.}} | Literary Lions</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Poppins:wght@400;500;600;700&display=swap"
+    />
     <link rel="stylesheet" href="/static/css/style.css" />
   </head>
   <body>
+    <!-- Logo-only header: the full header partial needs user/search data that
+         the error renderer doesn't pass (it only gets the status code). -->
+    <header class="header error-header">
+      <div class="header-content">
+        <a href="/" class="logo">
+          <svg class="logo-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 7v14" />
+            <path
+              d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"
+            />
+          </svg>
+          <div class="logo-text">
+            <div class="logo-title">Literary Lions</div>
+          </div>
+        </a>
+      </div>
+    </header>
+
     <main class="error-page">
-      <div class="error-content">
-        <h1>{{.}}</h1>
+      <div class="error-card">
+        <h1 class="error-code">{{.}}</h1>
+        <div class="error-dimples" aria-hidden="true"></div>
 
         {{if eq . 404}}
         <h2>Page not found</h2>
@@ -19,8 +44,10 @@
         <p>We're having trouble loading this page. Please try again later.</p>
         {{end}}
 
-        <a href="/" class="error-home">Back to home</a>
+        <a href="/" class="nav-button">Back to home</a>
       </div>
     </main>
+
+    {{ template "footer" . }}
   </body>
 </html>

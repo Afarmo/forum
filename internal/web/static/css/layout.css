@@ -30,9 +30,7 @@ main {
   box-sizing: border-box;
 }
 
-/* The post page's footer has no class, so it's matched as body > footer */
-.site-footer,
-body > footer {
+.site-footer {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -45,6 +43,10 @@ body > footer {
   text-align: center;
   background: var(--black);
   color: var(--egg);
+}
+
+.footer-heart {
+  color: var(--hivis);
 }
 
 .main-content {
@@ -68,8 +70,7 @@ body > footer {
     padding: 8px;
     margin: 4px 0;
   }
-  .site-footer,
-  body > footer {
+  .site-footer {
     font-size: 11px;
     letter-spacing: 1.5px;
     padding: 14px 16px;
