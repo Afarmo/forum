@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"uuid"
 
 	"github.com/Afarmo/forum/internal/apperrors"
 	"github.com/Afarmo/forum/internal/middleware"
@@ -118,28 +119,83 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) UploadProfilePicture(w http.ResponseWriter, r *http.Request) {
-
+	const maxFileSize = 5 << 20
+	const maxRequestSize = maxFileSize + 1<<20
+	r.Body = http.MaxBytesReader(w, r.Body, maxRequestSize)
 	file, header, err := r.FormFile("profile_picture")
 	if err != nil {
+		if _, ok := errors.AsType[*http.MaxBytesError](err); ok {
+			http.Error(w, "request exceeds upload limit", http.StatusRequestEntityTooLarge)
+			return
+		}
+
 		http.Error(w, "failed to get uploaded file", http.StatusBadRequest)
 		return
 	}
 	defer file.Close()
 
-	if err = os.MkdirAll("internal/web/static/img/profile", 0755); err != nil {
+	if header.Size > maxFileSize {
+		http.Error(w, "profile picture exceeds upload limit (5MiB)", http.StatusRequestEntityTooLarge)
+		return
+	}
+
+	// Check the file contents instead of trusting its extension
+	buf := make([]byte, 512)
+	n, err := file.Read(buf)
+	if err != nil && err != io.EOF {
+		http.Error(w, "failed to read provided file", http.StatusBadRequest)
+		return
+	}
+
+	// Identify the MIME type (<type>/<subtype>)
+	contentType := http.DetectContentType(buf[:n])
+
+	var ext string
+	switch contentType {
+	case "image/jpeg":
+		ext = ".jpeg"
+	case "image/png":
+		ext = ".png"
+	case "image/webp":
+		ext = ".webp"
+	default:
+		http.Error(w, "unsupported image format", http.StatusBadRequest)
+		return
+	}
+
+	if _, err := file.Seek(0, io.SeekStart); err != nil {
 		apperrors.Log(err)
 		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 		return
 	}
 
-	filename := filepath.Base(header.Filename)
-	picturePath := filepath.Join("internal", "web", "static", "img", "profile", filename)
+	profileDir := filepath.Join("internal", "web", "static", "img", "profile")
+	if err := os.MkdirAll(profileDir, 0755); err != nil {
+		apperrors.Log(err)
+		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
+		return
+	}
+
+	filename := uuid.New().String() + ext
+	picturePath := filepath.Join(profileDir, filename)
+
 	destination, err := os.Create(picturePath)
 	if err != nil {
 		apperrors.Log(err)
 		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 		return
 	}
+
+	var saved bool
+
+	defer func() {
+		if !saved {
+			if err := os.Remove(picturePath); err != nil {
+				apperrors.Log(err)
+			}
+		}
+	}()
+
 	defer destination.Close()
 
 	if _, err = io.Copy(destination, file); err != nil {
@@ -148,14 +204,22 @@ func (h *UserHandler) UploadProfilePicture(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	user := middleware.UserFromContext(r.Context())
-
-	pictureURL := "/static/img/profile/" + url.PathEscape(filename)
-	if err = h.userService.UpdateProfilePicture(r.Context(), user.ID, pictureURL); err != nil {
+	if err := destination.Close(); err != nil {
 		apperrors.Log(err)
 		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 		return
 	}
+
+	user := middleware.UserFromContext(r.Context())
+	pictureURL := "/static/img/profile/" + url.PathEscape(filename)
+
+	if err := h.userService.UpdateProfilePicture(r.Context(), user.ID, pictureURL); err != nil {
+		apperrors.Log(err)
+		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
+		return
+	}
+
+	saved = true
 
 	// Redirect the POST to a GET so the browser reloads the updated profile
 	// without resubmitting the upload when the page is refreshed.
