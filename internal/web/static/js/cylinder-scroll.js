@@ -30,37 +30,50 @@ if (carousel) {
   // Stop while this many items are still visible, so the list never ends on
   // a single item.
   const KEEP_VISIBLE_AT_END = 3;
+  // Mobile: the strip's right edge counts as this many rows from the front,
+  // matching how many rows the desktop drum shows, so both fade out the same.
+  const EDGE_DEPTH = 4.5;
+  // Load hint: the drum turns this fraction of a step and back so users can
+  // see it scrolls. Shown once per session, after a short pause.
+  const HINT_AMOUNT = 0.35;
+  const HINT_DELAY = 800;      // ms after load before the first nudge
+  const HINT_HOLD = 350;       // ms each half of a nudge takes (cells transition for 300ms)
 
   const maxIndex = Math.max(0, cells.length - KEEP_VISIBLE_AT_END);
   let currentIndex = 0;
   let lastStepTime = 0;
 
   // Distance from the front item to item i, along the list's direction
-  function distanceFromFront(i, horizontal, widths) {
-    if (!horizontal) return (i - currentIndex) * ROW_HEIGHT;
+  // `nudge` shifts the whole list by a fraction of a step (used by the hint)
+  function distanceFromFront(i, horizontal, widths, nudge) {
+    if (!horizontal) return (i - currentIndex - nudge) * ROW_HEIGHT;
 
     const from = Math.min(i, currentIndex);
     const to = Math.max(i, currentIndex);
     let distance = 0;
     for (let k = from; k < to; k++) distance += widths[k] + ITEM_GAP;
-    return i < currentIndex ? -distance : distance;
+    distance = i < currentIndex ? -distance : distance;
+    return distance - nudge * (widths[currentIndex] + ITEM_GAP);
   }
 
-  function layout() {
+  function layout(nudge = 0) {
     const horizontal = mobile.matches;
     const widths = horizontal ? cells.map((cell) => cell.offsetWidth) : null;
+    const edge = carousel.clientWidth;
 
     cells.forEach((cell, i) => {
-      const offset = i - currentIndex;
-      const distance = distanceFromFront(i, horizontal, widths);
-      const tilt = Math.min(Math.max(offset, 0) * TILT_PER_ITEM, MAX_TILT);
+      const offset = i - currentIndex - nudge;
+      const distance = distanceFromFront(i, horizontal, widths, nudge);
+      // How far "into" the drum the item sits, in desktop rows
+      const depth = horizontal ? (distance / edge) * EDGE_DEPTH : offset;
+      const tilt = Math.min(Math.max(depth, 0) * TILT_PER_ITEM, MAX_TILT);
 
       cell.style.transform = horizontal
         ? `translateX(${distance}px) rotateY(${tilt}deg)`
         : `translateY(${distance}px) rotateX(${-tilt}deg)`;
-      // Items already moved past slide out of view and fade out
+      // Items moving past the front fade out as they leave
       cell.style.opacity =
-        offset < 0 ? 0 : Math.max(MIN_OPACITY, 1 - offset * FADE_PER_ITEM);
+        offset < 0 ? Math.max(0, 1 + offset) : Math.max(MIN_OPACITY, 1 - depth * FADE_PER_ITEM);
     });
   }
 
@@ -77,8 +90,33 @@ if (carousel) {
   }
 
   layout();
-  mobile.addEventListener('change', layout);
-  window.addEventListener('resize', layout);
+  mobile.addEventListener('change', () => layout());
+  window.addEventListener('resize', () => layout());
+
+  // Scroll hint: nudge the drum forward and back twice, once per session.
+  // Any wheel or touch on the carousel cancels it.
+  const hintTimers = [];
+
+  function cancelHint() {
+    hintTimers.forEach(clearTimeout);
+    hintTimers.length = 0;
+  }
+
+  function alreadyHinted() {
+    try {
+      if (sessionStorage.getItem('carouselHinted')) return true;
+      sessionStorage.setItem('carouselHinted', '1');
+    } catch (e) { /* storage blocked: just show the hint */ }
+    return false;
+  }
+
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (maxIndex > 0 && !reducedMotion && !alreadyHinted()) {
+    [HINT_AMOUNT, 0, HINT_AMOUNT, 0].forEach((nudge, n) => {
+      hintTimers.push(setTimeout(() => layout(nudge), HINT_DELAY + n * HINT_HOLD));
+    });
+  }
 
   // Wheel: always swallow the event so the feed never scrolls while the
   // pointer is over the sidebar. Small trackpad deltas add up to one item;
@@ -88,6 +126,7 @@ if (carousel) {
 
   scene.addEventListener('wheel', (event) => {
     event.preventDefault();
+    cancelHint();
 
     let delta =
       Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
@@ -114,6 +153,7 @@ if (carousel) {
   }
 
   scene.addEventListener('touchstart', (event) => {
+    cancelHint();
     touchPos = touchPoint(event);
   }, { passive: true });
 

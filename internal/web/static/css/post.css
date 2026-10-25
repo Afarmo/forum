@@ -226,20 +226,66 @@
     text-align: center;
 }
 
-/* Replies sit under the comment they answer, indented with a thread line.
-   Indentation stops growing after a few levels so deep threads stay readable. */
 .replies {
+    --vein: 2px;
     margin-left: 24px;
     padding-left: 16px;
-    border-left: 2px solid var(--grape-deep);
 }
 
 .replies:empty {
     display: none;
 }
 
+/* Reply veins: each reply branches off its parent's line with a curved
+   elbow into its avatar, and the line stops at the last reply. */
+.replies > .comment-thread {
+    position: relative;
+}
+
+/* Branch: from the parent's line (covering the 16px gap above) into the
+   avatar, whose centre sits 39px below the top of the card */
+.replies > .comment-thread::before {
+    content: "";
+    position: absolute;
+    top: -16px;
+    left: -16px;
+    width: 14px;
+    height: 56px;
+    border-left: var(--vein) solid var(--grape-deep);
+    border-bottom: var(--vein) solid var(--grape-deep);
+    border-bottom-left-radius: 14px;
+}
+
+/* Trunk: carries the line on to the next sibling reply */
+.replies > .comment-thread:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -16px;
+    border-left: var(--vein) solid var(--grape-deep);
+}
+
+/* Node: a lime dot where the branch meets the reply card */
+.replies > .comment-thread > .comment::before {
+    content: "";
+    position: absolute;
+    top: 34px;
+    left: -5px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #e6fd96 0%, var(--hivis) 55%, #bedb5a 100%);
+    box-shadow: 1px 1px 2px rgba(78, 96, 10, 0.35);
+}
+
+/* Deeper levels: smaller indent steps and finer veins */
 .replies .replies .replies .replies {
+    --vein: 1.5px;
     margin-left: 0;
+}
+.replies .replies .replies .replies .replies .replies .replies .replies .replies .replies .replies {
+    padding-left: 0;
 }
 
 .reply-box {
@@ -350,5 +396,8 @@
 
     .post-detail-title {
         font-size: 2.4rem;
+    }
+    .replies .replies .replies .replies {
+        padding-left: 0;
     }
 }

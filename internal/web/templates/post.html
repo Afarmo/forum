@@ -16,7 +16,7 @@
         <span class="user-avatar default-avatar">👤</span>
         {{ end }}
         <div>
-          <div class="author-name">User {{ .Post.UserID }}</div>
+          <div class="author-name">{{ .Post.AuthorName }}</div>
           <time class="meta-date">{{ .Post.CreatedAt.Format "Jan 2" }}</time>
         </div>
       </div>

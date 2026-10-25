@@ -150,6 +150,19 @@
   outline-color: var(--egg);
 }
 
+/* Wide desktop: logo, search and profile share one row */
+@media (min-width: 1400px) {
+  .header-content {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: "brand search nav";
+  }
+
+  /* Extra breathing room between the search bar and the logo / profile */
+  .header-search {
+    padding: 0 48px;
+  }
+}
+
 /* Responsive Design for Mobile Screens */
 @media (max-width: 600px) {
   .header {

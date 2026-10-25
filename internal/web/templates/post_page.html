@@ -1,24 +1,23 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{ .Title }}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Poppins:wght@400;500;600;700&display=swap">
-    <link rel="stylesheet" href="/static/css/style.css?v=speed-limit">
-</head>
-<body class="post-page-body">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Poppins:wght@400;500;600;700&display=swap"
+    />
+    <link rel="stylesheet" href="/static/css/style.css?v=speed-limit" />
+  </head>
+  <body class="post-page-body">
+    <div class="page-header">{{ template "header" . }}</div>
 
-<div class="page-header">
-    {{ template "header" . }}
-</div>
+    <main>{{ template "post-content" . }}</main>
 
-<main>
-    {{ template "post-content" . }}
-</main>
+    {{ template "footer" . }}
 
-{{ template "footer" . }}
-
-<script src="/static/js/main.js"></script>
-</body>
+    <script src="/static/js/main.js"></script>
+  </body>
 </html>

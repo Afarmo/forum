@@ -222,7 +222,7 @@
 }
 
 .like-icon {
-  font-family: system-ui, sans-serif;
+  font-family: var(--font-body);
   font-size: 1.2rem;
   line-height: 1;
 }
