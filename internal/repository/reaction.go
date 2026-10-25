@@ -48,7 +48,8 @@ func (r *ReactionRepository) GetPostReaction(ctx context.Context, postID, userID
 func (r *ReactionRepository) CreatePostReaction(ctx context.Context, reaction *models.PostReaction) error {
 	query := `
 		INSERT INTO post_reactions(post_id, user_id, reaction) 
-		VALUES(?,?,?)
+		SELECT ?, ?, ?
+		WHERE EXISTS (SELECT 1 FROM posts WHERE id = ? AND deleted_at IS NULL)
 	`
 	_, err := r.db.ExecContext(
 		ctx,
@@ -56,6 +57,7 @@ func (r *ReactionRepository) CreatePostReaction(ctx context.Context, reaction *m
 		reaction.PostID,
 		reaction.UserID,
 		reaction.Reaction,
+		reaction.PostID,
 	)
 
 	return err
@@ -140,17 +142,33 @@ func (r *ReactionRepository) GetCommentReaction(ctx context.Context, commentID, 
 func (r *ReactionRepository) CreateCommentReaction(ctx context.Context, reaction *models.CommentReaction) error {
 	query := `
 		INSERT INTO comment_reactions(comment_id, user_id, reaction) 
-		VALUES(?,?,?)
+		SELEECT ?, ?, ?
+		WHERE EXISTS (
+			SELECT 1 FROM comments c
+			JOIN posts p ON p.id = c.post_id
+			WHERE c.id = ? AND c.deleted_at IS NULL AND p.deleted_at IS NULL
+		)
+
 	`
-	_, err := r.db.ExecContext(
+	res, err := r.db.ExecContext(
 		ctx,
 		query,
 		reaction.CommentID,
 		reaction.UserID,
 		reaction.Reaction,
+		reaction.CommentID,
 	)
-
-	return err
+	if err != nil {
+		return err
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if n == 0 {
+		return apperrors.ErrNotFound
+	}
+	return nil
 }
 
 func (r *ReactionRepository) UpdateCommentReaction(ctx context.Context, reaction *models.CommentReaction) error {
