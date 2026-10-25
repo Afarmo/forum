@@ -39,7 +39,7 @@ func (s *PostService) GetPostByUser(ctx context.Context, userId int) ([]models.P
 	return s.repo.GetPostByUser(ctx, userId)
 }
 
-func (s *PostService) UpdatePost(ctx context.Context, PostID *int, update *models.UpdatePost) error {
+func (s *PostService) UpdatePost(ctx context.Context, PostID *int, userID int, update *models.UpdatePost) error {
 	if PostID == nil || *PostID <= 0 {
 		return apperrors.ErrNotFound
 	}
@@ -52,15 +52,34 @@ func (s *PostService) UpdatePost(ctx context.Context, PostID *int, update *model
 	if update.Title != nil && strings.TrimSpace(*update.Title) == "" {
 		return apperrors.ErrInvalidInput
 	}
-	return s.repo.UpdatePost(ctx, *PostID, update)
+	post, err := s.repo.GetPostById(ctx, *PostID)
+	if err != nil {
+		return err
+	}
+	if post.IsDeleted() {
+		return apperrors.ErrNotFound
+	}
+	if post.UserID != userID {
+		return apperrors.ErrForbidden
+	}
+
+	return s.repo.UpdatePost(ctx, *PostID, userID, update)
 }
 
-func (s *PostService) DeletePost(ctx context.Context, PostID *int) error {
+func (s *PostService) DeletePost(ctx context.Context, PostID *int, userID int) error {
 	if PostID == nil || *PostID <= 0 {
 		return apperrors.ErrInvalidInput
 	}
 
-	return s.repo.DeletePost(ctx, PostID)
+	post, err := s.repo.GetPostById(ctx, *PostID)
+	if err != nil {
+		return err
+	}
+
+	if post.UserID != userID {
+		return apperrors.ErrForbidden
+	}
+	return s.repo.DeletePost(ctx, PostID, userID)
 }
 
 func (s *PostService) GetPostById(ctx context.Context, postId int) (*models.Post, error) {
@@ -68,7 +87,21 @@ func (s *PostService) GetPostById(ctx context.Context, postId int) (*models.Post
 		return nil, apperrors.ErrInvalidInput
 	}
 
-	return s.repo.GetPostById(ctx, postId)
+	post, err := s.repo.GetPostById(ctx, postId)
+	if err != nil {
+		return nil, err
+	}
+
+	// Deleted posts keep their comments, but the content never leaves the backend.
+	if post.IsDeleted() {
+		post.Title = "[deleted]"
+		post.Content = ""
+		post.PictureContent = ""
+		post.AuthorName = ""
+		post.AuthorPicture = ""
+		post.UserID = 0
+	}
+	return post, nil
 }
 
 func (s *PostService) SearchPosts(ctx context.Context, search string) ([]models.Post, error) {
