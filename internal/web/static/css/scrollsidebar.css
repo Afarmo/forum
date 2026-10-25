@@ -50,6 +50,9 @@
   padding: 0 8px;
   border-radius: 12px;
   backface-visibility: hidden;
+  /* Keep each row on its own GPU layer, so the browser doesn't rebuild and
+     redraw it at the start and end of every move */
+  will-change: transform, opacity;
   color: var(--black);
   font-family: var(--font-body);
   font-size: 17px;
