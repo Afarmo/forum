@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 
-	"github.com/Afarmo/forum/internal/apperrors"
 	"github.com/Afarmo/forum/internal/models"
 	"github.com/Afarmo/forum/internal/repository"
 )
@@ -19,9 +18,6 @@ func NewUserService(repo *repository.UserRepository) *UserService {
 }
 
 func (s *UserService) FindUserById(ctx context.Context, id int) (*models.User, error) {
-	if id < 1 {
-		return nil, apperrors.ErrInvalidInput
-	}
 	return s.repo.FindUserById(ctx, id)
 }
 
