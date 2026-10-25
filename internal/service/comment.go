@@ -69,3 +69,24 @@ func (s *CommentService) GetCommentThreads(ctx context.Context, postID int) ([]m
 	}
 	return top, nil
 }
+
+func (s *CommentService) DeleteComment(ctx context.Context, commentID int, userID int) (*models.Comment, error) {
+	comment, err := s.repo.GetCommentByID(ctx, commentID)
+	if err != nil {
+		return nil, err
+	}
+
+	if comment.DeletedAt != nil {
+		return nil, apperrors.ErrNotFound
+	}
+
+	if comment.UserID != userID {
+		return nil, apperrors.ErrForbidden
+	}
+
+	if err := s.repo.DeleteComment(ctx, commentID); err != nil {
+		return nil, err
+	}
+
+	return comment, nil
+}

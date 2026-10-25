@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"errors"
 	"html/template"
 	"net/http"
@@ -101,14 +100,40 @@ func (h *CommentHandler) GetCommentsByPost(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	posts, err := h.service.GetCommentsByPost(r.Context(), postID)
+	_, err = h.service.GetCommentsByPost(r.Context(), postID)
 	if err != nil {
 		apperrors.Log(err)
 		http.Error(w, "failed to get comments", http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(posts)
+}
+func (h *CommentHandler) DeleteComment(w http.ResponseWriter, r *http.Request) {
+	commentID, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		http.Error(w, "invalid comment id", http.StatusBadRequest)
+		return
+	}
+
+	user := middleware.UserFromContext(r.Context())
+	if user == nil {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+
+	comment, err := h.service.DeleteComment(r.Context(), commentID, user.ID)
+	if err != nil {
+		switch {
+		case errors.Is(err, apperrors.ErrNotFound):
+			http.Error(w, "comment not found", http.StatusNotFound)
+		case errors.Is(err, apperrors.ErrForbidden):
+			http.Error(w, "you cannot delete this comment", http.StatusForbidden)
+		default:
+			apperrors.Log(err)
+			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
+		}
+		return
+	}
+	postID := comment.PostID
+    http.Redirect(w, r, "/posts/"+strconv.Itoa(postID)+"#comment-"+strconv.Itoa(commentID),http.StatusSeeOther)
 }
