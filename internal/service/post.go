@@ -110,3 +110,7 @@ func (s *PostService) SearchPosts(ctx context.Context, search string) ([]models.
 	}
 	return s.repo.SearchPosts(ctx, search)
 }
+
+func (s *PostService) GetLikedPostsByUser(ctx context.Context, userID int) ([]models.Post, error) {
+	return s.repo.GetLikedPostsByUser(ctx, userID)
+}
