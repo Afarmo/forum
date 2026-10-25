@@ -189,6 +189,26 @@
     position: relative;
 }
 
+.comment .post-options {
+    top: 12px;
+    right: 12px;
+}
+
+.comment-delete-button {
+    width: auto;
+    padding: 0 14px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: #c62828;
+}
+.comment-delete-prompt {
+    margin: 4px 14px 6px;
+    font-size: 13px;
+    color: var(--black);
+}
+
+
 .comment-header {
     display: flex;
     align-items: center;
@@ -255,6 +275,66 @@
     scroll-margin-top: 24px;
 }
 
+.post-options {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 5;
+}
+
+.post-options-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 48px;
+  height: 30px;
+  list-style: none;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.2));
+  backdrop-filter: blur(12px) saturate(1.4);
+  -webkit-backdrop-filter: blur(12px) saturate(1.4);
+  box-shadow:
+    5px 5px 12px var(--neu-egg-dark),
+    -5px -5px 12px var(--neu-egg-light),
+    inset 1px 1px 2px rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  transition: box-shadow 160ms ease, transform 160ms ease;
+}
+
+.post-options-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.post-options-toggle:hover {
+  transform: translateY(-1px);
+}
+
+.post-options-toggle:focus-visible {
+  outline: none;
+  box-shadow:
+    5px 5px 12px var(--neu-egg-dark),
+    -5px -5px 12px var(--neu-egg-light),
+    var(--focus-ring);
+}
+
+/* Pressed in while the menu is open */
+.post-options[open] .post-options-toggle {
+  box-shadow:
+    inset 3px 3px 6px var(--neu-egg-dark),
+    inset -3px -3px 6px var(--neu-egg-light);
+}
+
+.post-options-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #e6fd96 0%, var(--hivis) 55%, #bedb5a 100%);
+  box-shadow:
+    1.5px 1.5px 3px rgba(78, 96, 10, 0.35),
+    -1.5px -1.5px 3px var(--neu-egg-light);
+}
 @keyframes comment-added {
     from { background-color: var(--hivis); }
 }

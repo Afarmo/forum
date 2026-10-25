@@ -97,7 +97,9 @@ document.addEventListener("click", function (event) {
 document.addEventListener("keydown", function (event) {
   if (event.key !== "Enter" || event.shiftKey || event.isComposing) return;
 
-  const textarea = event.target.closest(".comment-form textarea, .reply-form textarea");
+  const textarea = event.target.closest(
+    ".comment-form textarea, .reply-form textarea",
+  );
   if (!textarea) return;
 
   event.preventDefault();
@@ -153,4 +155,21 @@ document.addEventListener("DOMContentLoaded", function () {
     preview.replaceChildren(image);
     saveButton.hidden = false;
   });
+});
+// Comment delete: send the request in the background and remove the
+// comment (and its replies) from the page instead of reloading.
+document.addEventListener("submit", function (event) {
+  const form = event.target.closest(".comment-delete-form");
+  if (!form) return;
+
+  event.preventDefault();
+
+  fetch(form.action, { method: "POST" })
+    .then(function (response) {
+      if (!response.ok) throw new Error(response.status);
+      form.closest(".comment-thread").remove();
+    })
+    .catch(function () {
+      alert("Couldn't delete the comment. Please try again.");
+    });
 });

@@ -2,19 +2,15 @@
 <div class="comment-thread" id="comment-{{ .ID }}">
   <div class="card comment">
     {{if .IsOwner}}
-            <details class="post-options">
-            <summary class="post-options-toggle" aria-label="Post options">
-              <span class="post-options-dot"></span>
-              <span class="post-options-dot"></span>
-              <span class="post-options-dot"></span>
-            </summary>
-            <div class="post-options-menu" role="menu">
-              <button type="button" class="post-options-item" role="menuitem">Edit</button>
-              <button type="button" class="post-options-item" role="menuitem">Soft delete</button>
-              <button type="button" class="post-options-item post-options-item--danger" role="menuitem">Hard delete</button>
-            </div>
-          </details>
-        {{end}}
+    <details class="post-options">
+      <summary class="post-options-toggle comment-delete-button">Delete</summary>
+      <form class="post-options-menu comment-delete-form" method="POST" action="/comments/{{ .ID }}/delete">
+        <p class="comment-delete-prompt">Delete this comment and its replies?</p>
+        <button type="submit" class="post-options-item post-options-item--danger">Yes, delete</button>
+      </form>
+    </details>
+    {{end}}
+
     <div class="comment-header">
       {{ if .AuthorPicture }}
       <img src="{{ .AuthorPicture }}" alt="{{ .AuthorName }}" class="user-avatar" />
