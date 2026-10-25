@@ -38,6 +38,10 @@ if (carousel) {
   const HINT_AMOUNT = 0.35;
   const HINT_DELAY = 800;      // ms after load before the first nudge
   const HINT_HOLD = 350;       // ms each half of a nudge takes (cells transition for 300ms)
+  // Items further than this outside the visible window are hidden, so only
+  // the ones on screen (plus a buffer that slides in and out) get drawn.
+  const OFFSCREEN_ROWS = 2;    // desktop: rows past the bottom edge
+  const OFFSCREEN_PX = 200;    // mobile: px past the right edge
 
   const maxIndex = Math.max(0, cells.length - KEEP_VISIBLE_AT_END);
   let currentIndex = 0;
@@ -60,6 +64,9 @@ if (carousel) {
     const horizontal = mobile.matches;
     const widths = horizontal ? cells.map((cell) => cell.offsetWidth) : null;
     const edge = carousel.clientWidth;
+    const visibleEnd = horizontal
+      ? edge + OFFSCREEN_PX
+      : carousel.clientHeight + OFFSCREEN_ROWS * ROW_HEIGHT;
 
     cells.forEach((cell, i) => {
       const offset = i - currentIndex - nudge;
@@ -74,6 +81,11 @@ if (carousel) {
       // Items moving past the front fade out as they leave
       cell.style.opacity =
         offset < 0 ? Math.max(0, 1 + offset) : Math.max(MIN_OPACITY, 1 - depth * FADE_PER_ITEM);
+      // Far off-screen items still get their position (so they slide in from
+      // the right place) but aren't drawn. Items just past either edge stay
+      // visible so they can animate in and fade out.
+      cell.style.visibility =
+        offset < -OFFSCREEN_ROWS || distance > visibleEnd ? 'hidden' : '';
     });
   }
 
