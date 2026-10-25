@@ -13,7 +13,7 @@ const carousel = document.getElementById('carousel');
 if (carousel) {
   const scene = carousel.closest('.carousel-scene');
   const cells = Array.from(carousel.querySelectorAll('.carousel-cell'));
-  const mobile = window.matchMedia('(max-width: 768px)');
+  const mobile = window.matchMedia('(max-width: 1100px)');
 
   const ROW_HEIGHT = 56;       // px between row centres on desktop
   const ITEM_GAP = 20;         // px between items on mobile (items are sized to their text)
@@ -21,12 +21,12 @@ if (carousel) {
   const MAX_TILT = 63;
   const FADE_PER_ITEM = 0.11;
   const MIN_OPACITY = 0.15;
-  const WHEEL_STEP = 60;       // px of wheel travel per item
+  const WHEEL_STEP = 40;       // px of wheel travel per item
   const WHEEL_LINE = 20;       // px per "line" for mice that report lines (Firefox)
-  const SWIPE_STEP = 40;       // px of finger travel per item
+  const SWIPE_STEP = 30;       // px of finger travel per item
   // Speed limit: at most one item per this many ms, so items finish their
   // move-and-fade animation and stay readable during a fast flick.
-  const MIN_STEP_INTERVAL = 150;
+  const MIN_STEP_INTERVAL = 100;
   // Stop while this many items are still visible, so the list never ends on
   // a single item.
   const KEEP_VISIBLE_AT_END = 3;
@@ -37,7 +37,7 @@ if (carousel) {
   // see it scrolls. Shown once per session, after a short pause.
   const HINT_AMOUNT = 0.35;
   const HINT_DELAY = 800;      // ms after load before the first nudge
-  const HINT_HOLD = 350;       // ms each half of a nudge takes (cells transition for 300ms)
+  const HINT_HOLD = 270;       // ms each half of a nudge takes (cells transition for 220ms)
   // Items further than this outside the visible window are hidden, so only
   // the ones on screen (plus a buffer that slides in and out) get drawn.
   const OFFSCREEN_ROWS = 2;    // desktop: rows past the bottom edge
@@ -46,6 +46,19 @@ if (carousel) {
   const maxIndex = Math.max(0, cells.length - KEEP_VISIBLE_AT_END);
   let currentIndex = 0;
   let lastStepTime = 0;
+
+  // Sizes only change on resize, mobile/desktop switch or font load — not
+  // while scrolling — so read them once here instead of on every step.
+  // Reading sizes forces the browser to lay out the whole page right away.
+  let widths = [];
+  let edge = 0;
+  let height = 0;
+
+  function measure() {
+    widths = cells.map((cell) => cell.offsetWidth);
+    edge = carousel.clientWidth;
+    height = carousel.clientHeight;
+  }
 
   // Distance from the front item to item i, along the list's direction
   // `nudge` shifts the whole list by a fraction of a step (used by the hint)
@@ -62,11 +75,9 @@ if (carousel) {
 
   function layout(nudge = 0) {
     const horizontal = mobile.matches;
-    const widths = horizontal ? cells.map((cell) => cell.offsetWidth) : null;
-    const edge = carousel.clientWidth;
     const visibleEnd = horizontal
       ? edge + OFFSCREEN_PX
-      : carousel.clientHeight + OFFSCREEN_ROWS * ROW_HEIGHT;
+      : height + OFFSCREEN_ROWS * ROW_HEIGHT;
 
     cells.forEach((cell, i) => {
       const offset = i - currentIndex - nudge;
@@ -101,9 +112,17 @@ if (carousel) {
     layout();
   }
 
+  function remeasure() {
+    measure();
+    layout();
+  }
+
+  measure();
   layout();
-  mobile.addEventListener('change', () => layout());
-  window.addEventListener('resize', () => layout());
+  mobile.addEventListener('change', remeasure);
+  window.addEventListener('resize', remeasure);
+  // Poppins loads after first paint (display=swap), which changes item widths
+  document.fonts.ready.then(remeasure);
 
   // Scroll hint: nudge the drum forward and back twice, once per session.
   // Any wheel or touch on the carousel cancels it.
@@ -143,7 +162,7 @@ if (carousel) {
     let delta =
       Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
     if (event.deltaMode === WheelEvent.DOM_DELTA_LINE) delta *= WHEEL_LINE;
-    if (event.deltaMode === WheelEvent.DOM_DELTA_PAGE) delta *= carousel.clientHeight;
+    if (event.deltaMode === WheelEvent.DOM_DELTA_PAGE) delta *= height;
 
     if (Math.sign(delta) !== Math.sign(wheelDistance)) wheelDistance = 0;
     wheelDistance += delta;

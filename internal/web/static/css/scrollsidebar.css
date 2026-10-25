@@ -63,8 +63,8 @@
   text-shadow: 1px 2px 3px rgba(96, 70, 140, 0.25);
   overflow: hidden;
   transition:
-    transform 300ms cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    transform 220ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 220ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .carousel-cell:hover {
@@ -93,7 +93,7 @@
 
 /* Mobile: a short horizontal strip under the dimples. The "Categories" text
    is hidden (the nav keeps its aria-label) but its ::after dimples stay. */
-@media (max-width: 768px) {
+@media (max-width: 1100px) {
   .carousel-scene {
     height: auto;
     /* sideways swipes move the strip; vertical ones still scroll the page */

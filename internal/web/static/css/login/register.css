@@ -33,15 +33,14 @@
 .modal {
     position: fixed;
     inset: 0;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     background: rgba(0, 0, 0, 0.5);
-
     padding: 20px;
     z-index: 1000;
+    overflow-y: auto;
+
 }
 
 .modal[hidden] {
@@ -50,20 +49,16 @@
 
 .modal-content {
     position: relative;
-
     width: 100%;
     max-width: 900px;
-
     background: var(--egg);
-
     border-radius: 28px;
-
     padding: 52px 54px 44px;
-
     box-shadow:
         0 20px 60px rgba(0, 0, 0, 0.3);
-
     box-sizing: border-box;
+    margin: auto;
+    
 }
 
 
