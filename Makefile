@@ -1,4 +1,4 @@
-.PHONY: run up build down re logs ps
+.PHONY: run up build down re logs ps verify
 
 # Run the forum locally without Docker
 run:
@@ -26,3 +26,9 @@ logs:
 # Check Docker container status
 ps:
 	docker compose ps
+
+# Verify code quality, tests, and build
+verify:
+	go vet ./...
+	go test ./...
+	go build ./...
