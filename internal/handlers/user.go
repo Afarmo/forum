@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"bytes"
-	"database/sql"
 	"errors"
 	"fmt"
 	"html/template"
@@ -79,14 +78,8 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: here get liked post by user service will be called
-	profileUserlikedPosts, err := h.postService.GetPostByUser(r.Context(), userID)
+	profileUserLikedPosts, err := h.postService.GetLikedPostsByUser(r.Context(), userID)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			http.Error(w, apperrors.ErrNotFound.Error(), http.StatusNotFound)
-			return
-		}
-
 		apperrors.Log(err)
 		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 		return
@@ -100,7 +93,7 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 		ProfileUser: profileUser,
 		Categories:  categories,
 		Posts:       profileUserPosts,
-		LikedPosts:  profileUserlikedPosts,
+		LikedPosts:  profileUserLikedPosts,
 	}
 
 	var buf bytes.Buffer
