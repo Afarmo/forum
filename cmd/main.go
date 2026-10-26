@@ -48,13 +48,13 @@ func main() {
 	authService := service.NewAuthService(userRepo, sessionRepo)
 	categoryService := service.NewCategoryService(categoryRepo)
 	commentService := service.NewCommentService(commentRepo)
-	reactionService := service.NewReactionService(reactionRepo)
+	reactionService := service.NewReactionService(reactionRepo, commentRepo)
 
 	// handlers
-	userHandler := handlers.NewUserHandler(userService, categoryService, postService, tmpl)
-	postHandler := handlers.NewPostHandler(postService, tmpl, commentService)
+	userHandler := handlers.NewUserHandler(userService, categoryService, postService, reactionService, tmpl)
+	postHandler := handlers.NewPostHandler(postService, commentService, reactionService, tmpl)
 	authHandler := handlers.NewAuthHandler(authService, tmpl)
-	homeHandler := handlers.NewHomeHandler(tmpl, categoryService, postService)
+	homeHandler := handlers.NewHomeHandler(categoryService, postService, reactionService, tmpl)
 	categoryHandler := handlers.NewCategoryHandler(categoryService, tmpl)
 	commentHandler := handlers.NewCommentHandler(commentService, tmpl)
 	reactionHandler := handlers.NewReactionHandler(reactionService, tmpl)

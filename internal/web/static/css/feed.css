@@ -32,7 +32,7 @@
   margin: 0 0 10px;
   color: #1e1208;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: 600;
   line-height: 1.35;
   transition: color 180ms ease;
@@ -63,10 +63,11 @@
   overflow: hidden;
   margin: 0 0 18px;
   color: #3d2b1f;
-  font-size: 0.9rem;
+  font-size: 1rem;
   line-height: 1.72;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 5;
+  line-clamp: 5;
 }
 
 .post-categories {
@@ -78,12 +79,12 @@
 
 .post-category {
   display: inline-block;
-  padding: 2px 8px;
+  padding: 4px 8px;
   border-radius: 2px;
   background: #e8eee9;
   color: #52645a;
   font-family: "Courier New", monospace;
-  font-size: 0.68rem;
+  font-size: 0.75rem;
 }
 
 .post-link {
@@ -110,14 +111,13 @@
   gap: 8px;
   color: #7a6550;
   font-family: "Courier New", monospace;
-  font-size: 0.75rem;
 }
 
 .post-author-avatar {
-  width: 26px;
-  height: 26px;
-  flex: 0 0 26px;
-  border: 1.5px solid #c9b99a;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  border: 1.5px solid #b69a64;
   border-radius: 50%;
   object-fit: cover;
 }
@@ -135,12 +135,14 @@
   overflow: hidden;
   max-width: 180px;
   font-weight: 700;
+  font-size: 16px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .post-meta-separator,
 .post-date {
+  font-weight: 700;
   color: #9a856d;
 }
 
@@ -159,9 +161,9 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: #7a6550;
+  color: #9d7b54;
   font-family: "Courier New", monospace;
-  font-size: 0.75rem;
+  font-size: 16px;
   text-decoration: none;
   white-space: nowrap;
   transition: color 160ms ease;
@@ -174,11 +176,11 @@
   padding: 0;
   border: 0;
   background: transparent;
-  color: #7a6550;
+  color: #9d7b54;
   cursor: pointer;
   font: inherit;
   font-family: "Courier New", monospace;
-  font-size: 0.75rem;
+  font-size: 16px;
   transition:
     color 160ms ease,
     background 160ms ease,
@@ -186,11 +188,33 @@
 }
 
 .post-card .like-button:hover:not(:disabled) {
-  color: #b8452a;
+  color: #6b79f3;
+}
+
+.post-card .like-button.liked {
+  color: #6b79f3;
+}
+
+.post-card .like-button:hover:not(:disabled) .reaction-icon,
+.post-card .like-button.liked .reaction-icon {
+  background-color: #6b79f3;
 }
 
 .post-card .dislike-button:hover:not(:disabled) {
-  color: #6f567c;
+  color: #b8452a;
+}
+
+.post-card .dislike-button.disliked {
+  color: #b8452a;
+}
+
+.post-card .dislike-button:hover:not(:disabled) .reaction-icon,
+.post-card .dislike-button.disliked .reaction-icon {
+  background-color: #b8452a;
+}
+
+.post-card .post-card-actions .reaction-button .reaction-count {
+  color: #5c5b59;
 }
 
 .post-card .reaction-button:disabled {
@@ -199,13 +223,26 @@
 }
 
 .reaction-icon {
-  width: 16px;
-  height: 16px;
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 1.25;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background-color: #9d7b54;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+.like-button .reaction-icon {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='white' d='M5.5%207%208.25%202.5c.25-.4.65-.5%201-.35.45.18.7.65.55%201.1L9%206h3.2c.9%200%201.5.8%201.3%201.65l-1.1%205A1.7%201.7%200%200%201%2010.75%2014H5.5M2.5%206.5h3v7h-3z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='white' d='M5.5%207%208.25%202.5c.25-.4.65-.5%201-.35.45.18.7.65.55%201.1L9%206h3.2c.9%200%201.5.8%201.3%201.65l-1.1%205A1.7%201.7%200%200%201%2010.75%2014H5.5M2.5%206.5h3v7h-3z'/%3E%3C/svg%3E");
+}
+
+.dislike-button .reaction-icon {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='white' d='M5.5%209%208.25%2013.5c.25.4.65.5%201%20.35.45-.18.7-.65.55-1.1L9%2010h3.2c.9%200%201.5-.8%201.3-1.65l-1.1-5A1.7%201.7%200%200%200%2010.75%202H5.5M2.5%202.5h3v7h-3z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='white' d='M5.5%209%208.25%2013.5c.25.4.65.5%201%20.35.45-.18.7-.65.55-1.1L9%2010h3.2c.9%200%201.5-.8%201.3-1.65l-1.1-5A1.7%201.7%200%200%200%2010.75%202H5.5M2.5%202.5h3v7h-3z'/%3E%3C/svg%3E");
 }
 
 .post-comments-link:hover {
@@ -219,7 +256,7 @@
   stroke: currentColor;
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-width: 1.25;
+  stroke-width: 2.25;
 }
 
 .like-icon {

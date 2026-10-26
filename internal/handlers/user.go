@@ -23,26 +23,34 @@ type UserHandler struct {
 	categoryService *service.CategoryService
 	postService     *service.PostService
 	userService     *service.UserService
+	reactionService *service.ReactionService
 	tmpl            *template.Template
 }
 
-func NewUserHandler(userService *service.UserService, categoryService *service.CategoryService, postService *service.PostService, tmpl *template.Template) *UserHandler {
+func NewUserHandler(userService *service.UserService,
+	categoryService *service.CategoryService,
+	postService *service.PostService,
+	reactionService *service.ReactionService,
+	tmpl *template.Template,
+) *UserHandler {
 	return &UserHandler{
 		userService:     userService,
 		categoryService: categoryService,
 		postService:     postService,
+		reactionService: reactionService,
 		tmpl:            tmpl,
 	}
 }
 
 type UserPageData struct {
-	Title       string
-	User        *models.User
-	ProfileUser *models.User
-	Categories  []models.Category
-	Posts       []models.Post
-	LikedPosts  []models.Post
-	SearchQuery string
+	Title                      string
+	User                       *models.User
+	ProfileUser                *models.User
+	Categories                 []models.Category
+	Posts                      []models.Post
+	LikedPosts                 []models.Post
+	SearchQuery                string
+	ProfilePictureNotification string
 }
 
 func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
@@ -85,7 +93,23 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var loggedUserID int
 	user := middleware.UserFromContext(r.Context())
+	if user != nil {
+		loggedUserID = user.ID
+	}
+
+	if err := h.reactionService.PopulatePostStats(r.Context(), profileUserPosts, loggedUserID); err != nil {
+		apperrors.Log(err)
+		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
+		return
+	}
+
+	if err := h.reactionService.PopulatePostStats(r.Context(), profileUserLikedPosts, loggedUserID); err != nil {
+		apperrors.Log(err)
+		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
+		return
+	}
 
 	data := &UserPageData{
 		Title:       "User",
@@ -94,6 +118,9 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 		Categories:  categories,
 		Posts:       profileUserPosts,
 		LikedPosts:  profileUserLikedPosts,
+	}
+	if value := r.URL.Query().Get("profile_picture_status"); value == "success" {
+		data.ProfilePictureNotification = "Successfully updated your profile picture."
 	}
 
 	var buf bytes.Buffer
@@ -113,6 +140,12 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) UploadProfilePicture(w http.ResponseWriter, r *http.Request) {
 	const maxFileSize = 5 << 20
 	const maxRequestSize = maxFileSize + 1<<20
+	user := middleware.UserFromContext(r.Context())
+	if user == nil {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+
 	r.Body = http.MaxBytesReader(w, r.Body, maxRequestSize)
 	file, header, err := r.FormFile("profile_picture")
 	if err != nil {
@@ -202,7 +235,6 @@ func (h *UserHandler) UploadProfilePicture(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	user := middleware.UserFromContext(r.Context())
 	pictureURL := "/static/img/profile/" + url.PathEscape(filename)
 
 	if err := h.userService.UpdateProfilePicture(r.Context(), user.ID, pictureURL); err != nil {
@@ -213,7 +245,5 @@ func (h *UserHandler) UploadProfilePicture(w http.ResponseWriter, r *http.Reques
 
 	saved = true
 
-	// Redirect the POST to a GET so the browser reloads the updated profile
-	// without resubmitting the upload when the page is refreshed.
-	http.Redirect(w, r, fmt.Sprintf("/users/%d", user.ID), http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/users/%d?profile_picture_status=success", user.ID), http.StatusSeeOther)
 }

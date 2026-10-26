@@ -112,3 +112,15 @@ func (r *CommentRepository) DeleteComment(ctx context.Context, commentID int) er
 
 	return nil
 }
+
+func (r *CommentRepository) GetCommentCount(ctx context.Context, postID int) (int, error) {
+	var count int
+
+	err := r.db.QueryRowContext(ctx, `
+		SELECT COUNT(*)
+		FROM comments
+		WHERE post_id = ? AND deleted_at IS NULL
+	`, postID).Scan(&count)
+
+	return count, err
+}

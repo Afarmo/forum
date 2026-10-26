@@ -35,8 +35,8 @@ func (s *PostService) GetAllPosts(ctx context.Context, categoryID int) ([]models
 	return s.repo.GetAllPosts(ctx, categoryID)
 }
 
-func (s *PostService) GetPostByUser(ctx context.Context, userId int) ([]models.Post, error) {
-	return s.repo.GetPostByUser(ctx, userId)
+func (s *PostService) GetPostByUser(ctx context.Context, userID int) ([]models.Post, error) {
+	return s.repo.GetPostByUser(ctx, userID)
 }
 
 func (s *PostService) UpdatePost(ctx context.Context, PostID *int, userID int, update *models.UpdatePost) error {
@@ -82,12 +82,12 @@ func (s *PostService) DeletePost(ctx context.Context, PostID *int, userID int) e
 	return s.repo.DeletePost(ctx, PostID, userID)
 }
 
-func (s *PostService) GetPostById(ctx context.Context, postId int) (*models.Post, error) {
-	if postId <= 0 {
+func (s *PostService) GetPostById(ctx context.Context, postID int) (*models.Post, error) {
+	if postID <= 0 {
 		return nil, apperrors.ErrInvalidInput
 	}
 
-	post, err := s.repo.GetPostById(ctx, postId)
+	post, err := s.repo.GetPostById(ctx, postID)
 	if err != nil {
 		return nil, err
 	}

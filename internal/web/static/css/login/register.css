@@ -234,6 +234,12 @@
     box-shadow: 0 0 0 2px rgba(162, 43, 36, 0.1);
 }
 
+.form-error {
+    margin: 8px 0 0;
+    color: #a22b24;
+    font-size: 14px;
+}
+
 
 /* =========================
    SIGN IN BUTTON

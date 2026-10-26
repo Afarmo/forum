@@ -3,18 +3,20 @@
 <div class="profile-page">
   <section class="profile-intro" aria-labelledby="profile-name">
     <div class="profile-avatar">
-      {{ if .User.ProfilePicture }}
-      <img src="{{ .User.ProfilePicture }}" alt="{{ .User.UserName }} profile picture" />
+      {{ if .ProfileUser.ProfilePicture }}
+      <img src="{{ .ProfileUser.ProfilePicture }}" alt="{{ .ProfileUser.UserName }} profile picture" />
       {{ else }}
-      <span>{{ printf "%.1s" .User.UserName }}</span>
+      <span>{{ printf "%.1s" .ProfileUser.UserName }}</span>
       {{ end }}
     </div>
     <div class="profile-details">
-      <h1 id="profile-name">{{ .User.UserName }}</h1>
-      <p class="profile-meta">Member since {{ .User.CreatedAt.Format "Jan 2006" }}</p>
+      <h1 id="profile-name">{{ .ProfileUser.UserName }}</h1>
+      <p class="profile-meta"> Member since {{ .ProfileUser.CreatedAt.Format "Jan 2006" }}</p>
+      {{ if and .User (eq .User.ID .ProfileUser.ID) }}
       <button type="button" class="profile-edit-button" onclick="openModal('edit-profile-modal')">
         Edit profile
       </button>
+      {{ end }}
     </div>
   </div>
 
@@ -23,49 +25,38 @@
     <input type="radio" name="profile-tab" id="liked-posts-tab" />
 
     <nav class="profile-tab-list" aria-label="Profile posts">
-      <label for="my-posts-tab">My posts <span>{{ len .Posts }}</span></label>
-      <label for="liked-posts-tab">Liked posts</label>
+      <label for="my-posts-tab">{{ .ProfileUser.UserName }}'s posts <span>{{ len .Posts }}</span></label>
+      <label for="liked-posts-tab"> Liked posts <span>{{ len .LikedPosts }}</span></label>
     </nav>
 
     <section class="profile-tab-panel my-posts-panel" aria-labelledby="my-posts-tab">
       {{ if .Posts }}
       <div class="profile-post-list">
         {{ range .Posts }}
-        <article class="profile-post">
-          <div class="profile-post-meta">
-            <time datetime="{{ .CreatedAt.Format "2006-01-02T15:04:05Z07:00" }}">{{ .CreatedAt.Format "Jan 2, 2006" }}</time>
-          </div>
-          <h2>{{ .Title }}</h2>
-          <p>{{ .Content }}</p>
-        </article>
+        {{ template "post-card" . }}
         {{ end }}
       </div>
       {{ else }}
-      <p class="profile-empty-state">You have not written any posts yet.</p>
+      <p class="profile-empty-state">No written posts yet.</p>
       {{ end }}
     </section>
 
     <section class="profile-tab-panel liked-posts-panel" aria-labelledby="liked-posts-tab">
-      <!-- <p class="profile-empty-state">Liked posts will appear here.</p> -->
        {{ if .LikedPosts }}
       <div class="profile-post-list">
-        {{ range .Posts }}
-        <article class="profile-post">
-          <div class="profile-post-meta">
-            <time datetime="{{ .CreatedAt.Format "2006-01-02T15:04:05Z07:00" }}">{{ .CreatedAt.Format "Jan 2, 2006" }}</time>
-          </div>
-          <h2>{{ .Title }}</h2>
-          <p>{{ .Content }}</p>
-        </article>
+        {{ range .LikedPosts }}
+        {{ template "post-card" . }}
         {{ end }}
       </div>
       {{ else }}
-      <p class="profile-empty-state">You have not written any posts yet.</p>
+      <p class="profile-empty-state">No liked posts yet.</p>
       {{ end }}
     </section>
   </div>
 </div>
 
+{{ if and .User (eq .User.ID .ProfileUser.ID) }}
 {{ template "edit-profile-modal" . }}
+{{ end }}
 
 {{end}}
