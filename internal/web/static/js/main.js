@@ -92,6 +92,23 @@ document.addEventListener("click", function (event) {
   input.focus();
 });
 
+// After posting a reply the page reloads at #comment-N. If that comment is
+// inside a collapsed "View N replies" dropdown, open it (and any
+// dropdowns around it) so the browser can scroll to it.
+document.addEventListener("DOMContentLoaded", function () {
+  if (!location.hash) return;
+  const target = document.getElementById(location.hash.slice(1));
+  if (!target) return;
+
+  let details = target.closest("details.more-replies");
+  if (!details) return;
+  while (details) {
+    details.open = true;
+    details = details.parentElement.closest("details.more-replies");
+  }
+  target.scrollIntoView();
+});
+
 // Comment and reply boxes: Enter sends, Shift+Enter adds a new line.
 // Skipped mid-composition so IME users can confirm characters with Enter.
 document.addEventListener("keydown", function (event) {

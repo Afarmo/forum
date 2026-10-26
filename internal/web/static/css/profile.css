@@ -436,6 +436,19 @@
   color: #c62828;
 }
 
+.post-options-menu--row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.post-options-item--icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+}
+
 .profile-post:last-child {
   border-bottom: 0;
 }

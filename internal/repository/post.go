@@ -97,6 +97,33 @@ func (r *PostRepository) GetAllPosts(ctx context.Context, categoryID int) ([]mod
 	return posts, rows.Err()
 }
 
+func (r *PostRepository) GetPopularPosts(ctx context.Context, since time.Time, limit int) ([]models.PopularPost, error) {
+	query := `
+		SELECT p.id, p.title, COALESCE(u.username, ''), COUNT(*) AS likes
+		FROM posts p
+		JOIN users u ON u.id = p.user_id
+		JOIN post_reactions pr ON pr.post_id = p.id AND pr.reaction = 1
+		WHERE p.created_at >= ?
+		GROUP BY p.id
+		ORDER BY likes DESC, p.created_at DESC
+		LIMIT ?`
+
+	rows, err := r.db.QueryContext(ctx, query, since.UTC().Format("2006-01-02 15:04:05"), limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var posts []models.PopularPost
+	for rows.Next() {
+		var p models.PopularPost
+		if err := rows.Scan(&p.PostID, &p.Title, &p.AuthorName, &p.Likes); err != nil {
+			return nil, err
+		}
+		posts = append(posts, p)
+	}
+	return posts, rows.Err()
+}
+
 func (r *PostRepository) GetPostByUser(ctx context.Context, userId int) ([]models.Post, error) {
 	query := `SELECT id, user_id, title, content, picture_content, created_at FROM posts WHERE user_id = ? ORDER BY created_at DESC`
 

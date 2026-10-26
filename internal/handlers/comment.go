@@ -24,6 +24,11 @@ func NewCommentHandler(service *service.CommentService, tmpl *template.Template)
 	}
 }
 
+// visibleReplyDepth is how many levels of replies show under a top-level
+// comment; anything deeper is tucked behind a "View N replies" dropdown.
+// 0 means only top-level comments show, each with its replies collapsed.
+const visibleReplyDepth = 0
+
 // CommentView is what the "comment" template renders: a comment, its replies,
 // and whether the viewer may reply to it.
 type CommentView struct {
@@ -31,12 +36,31 @@ type CommentView struct {
 	Replies  []CommentView
 	CanReply bool
 	IsOwner  bool
+	// CollapseReplies is set on comments at the deepest visible level that
+	// have replies; HiddenCount is how many replies sit under them in total.
+	CollapseReplies bool
+	HiddenCount     int
 }
 
 func newCommentViews(comments []models.Comment, canReply bool, viewerID int) []CommentView {
+	return buildCommentViews(comments, canReply, viewerID, 0)
+}
+
+// depth is 0 for top-level comments, 1 for their replies, and so on.
+func buildCommentViews(comments []models.Comment, canReply bool, viewerID, depth int) []CommentView {
 	views := make([]CommentView, len(comments))
 	for i, c := range comments {
-		views[i] = CommentView{Comment: c, Replies: newCommentViews(c.Replies, canReply, viewerID), CanReply: canReply, IsOwner: c.UserID == viewerID}
+		replies := buildCommentViews(c.Replies, canReply, viewerID, depth+1)
+		views[i] = CommentView{
+			Comment:         c,
+			Replies:         replies,
+			CanReply:        canReply,
+			IsOwner:         c.UserID == viewerID,
+			CollapseReplies: depth == visibleReplyDepth && len(replies) > 0,
+		}
+		if views[i].CollapseReplies {
+			views[i].HiddenCount = countComments(replies)
+		}
 	}
 	return views
 }

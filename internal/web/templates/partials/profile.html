@@ -38,10 +38,18 @@
               <span class="post-options-dot"></span>
               <span class="post-options-dot"></span>
             </summary>
-            <div class="post-options-menu" role="menu">
+            <form id = "del-form" method="POST" action="/posts/{{ .ID }}/delete"></form>
+            <div class="post-options-menu post-options-menu--row" role="menu">
               <button type="button" class="post-options-item" role="menuitem">Edit</button>
-              <button type="button" class="post-options-item" role="menuitem">Soft delete</button>
-              <button type="button" class="post-options-item post-options-item--danger" role="menuitem">Hard delete</button>
+              <button type="button" class="post-options-item post-options-item--icon comment-delete-button"
+                      role="menuitem" aria-label="Delete post" title="Delete post" form="del-form">
+                <svg class="comment-delete-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M3 6h18" />
+                  <path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2" />
+                  <path d="M19 6l-1 14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1L5 6" />
+                  <path d="M10 11v6M14 11v6" />
+                </svg>
+              </button>
             </div>
           </details>
           <div class="profile-post-meta">

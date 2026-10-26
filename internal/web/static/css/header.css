@@ -135,7 +135,11 @@
   outline-offset: 3px;
 }
 
+/* Sign In: same pill as the Write Review button (home.css) */
 .header .nav-button {
+  min-width: 0;
+  min-height: 52px;
+  padding: 10px 20px;
   box-shadow:
     inset 1px 2px 5px rgba(255, 255, 255, 0.55),
     inset -2px -4px 8px rgba(78, 96, 10, 0.2),
@@ -222,6 +226,12 @@
     padding: 9px 14px;
     font-size: 15px;
     white-space: nowrap;
+  }
+
+  .header .nav-button {
+    min-width: 0;
+    min-height: 38px;
+    padding: 8px 12px;
   }
 
   .search {
