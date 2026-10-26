@@ -62,18 +62,17 @@ func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
 
 	searchQuery := strings.TrimSpace(r.URL.Query().Get("query"))
 	user := middleware.UserFromContext(r.Context())
-	currentUserID := middleware.UserIDFromContext(r.Context())
 
 	var posts []models.Post
 	if searchQuery != "" {
-		posts, err = h.postService.SearchPosts(r.Context(), searchQuery, currentUserID)
+		posts, err = h.postService.SearchPosts(r.Context(), searchQuery)
 		if err != nil {
 			apperrors.Log(err)
 			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 			return
 		}
 	} else {
-		posts, err = h.postService.GetAllPosts(r.Context(), categoryID, currentUserID)
+		posts, err = h.postService.GetAllPosts(r.Context(), categoryID)
 		if err != nil {
 			apperrors.Log(err)
 			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
@@ -103,10 +102,6 @@ func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
 		data.RegisterError = "Enter a valid email address."
 	case "invalid_password":
 		data.RegisterError = "Password must be between 8 and 64 characters."
-	case "duplicate_email":
-		data.RegisterError = "An account with this email already exists."
-	case "duplicate_username":
-		data.RegisterError = "That username is already taken."
 	case "duplicate":
 		data.RegisterError = "An account with that information already exists."
 	}

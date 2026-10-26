@@ -191,8 +191,7 @@ func (h *PostHandler) GetAllPosts(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	currentUserID := middleware.UserIDFromContext(r.Context())
-	posts, err := h.service.GetAllPosts(r.Context(), categoryID, currentUserID)
+	posts, err := h.service.GetAllPosts(r.Context(), categoryID)
 	if err != nil {
 		apperrors.Log(err)
 		http.Error(w, "failed to get the posts", http.StatusInternalServerError)
@@ -213,8 +212,7 @@ func (h *PostHandler) GetPostByUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	currentUserID := middleware.UserIDFromContext(ctx)
-	posts, err := h.service.GetPostByUser(ctx, userID, currentUserID)
+	posts, err := h.service.GetPostByUser(ctx, userID)
 	if err != nil {
 		apperrors.Log(err)
 		http.Error(w, "failed to get the user posts", http.StatusInternalServerError)
@@ -296,14 +294,13 @@ func (h *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
 
 func (h *PostHandler) SearchPosts(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUserID := middleware.UserIDFromContext(ctx)
 	search := strings.TrimSpace(r.URL.Query().Get("query"))
 	var posts []models.Post
 	var err error
 	if search == "" {
-		posts, err = h.service.GetAllPosts(ctx, 0, currentUserID)
+		posts, err = h.service.GetAllPosts(ctx, 0)
 	} else {
-		posts, err = h.service.SearchPosts(ctx, search, currentUserID)
+		posts, err = h.service.SearchPosts(ctx, search)
 	}
 	if err != nil {
 		apperrors.Log(err)

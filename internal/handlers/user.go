@@ -73,10 +73,9 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	viewer := middleware.UserFromContext(r.Context())
-	currentUserID := middleware.UserIDFromContext(r.Context())
+	user := middleware.UserFromContext(r.Context())
 
-	profileUserPosts, err := h.postService.GetPostByUser(r.Context(), userID, currentUserID)
+	profileUserPosts, err := h.postService.GetPostByUser(r.Context(), userID)
 	if err != nil {
 		apperrors.Log(err)
 		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
@@ -98,7 +97,7 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 
 	data := &UserPageData{
 		Title:       "User",
-		User:        viewer,
+		User:        user,
 		ProfileUser: profileUser,
 		Categories:  categories,
 		Posts:       profileUserPosts,
@@ -236,7 +235,5 @@ func (h *UserHandler) UploadProfilePicture(w http.ResponseWriter, r *http.Reques
 
 	saved = true
 
-	// Redirect the POST to a GET so the browser reloads the updated profile
-	// without resubmitting the upload when the page is refreshed.
 	http.Redirect(w, r, fmt.Sprintf("/users/%d?profile_picture_status=success", user.ID), http.StatusSeeOther)
 }

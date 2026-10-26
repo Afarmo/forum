@@ -36,13 +36,8 @@ func (h *AuthHandler) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/?register_error=invalid_email", http.StatusSeeOther)
 		case errors.Is(err, apperrors.ErrInvalidPassword):
 			http.Redirect(w, r, "/?register_error=invalid_password", http.StatusSeeOther)
-		case errors.Is(err, apperrors.ErrDuplicateEmail):
-			http.Redirect(w, r, "/?register_error=duplicate_email", http.StatusSeeOther)
-		case errors.Is(err, apperrors.ErrDuplicateUsername):
-			http.Redirect(w, r, "/?register_error=duplicate_username", http.StatusSeeOther)
 		case errors.Is(err, apperrors.ErrDuplicateKey):
 			http.Redirect(w, r, "/?register_error=duplicate", http.StatusSeeOther)
-
 		default:
 			apperrors.Log(err)
 			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)

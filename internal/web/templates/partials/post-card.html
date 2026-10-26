@@ -32,11 +32,11 @@
     <div class="post-card-actions">
       <button type="button" class="post-card-action reaction-button like-button{{ if eq .UserReaction 1 }} liked{{ end }}" data-post-id="{{ .PostID }}" data-reaction="1" aria-pressed="{{ if eq .UserReaction 1 }}true{{ else }}false{{ end }}" title="Like">
         <span class="reaction-icon" aria-hidden="true"></span>
-        <span class="reaction-count">{{ .LikeCount }}</span>
+        <span class="reaction-count">{{ .PostReactions.Like }}</span>
       </button>
       <button type="button" class="post-card-action reaction-button dislike-button{{ if eq .UserReaction -1 }} disliked{{ end }}" data-post-id="{{ .PostID }}" data-reaction="-1" aria-pressed="{{ if eq .UserReaction -1 }}true{{ else }}false{{ end }}" title="Dislike">
         <span class="reaction-icon" aria-hidden="true"></span>
-        <span class="reaction-count">{{ .DislikeCount }}</span>
+        <span class="reaction-count">{{ .PostReactions.Dislike }}</span>
       </button>
       <a class="post-card-action post-comments-link" href="/posts/{{ .PostID }}">
         <svg class="post-comments-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">

@@ -6,6 +6,11 @@ import (
 	"time"
 )
 
+type PostReactionsCount struct {
+	Like    int
+	Dislike int
+}
+
 type Post struct {
 	Content        string     `json:"content"`
 	Title          string     `json:"title"`
@@ -16,13 +21,12 @@ type Post struct {
 	UpdatedAt      time.Time  `json:"updated_at"`
 	DeletedAt      *time.Time `json:"deleted_at,omitempty"`
 	// Author and category details, filled in when posts are loaded for display.
-	AuthorName    string `json:"author_name,omitempty"`
-	AuthorPicture string `json:"author_picture,omitempty"`
-	CategoryNames string `json:"category_names,omitempty"`
-	LikeCount     int    `json:"like_count"`
-	DislikeCount  int    `json:"dislike_count"`
-	CommentCount  int    `json:"comment_count"`
-	UserReaction  int    `json:"user_reaction"`
+	AuthorName    string             `json:"author_name,omitempty"`
+	AuthorPicture string             `json:"author_picture,omitempty"`
+	CategoryNames string             `json:"category_names,omitempty"`
+	PostReactions PostReactionsCount `json:"postreaction_count"`
+	CommentCount  int                `json:"comment_count"`
+	UserReaction  int                `json:"user_reaction"`
 }
 
 // ImageSrc is the <img src> for the post's picture: a linked image's full URL
