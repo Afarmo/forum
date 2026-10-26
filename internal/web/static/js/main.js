@@ -85,8 +85,9 @@ document.addEventListener("click", async function (event) {
     status.textContent = "Could not update reaction. Please try again.";
   } finally {
     delete actions.dataset.reacting;
+    const authenticated = document.body.dataset.authenticated === "true";
     actions.querySelectorAll(".reaction-button").forEach((reactionButton) => {
-      reactionButton.disabled = false;
+      reactionButton.disabled = !authenticated;
     });
   }
 });
@@ -105,10 +106,9 @@ document.addEventListener("DOMContentLoaded", function () {
     document.body.dataset.profilePictureNotification;
   if (profilePictureNotification) {
     const url = new URL(window.location.href);
-    const isError = url.searchParams.get("profile_picture_status") === "error";
     url.searchParams.delete("profile_picture_status");
     window.history.replaceState(null, "", url.pathname + url.search + url.hash);
-    showNotification(profilePictureNotification, isError);
+    showNotification(profilePictureNotification, false);
   }
 
   const loginError = document.body.dataset.loginError;

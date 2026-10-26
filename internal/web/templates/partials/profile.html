@@ -11,7 +11,7 @@
     </div>
     <div class="profile-details">
       <h1 id="profile-name">{{ .ProfileUser.UserName }}</h1>
-      <p class="profile-meta">Member since {{ .ProfileUser.CreatedAt.Format "Jan 2006" }}</p>
+      <p class="profile-meta"> Member since {{ .ProfileUser.CreatedAt.Format "Jan 2006" }}</p>
       {{ if and .User (eq .User.ID .ProfileUser.ID) }}
       <button type="button" class="profile-edit-button" onclick="openModal('edit-profile-modal')">
         Edit profile
@@ -26,7 +26,7 @@
 
     <nav class="profile-tab-list" aria-label="Profile posts">
       <label for="my-posts-tab">{{ .ProfileUser.UserName }}'s posts <span>{{ len .Posts }}</span></label>
-      <label for="liked-posts-tab">Liked posts <span>{{ len .LikedPosts }}</span></label>
+      <label for="liked-posts-tab"> Liked posts <span>{{ len .LikedPosts }}</span></label>
     </nav>
 
     <section class="profile-tab-panel my-posts-panel" aria-labelledby="my-posts-tab">
@@ -37,12 +37,11 @@
         {{ end }}
       </div>
       {{ else }}
-      <p class="profile-empty-state">You have not written any posts yet.</p>
+      <p class="profile-empty-state">No written posts yet.</p>
       {{ end }}
     </section>
 
     <section class="profile-tab-panel liked-posts-panel" aria-labelledby="liked-posts-tab">
-      <!-- <p class="profile-empty-state">Liked posts will appear here.</p> -->
        {{ if .LikedPosts }}
       <div class="profile-post-list">
         {{ range .LikedPosts }}
@@ -50,7 +49,7 @@
         {{ end }}
       </div>
       {{ else }}
-      <p class="profile-empty-state">You have not liked any posts yet.</p>
+      <p class="profile-empty-state">No liked posts yet.</p>
       {{ end }}
     </section>
   </div>
