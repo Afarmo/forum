@@ -124,3 +124,7 @@ func (s *CommentService) DeleteComment(ctx context.Context, commentID int, userI
 
 	return comment, nil
 }
+
+func (s *CommentService) GetCommentCount(ctx context.Context, postID int) (int, error) {
+	return s.repo.GetCommentCount(ctx, postID)
+}

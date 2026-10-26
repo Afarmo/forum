@@ -24,7 +24,7 @@ type Post struct {
 	AuthorName    string             `json:"author_name,omitempty"`
 	AuthorPicture string             `json:"author_picture,omitempty"`
 	CategoryNames string             `json:"category_names,omitempty"`
-	PostReactions PostReactionsCount `json:"postreaction_count"`
+	PostReactions PostReactionsCount `json:"post_reaction"`
 	CommentCount  int                `json:"comment_count"`
 	UserReaction  int                `json:"user_reaction"`
 }

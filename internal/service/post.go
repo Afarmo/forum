@@ -82,12 +82,12 @@ func (s *PostService) DeletePost(ctx context.Context, PostID *int, userID int) e
 	return s.repo.DeletePost(ctx, PostID, userID)
 }
 
-func (s *PostService) GetPostById(ctx context.Context, postId, currentUserID int) (*models.Post, error) {
-	if postId <= 0 {
+func (s *PostService) GetPostById(ctx context.Context, postID int) (*models.Post, error) {
+	if postID <= 0 {
 		return nil, apperrors.ErrInvalidInput
 	}
 
-	post, err := s.repo.GetPostById(ctx, postId)
+	post, err := s.repo.GetPostById(ctx, postID)
 	if err != nil {
 		return nil, err
 	}
@@ -109,4 +109,8 @@ func (s *PostService) SearchPosts(ctx context.Context, search string) ([]models.
 		return nil, apperrors.ErrNotFound
 	}
 	return s.repo.SearchPosts(ctx, search)
+}
+
+func (s *PostService) GetLikedPostsByUser(ctx context.Context, userID int) ([]models.Post, error) {
+	return s.repo.GetLikedPostsByUser(ctx, userID)
 }
