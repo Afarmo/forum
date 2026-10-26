@@ -1,0 +1,20 @@
+# Git
+.git
+.gitignore
+
+# GitHub Actions
+.github/
+
+# Database
+*.db
+
+# IDE / Editor files
+.vscode/
+*.swp
+*.swo
+
+# Text File
+*.txt
+
+# macOS
+.DS_Store
