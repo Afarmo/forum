@@ -15,7 +15,7 @@
     background: #237a45;
     color: #fff;
     box-shadow: 0 4px 16px rgb(0 0 0 / 20%);
-    animation: success-notification-dismiss 3s ease forwards;
+    animation: success-notification-dismiss 2s ease forwards;
 }
 
 .error-notification {

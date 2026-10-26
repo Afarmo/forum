@@ -115,21 +115,6 @@
   font-size: 0.9rem;
 }
 
-/* .like-button {
-  cursor: pointer;
-}
-
-.like-button:hover {
-  border-color: #c0392b;
-  color: #c0392b;
-}
-
-.like-button.liked {
-  border-color: #c0392b;
-  background: #fdecea;
-  color: #c0392b;
-} */
-
 .discussion {
   margin-top: 40px;
 }

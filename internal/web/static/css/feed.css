@@ -67,6 +67,7 @@
   line-height: 1.72;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 5;
+  line-clamp: 5;
 }
 
 .post-categories {
@@ -115,7 +116,7 @@
 .post-author-avatar {
   width: 30px;
   height: 30px;
-  flex: 0 0 26px;
+  flex: 0 0 30px;
   border: 1.5px solid #b69a64;
   border-radius: 50%;
   object-fit: cover;
