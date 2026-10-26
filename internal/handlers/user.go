@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"bytes"
-	"database/sql"
 	"errors"
 	"fmt"
 	"html/template"
@@ -24,14 +23,21 @@ type UserHandler struct {
 	categoryService *service.CategoryService
 	postService     *service.PostService
 	userService     *service.UserService
+	reactionService *service.ReactionService
 	tmpl            *template.Template
 }
 
-func NewUserHandler(userService *service.UserService, categoryService *service.CategoryService, postService *service.PostService, tmpl *template.Template) *UserHandler {
+func NewUserHandler(userService *service.UserService,
+	categoryService *service.CategoryService,
+	postService *service.PostService,
+	reactionService *service.ReactionService,
+	tmpl *template.Template,
+) *UserHandler {
 	return &UserHandler{
 		userService:     userService,
 		categoryService: categoryService,
 		postService:     postService,
+		reactionService: reactionService,
 		tmpl:            tmpl,
 	}
 }
@@ -73,8 +79,6 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := middleware.UserFromContext(r.Context())
-
 	profileUserPosts, err := h.postService.GetPostByUser(r.Context(), userID)
 	if err != nil {
 		apperrors.Log(err)
@@ -82,14 +86,26 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: here get liked post by user service will be called
-	// profileUserlikedPosts = nil
+	profileUserLikedPosts, err := h.postService.GetLikedPostsByUser(r.Context(), userID)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			http.Error(w, apperrors.ErrNotFound.Error(), http.StatusNotFound)
-			return
-		}
+		apperrors.Log(err)
+		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
+		return
+	}
 
+	var loggedUserID int
+	user := middleware.UserFromContext(r.Context())
+	if user != nil {
+		loggedUserID = user.ID
+	}
+
+	if err := h.reactionService.PopulatePostStats(r.Context(), profileUserPosts, loggedUserID); err != nil {
+		apperrors.Log(err)
+		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
+		return
+	}
+
+	if err := h.reactionService.PopulatePostStats(r.Context(), profileUserLikedPosts, loggedUserID); err != nil {
 		apperrors.Log(err)
 		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 		return
@@ -101,13 +117,10 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 		ProfileUser: profileUser,
 		Categories:  categories,
 		Posts:       profileUserPosts,
-		LikedPosts:  nil,
+		LikedPosts:  profileUserLikedPosts,
 	}
-	switch r.URL.Query().Get("profile_picture_status") {
-	case "success":
+	if value := r.URL.Query().Get("profile_picture_status"); value == "success" {
 		data.ProfilePictureNotification = "Successfully updated your profile picture."
-	case "error":
-		data.ProfilePictureNotification = "Failed to update profile picture."
 	}
 
 	var buf bytes.Buffer
@@ -132,25 +145,22 @@ func (h *UserHandler) UploadProfilePicture(w http.ResponseWriter, r *http.Reques
 		http.Error(w, "authentication required", http.StatusUnauthorized)
 		return
 	}
-	redirectWithError := func() {
-		http.Redirect(w, r, fmt.Sprintf("/users/%d?profile_picture_status=error", user.ID), http.StatusSeeOther)
-	}
 
 	r.Body = http.MaxBytesReader(w, r.Body, maxRequestSize)
 	file, header, err := r.FormFile("profile_picture")
 	if err != nil {
 		if _, ok := errors.AsType[*http.MaxBytesError](err); ok {
-			redirectWithError()
+			http.Error(w, "request exceeds upload limit", http.StatusRequestEntityTooLarge)
 			return
 		}
 
-		redirectWithError()
+		http.Error(w, "failed to get uploaded file", http.StatusBadRequest)
 		return
 	}
 	defer file.Close()
 
 	if header.Size > maxFileSize {
-		redirectWithError()
+		http.Error(w, "profile picture exceeds upload limit (5MiB)", http.StatusRequestEntityTooLarge)
 		return
 	}
 
@@ -158,7 +168,7 @@ func (h *UserHandler) UploadProfilePicture(w http.ResponseWriter, r *http.Reques
 	buf := make([]byte, 512)
 	n, err := file.Read(buf)
 	if err != nil && err != io.EOF {
-		redirectWithError()
+		http.Error(w, "failed to read provided file", http.StatusBadRequest)
 		return
 	}
 
@@ -174,20 +184,20 @@ func (h *UserHandler) UploadProfilePicture(w http.ResponseWriter, r *http.Reques
 	case "image/webp":
 		ext = ".webp"
 	default:
-		redirectWithError()
+		http.Error(w, "unsupported image format", http.StatusBadRequest)
 		return
 	}
 
 	if _, err := file.Seek(0, io.SeekStart); err != nil {
 		apperrors.Log(err)
-		redirectWithError()
+		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 		return
 	}
 
 	profileDir := filepath.Join("internal", "web", "static", "img", "profile")
 	if err := os.MkdirAll(profileDir, 0755); err != nil {
 		apperrors.Log(err)
-		redirectWithError()
+		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 		return
 	}
 
@@ -197,7 +207,7 @@ func (h *UserHandler) UploadProfilePicture(w http.ResponseWriter, r *http.Reques
 	destination, err := os.Create(picturePath)
 	if err != nil {
 		apperrors.Log(err)
-		redirectWithError()
+		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 		return
 	}
 
@@ -215,13 +225,13 @@ func (h *UserHandler) UploadProfilePicture(w http.ResponseWriter, r *http.Reques
 
 	if _, err = io.Copy(destination, file); err != nil {
 		apperrors.Log(err)
-		redirectWithError()
+		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 		return
 	}
 
 	if err := destination.Close(); err != nil {
 		apperrors.Log(err)
-		redirectWithError()
+		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 		return
 	}
 
@@ -229,7 +239,7 @@ func (h *UserHandler) UploadProfilePicture(w http.ResponseWriter, r *http.Reques
 
 	if err := h.userService.UpdateProfilePicture(r.Context(), user.ID, pictureURL); err != nil {
 		apperrors.Log(err)
-		redirectWithError()
+		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 		return
 	}
 

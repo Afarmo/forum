@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/Afarmo/forum/internal/apperrors"
 	"github.com/Afarmo/forum/internal/middleware"
@@ -58,7 +59,7 @@ func (h *ReactionHandler) ReactToPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if r.Header.Get("Accept") == "application/json" {
+	if strings.Contains(r.Header.Get("Accept"), "application/json") {
 		likes, dislikes, err := h.reactionService.GetPostReactionCount(r.Context(), postID)
 		if err != nil {
 			apperrors.Log(err)

@@ -20,16 +20,22 @@ import (
 )
 
 type PostHandler struct {
-	service        *service.PostService
-	commentService *service.CommentService
-	tmpl           *template.Template
+	postService     *service.PostService
+	commentService  *service.CommentService
+	reactionService *service.ReactionService
+	tmpl            *template.Template
 }
 
-func NewPostHandler(service *service.PostService, tmpl *template.Template, commentService *service.CommentService) *PostHandler {
+func NewPostHandler(postService *service.PostService,
+	commentService *service.CommentService,
+	reactionService *service.ReactionService,
+	tmpl *template.Template,
+) *PostHandler {
 	return &PostHandler{
-		service:        service,
-		commentService: commentService,
-		tmpl:           tmpl,
+		postService:     postService,
+		commentService:  commentService,
+		reactionService: reactionService,
+		tmpl:            tmpl,
 	}
 }
 
@@ -52,10 +58,8 @@ func (h *PostHandler) CreatePostPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	user := middleware.UserFromContext(ctx)
-	currentUserID := middleware.UserIDFromContext(ctx)
 
-	post, err := h.service.GetPostById(ctx, num, currentUserID)
+	post, err := h.postService.GetPostById(ctx, num)
 	if err != nil {
 		if errors.Is(err, apperrors.ErrNotFound) {
 			apperrors.RenderError(w, h.tmpl, http.StatusNotFound)
@@ -73,8 +77,23 @@ func (h *PostHandler) CreatePostPage(w http.ResponseWriter, r *http.Request) {
 		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 		return
 	}
+	var userID int
+	user := middleware.UserFromContext(ctx)
+	if user != nil {
+		userID = user.ID
+	}
 
 	views := newCommentViews(comments, user != nil)
+
+	posts := []models.Post{*post}
+
+	if err := h.reactionService.PopulatePostStats(ctx, posts, userID); err != nil {
+		apperrors.Log(err)
+		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
+		return
+	}
+
+	post = &posts[0]
 
 	data := &PostPageData{
 		Title:        post.Title,
@@ -167,7 +186,7 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		post.PictureContent = imageURL
 	}
 
-	err = h.service.CreatePost(r.Context(), &post, categoryID)
+	err = h.postService.CreatePost(r.Context(), &post, categoryID)
 	if err != nil {
 		if errors.Is(err, apperrors.ErrInvalidInput) {
 			http.Error(w, "invalid post data", http.StatusBadRequest)
@@ -191,7 +210,7 @@ func (h *PostHandler) GetAllPosts(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	posts, err := h.service.GetAllPosts(r.Context(), categoryID)
+	posts, err := h.postService.GetAllPosts(r.Context(), categoryID)
 	if err != nil {
 		apperrors.Log(err)
 		http.Error(w, "failed to get the posts", http.StatusInternalServerError)
@@ -212,7 +231,7 @@ func (h *PostHandler) GetPostByUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	posts, err := h.service.GetPostByUser(ctx, userID)
+	posts, err := h.postService.GetPostByUser(ctx, userID)
 	if err != nil {
 		apperrors.Log(err)
 		http.Error(w, "failed to get the user posts", http.StatusInternalServerError)
@@ -242,7 +261,7 @@ func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid json", http.StatusBadRequest)
 		return
 	}
-	err = h.service.UpdatePost(r.Context(), &PostID, user.ID, &update)
+	err = h.postService.UpdatePost(r.Context(), &PostID, user.ID, &update)
 	if err != nil {
 		switch {
 		case errors.Is(err, apperrors.ErrNotFound):
@@ -275,7 +294,7 @@ func (h *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = h.service.DeletePost(r.Context(), &postID, user.ID); err != nil {
+	if err = h.postService.DeletePost(r.Context(), &postID, user.ID); err != nil {
 		switch {
 		case errors.Is(err, apperrors.ErrInvalidInput):
 			http.Error(w, "invalid post ID", http.StatusBadRequest)
@@ -298,9 +317,9 @@ func (h *PostHandler) SearchPosts(w http.ResponseWriter, r *http.Request) {
 	var posts []models.Post
 	var err error
 	if search == "" {
-		posts, err = h.service.GetAllPosts(ctx, 0)
+		posts, err = h.postService.GetAllPosts(ctx, 0)
 	} else {
-		posts, err = h.service.SearchPosts(ctx, search)
+		posts, err = h.postService.SearchPosts(ctx, search)
 	}
 	if err != nil {
 		apperrors.Log(err)

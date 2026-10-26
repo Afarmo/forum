@@ -19,7 +19,7 @@ func NewRouter(homeHandler *handlers.HomeHandler,
 	mux := http.NewServeMux()
 
 	// Public routes
-	mux.HandleFunc("GET /{$}", homeHandler.HomePageHandler)
+	mux.HandleFunc("GET /", homeHandler.HomePageHandler)
 	mux.HandleFunc("POST /register", authHandler.RegisterHandler)
 	mux.HandleFunc("POST /login", authHandler.LoginHandler)
 	mux.HandleFunc("GET /logout", authHandler.LogoutHandler)

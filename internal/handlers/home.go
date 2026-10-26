@@ -16,14 +16,20 @@ import (
 type HomeHandler struct {
 	categoryService *service.CategoryService
 	postService     *service.PostService
+	reactionService *service.ReactionService
 	tmpl            *template.Template
 }
 
-func NewHomeHandler(tmpl *template.Template, categoryService *service.CategoryService, postService *service.PostService) *HomeHandler {
+func NewHomeHandler(categoryService *service.CategoryService,
+	postService *service.PostService,
+	reactionService *service.ReactionService,
+	tmpl *template.Template,
+) *HomeHandler {
 	return &HomeHandler{
-		tmpl:            tmpl,
 		categoryService: categoryService,
 		postService:     postService,
+		reactionService: reactionService,
+		tmpl:            tmpl,
 	}
 }
 
@@ -61,7 +67,6 @@ func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	searchQuery := strings.TrimSpace(r.URL.Query().Get("query"))
-	user := middleware.UserFromContext(r.Context())
 
 	var posts []models.Post
 	if searchQuery != "" {
@@ -82,6 +87,19 @@ func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
 
 	if posts == nil {
 		posts = []models.Post{}
+	}
+
+	user := middleware.UserFromContext(r.Context())
+
+	var userID int
+	if user != nil {
+		userID = user.ID
+	}
+
+	if err := h.reactionService.PopulatePostStats(r.Context(), posts, userID); err != nil {
+		apperrors.Log(err)
+		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
+		return
 	}
 
 	data := &HomePageData{
