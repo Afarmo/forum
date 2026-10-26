@@ -1,0 +1,64 @@
+erDiagram
+    USERS {
+        integer id PK
+        text username UK
+        text email UK
+        blob password_hash
+        blob password_salt
+        text profile_picture
+        datetime created_at
+    }
+    SESSIONS {
+        text id PK
+        integer user_id FK
+        datetime expires_at
+    }
+    POSTS {
+        integer id PK
+        integer user_id FK
+        text title
+        text content
+        text picture_content
+        datetime created_at
+        datetime updated_at
+        datetime deleted_at
+    }
+    CATEGORIES {
+        integer id PK
+        text name UK
+    }
+    POST_CATEGORIES {
+        integer post_id PK,FK
+        integer category_id PK,FK
+    }
+    POST_REACTIONS {
+        integer post_id PK,FK
+        integer user_id PK,FK
+        integer reaction
+    }
+    COMMENTS {
+        integer id PK
+        integer user_id FK
+        integer parent_id FK
+        integer post_id FK
+        text content
+        datetime created_at
+        datetime updated_at
+        datetime deleted_at
+    }
+    COMMENT_REACTIONS {
+        integer comment_id PK,FK
+        integer user_id PK,FK
+        integer reaction
+    }
+    USERS ||--o{ SESSIONS : "user_id"
+    USERS ||--o{ POSTS : "user_id"
+    POSTS ||--o{ POST_CATEGORIES : "post_id"
+    CATEGORIES ||--o{ POST_CATEGORIES : "category_id"
+    POSTS ||--o{ POST_REACTIONS : "post_id"
+    USERS ||--o{ POST_REACTIONS : "user_id"
+    USERS ||--o{ COMMENTS : "user_id"
+    POSTS ||--o{ COMMENTS : "post_id"
+    COMMENTS ||--o{ COMMENTS : "parent_id"
+    COMMENTS ||--o{ COMMENT_REACTIONS : "comment_id"
+    USERS ||--o{ COMMENT_REACTIONS : "user_id"
