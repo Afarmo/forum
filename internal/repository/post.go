@@ -54,7 +54,7 @@ func (r *PostRepository) GetAllPosts(ctx context.Context, categoryID int) ([]mod
 	// Posts require an author, while profile pictures and categories are optional.
 	// COALESCE maps those optional values to empty strings for the feed model.
 	query := `
-		SELECT p.id, p.user_id, p.title, p.content, p.picture_content, p.created_at,
+		SELECT p.id, p.user_id, p.title, p.content, p.picture_content, p.created_at, p.deleted_at,
 			u.username, COALESCE(u.profile_picture, ''),
 			COALESCE((
 				SELECT GROUP_CONCAT(DISTINCT c.name)
@@ -63,12 +63,13 @@ func (r *PostRepository) GetAllPosts(ctx context.Context, categoryID int) ([]mod
 				WHERE pc.post_id = p.id
 			), '')
 		FROM posts p
-		JOIN users u ON u.id = p.user_id`
+		JOIN users u ON u.id = p.user_id
+		WHERE p.deleted_at IS NULL`
 	args := []any{}
 
 	if categoryID > 0 {
 		query += `
-			WHERE EXISTS (
+			AND EXISTS (
 				SELECT 1 FROM post_categories pc_filter
 				WHERE pc_filter.post_id = p.id AND pc_filter.category_id = ?
 			)`
@@ -86,7 +87,7 @@ func (r *PostRepository) GetAllPosts(ctx context.Context, categoryID int) ([]mod
 		var post models.Post
 		err := rows.Scan(
 			&post.PostID, &post.UserID, &post.Title, &post.Content,
-			&post.PictureContent, &post.CreatedAt, &post.AuthorName,
+			&post.PictureContent, &post.CreatedAt, &post.DeletedAt, &post.AuthorName,
 			&post.AuthorPicture, &post.CategoryNames,
 		)
 		if err != nil {
@@ -125,7 +126,7 @@ func (r *PostRepository) GetPopularPosts(ctx context.Context, since time.Time, l
 }
 
 func (r *PostRepository) GetPostByUser(ctx context.Context, userId int) ([]models.Post, error) {
-	query := `SELECT id, user_id, title, content, picture_content, created_at FROM posts WHERE user_id = ? ORDER BY created_at DESC`
+	query := `SELECT id, user_id, title, content, picture_content, created_at, deleted_at FROM posts WHERE user_id = ? AND deleted_at IS NULL ORDER BY created_at DESC`
 
 	rows, err := r.db.QueryContext(ctx, query, userId)
 	if err != nil {
@@ -136,7 +137,7 @@ func (r *PostRepository) GetPostByUser(ctx context.Context, userId int) ([]model
 
 	for rows.Next() {
 		var post models.Post
-		err := rows.Scan(&post.PostID, &post.UserID, &post.Title, &post.Content, &post.PictureContent, &post.CreatedAt)
+		err := rows.Scan(&post.PostID, &post.UserID, &post.Title, &post.Content, &post.PictureContent, &post.CreatedAt, &post.DeletedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -145,7 +146,7 @@ func (r *PostRepository) GetPostByUser(ctx context.Context, userId int) ([]model
 	return posts, rows.Err()
 }
 
-func (r *PostRepository) UpdatePost(ctx context.Context, userID int, update *models.UpdatePost) error {
+func (r *PostRepository) UpdatePost(ctx context.Context, postID, userID int, update *models.UpdatePost) error {
 	tx, txErr := r.db.BeginTx(ctx, nil)
 	if txErr != nil {
 		return apperrors.ErrTransactionStart
@@ -166,8 +167,8 @@ func (r *PostRepository) UpdatePost(ctx context.Context, userID int, update *mod
 		extraQuery = append(extraQuery, `picture_content = ?`)
 		args = append(args, *update.PictureContent)
 	}
-	args = append(args, userID)
-	query := fmt.Sprintf("UPDATE posts SET %s WHERE id = ?", strings.Join(extraQuery, ", "))
+	args = append(args, postID, userID)
+	query := fmt.Sprintf("UPDATE posts SET %s WHERE id = ? AND user_id = ? AND deleted_at IS NULL", strings.Join(extraQuery, ", "))
 	result, err := tx.ExecContext(ctx, query, args...)
 	if err != nil {
 		if strings.Contains(err.Error(), "UNIQUE constraints failed") {
@@ -185,50 +186,40 @@ func (r *PostRepository) UpdatePost(ctx context.Context, userID int, update *mod
 	return tx.Commit()
 }
 
-func (r *PostRepository) DeletePost(ctx context.Context, postID *int) error {
-	tx, err := r.db.BeginTx(ctx, nil)
-	if err != nil {
-		return fmt.Errorf("%w: %w", apperrors.ErrTransactionStart, err)
-	}
-	defer tx.Rollback()
+func (r *PostRepository) DeletePost(ctx context.Context, postID *int, userID int) error {
+	query := `
+		UPDATE posts
+		SET deleted_at = CURRENT_TIMESTAMP
+		WHERE id = ? AND user_id = ? AND deleted_at IS NULL
+	`
 
-	queries := []string{`DELETE FROM comment_reaction WHERE comment_id IN(SELECT id FROM comments WHERE post_id = ?)`, `DELETE FROM comments WHERE post_id = ?`, `DELETE FROM post_reactions WHERE post_id = ?`, `DELETE FROM post_categories WHERE post_id = ?`}
-	for _, query := range queries {
-		_, err := tx.ExecContext(ctx, query, *postID)
-		if err != nil {
-			return err
-		}
-
-	}
-
-	query := `DELETE FROM posts WHERE id = ?`
-	result, err := tx.ExecContext(ctx, query, *postID)
+	result, err := r.db.ExecContext(ctx, query, *postID, userID)
 	if err != nil {
 		return err
 	}
 
-	rows, err := result.RowsAffected()
+	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return err
 	}
 
-	if rows == 0 {
+	if rowsAffected == 0 {
 		return apperrors.ErrNotFound
 	}
 
-	return tx.Commit()
+	return nil
 }
 
 func (r *PostRepository) GetPostById(ctx context.Context, postID int) (*models.Post, error) {
 
-	query := `SELECT p.id, p.user_id, p.title, p.content, p.picture_content, p.created_at,
+	query := `SELECT p.id, p.user_id, p.title, p.content, p.picture_content, p.created_at, p.deleted_at,
 			COALESCE(u.username, ''), COALESCE(u.profile_picture, '')
 		FROM posts p
 		LEFT JOIN users u ON u.id = p.user_id
 		WHERE p.id = ?`
 
 	var post models.Post
-	err := r.db.QueryRowContext(ctx, query, postID).Scan(&post.PostID, &post.UserID, &post.Title, &post.Content, &post.PictureContent, &post.CreatedAt,
+	err := r.db.QueryRowContext(ctx, query, postID).Scan(&post.PostID, &post.UserID, &post.Title, &post.Content, &post.PictureContent, &post.CreatedAt, &post.DeletedAt,
 		&post.AuthorName, &post.AuthorPicture)
 	if err == sql.ErrNoRows {
 		return nil, apperrors.ErrNotFound
@@ -246,7 +237,7 @@ func (r *PostRepository) SearchPosts(ctx context.Context, search string) ([]mode
 	//  FTS5 column weights: prioritize title, then username, then content.
 	//  Lower BM25 scores are more relevant, so the best matches come first.
 	query := `
-		SELECT p.id, p.user_id, p.title, p.content, p.picture_content, p.created_at, p.updated_at,
+		SELECT p.id, p.user_id, p.title, p.content, p.picture_content, p.created_at, p.updated_at, p.deleted_at,
 			u.username, COALESCE(u.profile_picture, ''),
 			COALESCE((
 				SELECT GROUP_CONCAT(DISTINCT c.name)
@@ -258,6 +249,7 @@ func (r *PostRepository) SearchPosts(ctx context.Context, search string) ([]mode
 		JOIN POSTS p ON p.id = POSTS_SEARCH.rowid
 		JOIN users u ON u.id = p.user_id
 		WHERE POSTS_SEARCH MATCH ?
+			AND p.deleted_at IS NULL
 		
 		ORDER BY bm25(POSTS_SEARCH, 10.0, 1.0, 5.0), p.created_at DESC`
 	rows, err := r.db.QueryContext(ctx, query, search)
@@ -276,6 +268,7 @@ func (r *PostRepository) SearchPosts(ctx context.Context, search string) ([]mode
 			&post.PictureContent,
 			&post.CreatedAt,
 			&post.UpdatedAt,
+			&post.DeletedAt,
 			&post.AuthorName,
 			&post.AuthorPicture,
 			&post.CategoryNames,
@@ -285,5 +278,44 @@ func (r *PostRepository) SearchPosts(ctx context.Context, search string) ([]mode
 		}
 		posts = append(posts, post)
 	}
+	return posts, rows.Err()
+}
+
+func (r *PostRepository) GetLikedPostsByUser(ctx context.Context, userID int) ([]models.Post, error) {
+	query := `
+		SELECT p.id, p.user_id, p.title, p.content,
+		       p.picture_content, p.created_at, p.deleted_at
+		FROM posts p
+		JOIN post_reactions pr ON pr.post_id = p.id
+		WHERE pr.user_id = ?
+		  AND pr.reaction = 1
+		  AND p.deleted_at IS NULL
+		ORDER BY p.created_at DESC
+	`
+
+	rows, err := r.db.QueryContext(ctx, query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var posts []models.Post
+
+	for rows.Next() {
+		var post models.Post
+		if err := rows.Scan(
+			&post.PostID,
+			&post.UserID,
+			&post.Title,
+			&post.Content,
+			&post.PictureContent,
+			&post.CreatedAt,
+			&post.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		posts = append(posts, post)
+	}
+
 	return posts, rows.Err()
 }

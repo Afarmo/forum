@@ -7,13 +7,14 @@ import (
 )
 
 type Post struct {
-	Content        string    `json:"content"`
-	Title          string    `json:"title"`
-	PostID         int       `json:"post_id"`
-	UserID         int       `json:"user_id"`
-	PictureContent string    `json:"picture_content"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
+	Content        string     `json:"content"`
+	Title          string     `json:"title"`
+	PostID         int        `json:"post_id"`
+	UserID         int        `json:"user_id"`
+	PictureContent string     `json:"picture_content"`
+	CreatedAt      time.Time  `json:"created_at"`
+	UpdatedAt      time.Time  `json:"updated_at"`
+	DeletedAt      *time.Time `json:"deleted_at,omitempty"`
 	// Author and category details, filled in when posts are loaded for display.
 	AuthorName    string `json:"author_name,omitempty"`
 	AuthorPicture string `json:"author_picture,omitempty"`
@@ -37,7 +38,9 @@ func (p Post) Preview() string {
 	}
 	return content
 }
-
+func (p Post) IsDeleted() bool {
+	return p.DeletedAt != nil
+}
 func (p Post) TimeAgo() string {
 	elapsed := time.Since(p.CreatedAt)
 	if elapsed < time.Minute {

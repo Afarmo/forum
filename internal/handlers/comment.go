@@ -106,6 +106,8 @@ func (h *CommentHandler) CreateComment(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case errors.Is(err, apperrors.ErrInvalidInput):
 			http.Error(w, "invalid comment", http.StatusBadRequest)
+		case errors.Is(err, apperrors.ErrNotFound):
+			http.Error(w, "post not found", http.StatusNotFound)
 		default:
 			apperrors.Log(err)
 			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)

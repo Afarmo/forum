@@ -2,6 +2,10 @@ package models
 
 import "time"
 
+func (c Comment) IsDeleted() bool {
+	return c.DeletedAt != nil
+}
+
 type Comment struct {
 	ID            int        `json:"id"`
 	UserID        int        `json:"user_id"`
