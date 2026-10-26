@@ -56,6 +56,10 @@ func (r *PostRepository) GetAllPosts(ctx context.Context, categoryID int) ([]mod
 	query := `
 		SELECT p.id, p.user_id, p.title, p.content, p.picture_content, p.created_at, p.deleted_at,
 			u.username, COALESCE(u.profile_picture, ''),
+			(SELECT COUNT(*)
+				FROM comments c
+				WHERE c.post_id = p.id
+				  AND c.deleted_at IS NULL) AS comment_count,
 			COALESCE((
 				SELECT GROUP_CONCAT(DISTINCT c.name)
 				FROM post_categories pc
@@ -88,7 +92,7 @@ func (r *PostRepository) GetAllPosts(ctx context.Context, categoryID int) ([]mod
 		err := rows.Scan(
 			&post.PostID, &post.UserID, &post.Title, &post.Content,
 			&post.PictureContent, &post.CreatedAt, &post.DeletedAt, &post.AuthorName,
-			&post.AuthorPicture, &post.CategoryNames,
+			&post.AuthorPicture, &post.CommentCount, &post.CategoryNames,
 		)
 		if err != nil {
 			return nil, err
@@ -212,6 +216,10 @@ func (r *PostRepository) SearchPosts(ctx context.Context, search string) ([]mode
 	query := `
 		SELECT p.id, p.user_id, p.title, p.content, p.picture_content, p.created_at, p.updated_at, p.deleted_at,
 			u.username, COALESCE(u.profile_picture, ''),
+			(SELECT COUNT(*)
+				FROM comments c
+				WHERE c.post_id = p.id
+				  AND c.deleted_at IS NULL) AS comment_count,
 			COALESCE((
 				SELECT GROUP_CONCAT(DISTINCT c.name)
 				FROM post_categories pc
@@ -244,6 +252,7 @@ func (r *PostRepository) SearchPosts(ctx context.Context, search string) ([]mode
 			&post.DeletedAt,
 			&post.AuthorName,
 			&post.AuthorPicture,
+			&post.CommentCount,
 			&post.CategoryNames,
 		)
 		if err != nil {

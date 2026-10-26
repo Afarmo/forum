@@ -19,6 +19,7 @@ type Post struct {
 	AuthorName    string `json:"author_name,omitempty"`
 	AuthorPicture string `json:"author_picture,omitempty"`
 	CategoryNames string `json:"category_names,omitempty"`
+	CommentCount  int	 `json:"comment_count"`
 }
 
 // ImageSrc is the <img src> for the post's picture: a linked image's full URL
