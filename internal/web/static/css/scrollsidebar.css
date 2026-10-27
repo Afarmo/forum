@@ -1,0 +1,131 @@
+/* Category list: scrolled by the browser, with a visible scrollbar so users
+   can see how many categories there are. Snaps to whole items. */
+.carousel-scene {
+  width: 100%;
+  height: 580px;
+}
+
+.sidebar-label {
+  flex: none;
+}
+
+/* The scrolling window. Reaching either end doesn't scroll the page.
+   `direction: rtl` puts the scrollbar on the left; the items switch back to
+   left-to-right so their text isn't affected. */
+.carousel-3d {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  overscroll-behavior: contain;
+  direction: rtl;
+  padding-left: 6px;
+}
+
+.carousel-3d > * {
+  direction: ltr;
+}
+
+/* Scrollbar: always visible in Chrome/Safari (styled scrollbars don't auto-hide
+   on Mac). Firefox uses the standard properties below and follows the system
+   setting for hiding. */
+.carousel-3d::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.carousel-3d::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.45);
+  border-radius: 999px;
+}
+
+.carousel-3d::-webkit-scrollbar-thumb {
+  background: rgba(96, 70, 140, 0.45);
+  border-radius: 999px;
+}
+
+.carousel-3d::-webkit-scrollbar-thumb:hover {
+  background: rgba(96, 70, 140, 0.65);
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  .carousel-3d {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(96, 70, 140, 0.45) rgba(255, 255, 255, 0.45);
+  }
+}
+
+.carousel-cell {
+  height: 56px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0 8px;
+  border-radius: 12px;
+  scroll-snap-align: start;
+  color: var(--black);
+  font-family: var(--font-body);
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.15;
+  text-align: center;
+  text-transform: lowercase;
+  text-shadow: 1px 2px 3px rgba(96, 70, 140, 0.25);
+  overflow: hidden;
+}
+
+.carousel-cell:hover {
+  color: var(--blue);
+}
+
+.carousel-cell.category-all {
+  margin: 0;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 12px;
+  color: var(--blue);
+  font-weight: 700;
+}
+
+.carousel-cell:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: -3px;
+}
+
+/* Mobile: a short horizontal strip. The title is hidden (the nav keeps its
+   aria-label) to keep the sidebar short. */
+@media (max-width: 1100px) {
+  .carousel-scene {
+    height: auto;
+  }
+
+  .sidebar-label {
+    display: none;
+  }
+
+  /* Scrolls sideways, scrollbar along the bottom */
+  .carousel-3d {
+    flex: none;
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    /* Back to left-to-right: in a sideways strip, rtl would start the list
+       from the right and reverse the scroll direction */
+    direction: ltr;
+    padding: 0 0 6px;
+  }
+
+  /* Each item is as wide as its name */
+  .carousel-cell,
+  .carousel-cell.category-all {
+    width: auto;
+    padding: 0;
+    white-space: nowrap;
+    font-size: 16px;
+  }
+}

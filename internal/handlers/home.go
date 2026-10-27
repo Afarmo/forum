@@ -34,6 +34,7 @@ func NewHomeHandler(categoryService *service.CategoryService,
 }
 
 type HomePageData struct {
+
 	Title         string
 	User          *models.User
 	Categories    []models.Category
@@ -42,6 +43,8 @@ type HomePageData struct {
 	LoginError    string
 	RegisterError string
 	LoginSuccess  bool
+	Popular     []models.PopularPost
+
 }
 
 func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
@@ -89,6 +92,15 @@ func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
 		posts = []models.Post{}
 	}
 
+	var popular []models.PopularPost
+	if searchQuery == "" && categoryID == 0 {
+		popular, err = h.postService.GetPopularThisWeek(r.Context())
+		if err != nil {
+			apperrors.Log(err)
+			popular = nil
+		}
+	}
+
 	user := middleware.UserFromContext(r.Context())
 
 	var userID int
@@ -108,6 +120,7 @@ func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
 		Categories:  categories,
 		Posts:       posts,
 		SearchQuery: searchQuery,
+		Popular:     popular,
 	}
 	if r.URL.Query().Get("login_error") == "1" {
 		data.LoginError = "Invalid email or password"

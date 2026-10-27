@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"html/template"
 	"io"
 	"log"
@@ -79,11 +80,13 @@ func (h *PostHandler) CreatePostPage(w http.ResponseWriter, r *http.Request) {
 	}
 	var userID int
 	user := middleware.UserFromContext(ctx)
+	viewerID := 0
+
 	if user != nil {
-		userID = user.ID
+		viewerID = user.ID
 	}
 
-	views := newCommentViews(comments, user != nil)
+	views := newCommentViews(comments, user != nil, viewerID)
 
 	posts := []models.Post{*post}
 
@@ -248,7 +251,8 @@ func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid Post ID", http.StatusBadRequest)
 		return
 	}
-
+	title := r.FormValue("title")
+	content := r.FormValue("content")
 	user := middleware.UserFromContext(r.Context())
 	if user == nil {
 		http.Error(w, "authentication required", http.StatusUnauthorized)
@@ -256,11 +260,9 @@ func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 	}
 	var update models.UpdatePost
 
-	err = json.NewDecoder(r.Body).Decode(&update)
-	if err != nil {
-		http.Error(w, "invalid json", http.StatusBadRequest)
-		return
-	}
+	update.Title = &title
+	update.Content = &content
+
 	err = h.postService.UpdatePost(r.Context(), &PostID, user.ID, &update)
 	if err != nil {
 		switch {
@@ -276,9 +278,7 @@ func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("post updated successfully"))
+	http.Redirect(w, r, fmt.Sprintf("/users/%d", user.ID), http.StatusSeeOther)
 }
 
 func (h *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
@@ -308,7 +308,7 @@ func (h *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	http.Redirect(w, r, "/posts/"+strconv.Itoa(postID), http.StatusSeeOther)
+	http.Redirect(w, r, "/users/"+strconv.Itoa(user.ID), http.StatusSeeOther)
 }
 
 func (h *PostHandler) SearchPosts(w http.ResponseWriter, r *http.Request) {

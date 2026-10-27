@@ -1,5 +1,5 @@
 .post-page-body {
-  background: #f1eadb;
+    background: var(--egg);
 }
 
 .post-page {
@@ -10,10 +10,10 @@
 
 .post-detail,
 .card {
-  background: #fbf8f2;
-  border: 1px solid #e7ddc3;
-  border-radius: 6px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+    background: var(--egg);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 24px;
+    box-shadow: var(--neu-egg);
 }
 
 .post-detail {
@@ -21,10 +21,11 @@
 }
 
 .post-detail-image {
-  width: 100%;
-  max-height: 360px;
-  object-fit: cover;
-  display: block;
+    width: 100%;
+    height: auto;
+    max-height: 75vh;
+    object-fit: cover;
+    display: block;
 }
 
 .post-detail-body {
@@ -32,32 +33,34 @@
 }
 
 .post-detail-title {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 2.2rem;
-  line-height: 1.25;
-  color: #2a241c;
-  margin: 0 0 24px;
+    font-family: var(--font-display);
+    font-size: 3.5rem;
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    color: var(--black);
+    margin: 0 0 24px;
 }
 
 .post-meta {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid #e7ddc3;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--line);
 }
 
 .avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border: 2px solid #e7ddc3;
-  background: #f8f4e7;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid var(--blue);
+    background: var(--grape);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
 }
 
 /* The post author's avatar is a size up from the 36px one in comments and the header. */
@@ -73,46 +76,60 @@
 }
 
 .author-name {
-  font-weight: 700;
-  color: #2a241c;
+    font-weight: 600;
+    color: var(--black);
 }
 
 .meta-date {
-  font-family: "Courier New", monospace;
-  font-size: 0.9rem;
-  color: #8a7d63;
+    font-size: 0.85rem;
+    color: var(--muted);
 }
 
 .post-detail-content {
-  font-size: 1.1rem;
-  line-height: 1.8;
-  color: #3a3226;
-  padding: 24px 0;
-  white-space: pre-line; /* keeps the line breaks the user typed */
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: var(--ink-soft);
+    padding: 24px 0;
+    white-space: pre-line; /* keeps the line breaks the user typed */
 }
 
 .post-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 20px;
-  border-top: 1px solid #e7ddc3;
-  /* after liking, the page reloads at #post-reactions: keep the button
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    /* after liking, the page reloads at #post-reactions: keep the button
        roughly where it was on screen instead of snapping it to the top */
   scroll-margin-top: 40vh;
 }
 
 .like-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border: 1px solid #e7ddc3;
-  border-radius: 999px;
-  background: #fff;
-  color: #8a7d63;
-  font: inherit;
-  font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--white);
+    color: var(--muted);
+    font: inherit;
+    font-size: 0.9rem;
+}
+
+.like-button {
+    cursor: pointer;
+}
+
+.like-button:hover {
+    border-color: var(--blue);
+    color: var(--blue);
+}
+
+.like-button.liked {
+    border-color: var(--blue);
+    background: var(--blue);
+    color: var(--egg);
 }
 
 .discussion {
@@ -120,16 +137,18 @@
 }
 
 .discussion-title {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 1.8rem;
-  color: #2a241c;
+    font-family: var(--font-display);
+    font-size: 2.8rem;
+    font-weight: 400;
+    line-height: 1.05;
+    color: var(--black);
 }
 
 .sign-in-prompt {
-  text-align: center;
-  padding: 32px;
-  margin-bottom: 20px;
-  color: #6b5f4a;
+    text-align: center;
+    padding: 32px;
+    margin-bottom: 20px;
+    color: var(--muted);
 }
 
 .comment-form {
@@ -140,23 +159,77 @@
   margin-bottom: 20px;
 }
 
-.comment-form textarea {
-  min-height: 90px;
-  padding: 10px;
-  border: 1px solid #e7ddc3;
-  border-radius: 4px;
-  font: inherit;
-  resize: vertical;
+.comment-form textarea,
+.reply-form textarea {
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--white);
+    font: inherit;
+    resize: vertical;
 }
 
-.comment-form .nav-button {
-  align-self: flex-end;
+.comment-form textarea:focus,
+.reply-form textarea:focus {
+    outline: none;
+    border-color: var(--blue);
+    box-shadow: var(--focus-ring);
+}
+
+.comment-form textarea {
+    min-height: 90px;
+}
+
+/* Comment and Reply: same pill as the Write Review and Sign In buttons */
+.comment-form .nav-button,
+.reply-form .nav-button {
+    align-self: flex-end;
+    min-width: 0;
+    min-height: 52px;
+    padding: 10px 20px;
+}
+
+@media (max-width: 600px) {
+    .comment-form .nav-button,
+    .reply-form .nav-button {
+        min-height: 38px;
+        padding: 8px 12px;
+    }
 }
 
 .comment {
-  padding: 20px 24px;
-  margin-bottom: 16px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    position: relative;
 }
+
+.comment .post-options {
+    top: 12px;
+    right: 12px;
+}
+
+/* Delete: same glass pill as the options button, holding a purple trash can */
+.comment-delete-button {
+    width: 40px;
+    padding: 0;
+    color: #6a4c9c;
+}
+
+.comment-delete-icon {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.comment-delete-prompt {
+    margin: 4px 14px 6px;
+    font-size: 13px;
+    color: var(--black);
+}
+
 
 .comment-header {
   display: flex;
@@ -165,30 +238,76 @@
 }
 
 .comment-content {
-  line-height: 1.7;
-  color: #3a3226;
-  margin: 12px 0 0;
+    line-height: 1.7;
+    color: var(--ink-soft);
+    margin: 12px 0 0;
 }
 
 .no-comments {
-  color: #8a7d63;
-  text-align: center;
+    color: var(--muted);
+    text-align: center;
 }
 
-/* Replies sit under the comment they answer, indented with a thread line.
-   Indentation stops growing after a few levels so deep threads stay readable. */
 .replies {
-  margin-left: 24px;
-  padding-left: 16px;
-  border-left: 2px solid #e7ddc3;
+    --vein: 2px;
+    margin-left: 24px;
+    padding-left: 16px;
 }
 
 .replies:empty {
   display: none;
 }
 
+/* Reply veins: each reply branches off its parent's line with a curved
+   elbow into its avatar, and the line stops at the last reply. */
+.replies > .comment-thread {
+    position: relative;
+}
+
+/* Branch: from the parent's line (covering the 16px gap above) into the
+   avatar, whose centre sits 39px below the top of the card */
+.replies > .comment-thread::before {
+    content: "";
+    position: absolute;
+    top: -16px;
+    left: -16px;
+    width: 14px;
+    height: 56px;
+    border-left: var(--vein) solid var(--grape-deep);
+    border-bottom: var(--vein) solid var(--grape-deep);
+    border-bottom-left-radius: 14px;
+}
+
+/* Trunk: carries the line on to the next sibling reply */
+.replies > .comment-thread:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -16px;
+    border-left: var(--vein) solid var(--grape-deep);
+}
+
+/* Node: a lime dot where the branch meets the reply card */
+.replies > .comment-thread > .comment::before {
+    content: "";
+    position: absolute;
+    top: 34px;
+    left: -5px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #e6fd96 0%, var(--hivis) 55%, #bedb5a 100%);
+    box-shadow: 1px 1px 2px rgba(78, 96, 10, 0.35);
+}
+
+/* Deeper levels: smaller indent steps and finer veins */
 .replies .replies .replies .replies {
-  margin-left: 0;
+    --vein: 1.5px;
+    margin-left: 0;
+}
+.replies .replies .replies .replies .replies .replies .replies .replies .replies .replies .replies {
+    padding-left: 0;
 }
 
 .reply-box {
@@ -196,10 +315,78 @@
 }
 
 .reply-box summary {
-  cursor: pointer;
-  color: #8a7d63;
-  font-size: 0.9rem;
-  width: fit-content;
+    cursor: pointer;
+    color: var(--blue);
+    font-size: 0.9rem;
+    font-weight: 500;
+    width: fit-content;
+}
+
+/* Replies are collapsed under their top-level comment behind
+   "View N replies", lined up with where the thread line starts */
+/* "View N replies" drawn as a vein: a curved branch comes off the comment
+   above (on the same line the replies hang from) and ends in a lime
+   triangle that turns to point down when the replies are open. */
+.more-replies > summary {
+    position: relative;
+    width: fit-content;
+    margin: 0 0 16px 24px;
+    padding: 4px 0 4px 34px;
+    list-style: none;
+    cursor: pointer;
+    color: var(--blue);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.more-replies > summary::-webkit-details-marker {
+    display: none;
+}
+
+/* Branch: from the gap under the comment down and round into the triangle */
+.more-replies > summary::before {
+    content: "";
+    position: absolute;
+    top: -16px;
+    bottom: 50%;
+    left: 0;
+    width: 14px;
+    border-left: 2px solid var(--grape-deep);
+    border-bottom: 2px solid var(--grape-deep);
+    border-bottom-left-radius: 12px;
+}
+
+/* Triangle head */
+.more-replies > summary::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 14px;
+    width: 12px;
+    height: 14px;
+    /* Deeper lime than the reply dots so it stands out against the
+       eggshell page */
+    background: center / contain no-repeat
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 14'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23dcfc73'/%3E%3Cstop offset='1' stop-color='%2399c21f'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0 0 L12 7 L0 14 Z' fill='url(%23g)'/%3E%3C/svg%3E");
+    filter: drop-shadow(1px 1px 1px rgba(78, 96, 10, 0.35));
+    transform: translateY(-50%);
+    transition: transform 160ms ease;
+}
+
+.more-replies[open] > summary::after {
+    transform: translateY(-50%) rotate(90deg);
+}
+
+/* Open: the line carries on down from the branch to the replies' own veins */
+.more-replies[open] > summary {
+    margin-bottom: 8px;
+    background: linear-gradient(var(--grape-deep), var(--grape-deep)) 0 100% / 2px 50% no-repeat;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .more-replies > summary::after {
+        transition: none;
+    }
 }
 
 .reply-form {
@@ -210,16 +397,7 @@
 }
 
 .reply-form textarea {
-  min-height: 70px;
-  padding: 10px;
-  border: 1px solid #e7ddc3;
-  border-radius: 4px;
-  font: inherit;
-  resize: vertical;
-}
-
-.reply-form .nav-button {
-  align-self: flex-end;
+    min-height: 70px;
 }
 
 /* After posting, the page reloads at #comment-N: scroll there with a little
@@ -228,12 +406,83 @@
   scroll-margin-top: 24px;
 }
 
+.post-options {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 5;
+}
+
+.post-options-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 48px;
+  height: 30px;
+  list-style: none;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.2));
+  backdrop-filter: blur(12px) saturate(1.4);
+  -webkit-backdrop-filter: blur(12px) saturate(1.4);
+  box-shadow:
+    5px 5px 12px var(--neu-egg-dark),
+    -5px -5px 12px var(--neu-egg-light),
+    inset 1px 1px 2px rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  transition: box-shadow 160ms ease, transform 160ms ease;
+}
+
+.post-options-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.post-options-toggle:hover {
+  transform: translateY(-1px);
+}
+
+.post-options-toggle:focus-visible {
+  outline: none;
+  box-shadow:
+    5px 5px 12px var(--neu-egg-dark),
+    -5px -5px 12px var(--neu-egg-light),
+    var(--focus-ring);
+}
+
+/* Pressed in while the menu is open */
+.post-options[open] .post-options-toggle {
+  box-shadow:
+    inset 3px 3px 6px var(--neu-egg-dark),
+    inset -3px -3px 6px var(--neu-egg-light);
+}
+
+.post-options-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #6364c3 0%, var(--blue) 55%, var(--blue-deep) 100%);
+  box-shadow:
+    1.5px 1.5px 3px rgba(2, 30, 100, 0.35),
+    -1.5px -1.5px 3px var(--neu-egg-light);
+}
 @keyframes comment-added {
-  from {
-    background-color: #fbf3dc;
-  }
+    from { background-color: var(--hivis); }
 }
 
 .comment-thread:target > .comment {
   animation: comment-added 2s ease-out;
+}
+
+@media (max-width: 600px) {
+    .post-detail-body {
+        padding: 24px 20px;
+    }
+
+    .post-detail-title {
+        font-size: 2.6rem;
+    }
+    .replies .replies .replies .replies {
+        padding-left: 0;
+    }
 }

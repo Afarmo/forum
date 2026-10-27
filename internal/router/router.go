@@ -39,7 +39,7 @@ func NewRouter(homeHandler *handlers.HomeHandler,
 		mux.Handle(pattern, authMiddleware.RequireAuth(handler))
 	}
 
-	protected("PATCH /posts/{id}", postHandler.UpdatePost)
+	protected("POST /posts/{id}/update", postHandler.UpdatePost)
 	protected("POST /posts/{id}/delete", postHandler.DeletePost)
 	protected("POST /writePosts", postHandler.CreatePost)
 	protected("POST /posts/{id}/comments", commentHandler.CreateComment)

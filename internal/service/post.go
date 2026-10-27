@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"strings"
+	"time"
 
 	"github.com/Afarmo/forum/internal/apperrors"
 	"github.com/Afarmo/forum/internal/models"
@@ -35,8 +36,20 @@ func (s *PostService) GetAllPosts(ctx context.Context, categoryID int) ([]models
 	return s.repo.GetAllPosts(ctx, categoryID)
 }
 
-func (s *PostService) GetPostByUser(ctx context.Context, userID int) ([]models.Post, error) {
-	return s.repo.GetPostByUser(ctx, userID)
+const popularPostsLimit = 5
+
+func (s *PostService) GetPopularThisWeek(ctx context.Context) ([]models.PopularPost, error) {
+	return s.repo.GetPopularPosts(ctx, startOfWeek(time.Now()), popularPostsLimit)
+}
+
+// startOfWeek returns midnight on the Monday of t's week, in t's timezone.
+func startOfWeek(t time.Time) time.Time {
+	daysSinceMonday := (int(t.Weekday()) + 6) % 7 // Monday 0 … Sunday 6
+	return time.Date(t.Year(), t.Month(), t.Day()-daysSinceMonday, 0, 0, 0, 0, t.Location())
+}
+
+func (s *PostService) GetPostByUser(ctx context.Context, userId int) ([]models.Post, error) {
+	return s.repo.GetPostByUser(ctx, userId)
 }
 
 func (s *PostService) UpdatePost(ctx context.Context, PostID *int, userID int, update *models.UpdatePost) error {

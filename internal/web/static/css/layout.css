@@ -20,7 +20,7 @@ main {
 
 .page-body {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2.5fr);
   gap: 2rem;
   width: 100%;
   max-width: 1280px;
@@ -35,10 +35,15 @@ main {
   justify-content: center;
   align-items: center;
   width: 100%;
-  font-size: 18px;
-  padding: 10px 16px;
+  padding: 18px 16px;
   box-sizing: border-box;
   text-align: center;
+  background: var(--black);
+  color: var(--egg);
+}
+
+.footer-heart {
+  color: var(--hivis);
 }
 
 .main-content {
@@ -52,7 +57,7 @@ main {
 }
 
 /* Small screens */
-@media (max-width: 768px) {
+@media (max-width: 1100px) {
   .page-body {
     grid-template-columns: 1fr;
     gap: 0.5rem;
@@ -63,7 +68,8 @@ main {
     margin: 4px 0;
   }
   .site-footer {
-    font-size: 12px;
-    padding: 10px 16px;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    padding: 14px 16px;
   }
 }
