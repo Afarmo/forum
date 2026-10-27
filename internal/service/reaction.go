@@ -11,11 +11,13 @@ import (
 
 type ReactionService struct {
 	reactionRepo *repository.ReactionRepository
+	commentRepo  *repository.CommentRepository
 }
 
-func NewReactionService(reactionRepo *repository.ReactionRepository) *ReactionService {
+func NewReactionService(reactionRepo *repository.ReactionRepository, commentRepo *repository.CommentRepository) *ReactionService {
 	return &ReactionService{
 		reactionRepo: reactionRepo,
+		commentRepo:  commentRepo,
 	}
 }
 
@@ -48,6 +50,10 @@ func (s *ReactionService) ReactToPost(ctx context.Context, postID, userID, react
 
 func (s *ReactionService) GetPostReactionCount(ctx context.Context, postID int) (int, int, error) {
 	return s.reactionRepo.GetPostReactionCount(ctx, postID)
+}
+
+func (s *ReactionService) GetPostReaction(ctx context.Context, postID, userID int) (*models.PostReaction, error) {
+	return s.reactionRepo.GetPostReaction(ctx, postID, userID)
 }
 
 func (s *ReactionService) ReactToComment(ctx context.Context, commentID, userID, reaction int) error {
@@ -86,4 +92,40 @@ func (s *ReactionService) GetCommentReactionCount(ctx context.Context, commentID
 
 func (s *ReactionService) GetCommentReaction(ctx context.Context, postID, userID int) (*models.CommentReaction, error) {
 	return s.reactionRepo.GetCommentReaction(ctx, postID, userID)
+}
+
+func (s *ReactionService) PopulatePostStats(ctx context.Context, posts []models.Post, userID int) error {
+	for i := range posts {
+		post := &posts[i]
+
+		likes, dislikes, err := s.GetPostReactionCount(ctx, post.PostID)
+		if err != nil {
+			return err
+		}
+
+		post.PostReactions.Like = likes
+		post.PostReactions.Dislike = dislikes
+
+		if userID == 0 {
+			continue
+		}
+
+		reaction, err := s.GetPostReaction(ctx, post.PostID, userID)
+		if errors.Is(err, apperrors.ErrNotFound) {
+			continue
+		}
+		if err != nil {
+			return err
+		}
+		post.UserReaction = reaction.Reaction
+
+		commentCount, err := s.commentRepo.GetCommentCount(ctx, post.PostID)
+		if err != nil {
+			return err
+		}
+
+		post.CommentCount = commentCount
+	}
+
+	return nil
 }

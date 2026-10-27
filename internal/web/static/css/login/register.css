@@ -236,6 +236,12 @@
     box-shadow: var(--focus-ring);
 }
 
+.form-error {
+    margin: 8px 0 0;
+    color: #a22b24;
+    font-size: 14px;
+}
+
 
 /* =========================
    SIGN IN BUTTON

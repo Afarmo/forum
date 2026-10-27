@@ -40,56 +40,7 @@
 
   <div id="post-feed">
     {{ range .Posts }}
-    <article class="post-card" id="post-{{ .PostID }}">
-      {{ if .PictureContent }}
-      <a class="post-image-link" href="/posts/{{ .PostID }}" tabindex="-1" aria-hidden="true">
-        <img class="post-image" src="{{ .ImageSrc }}" alt="" />
-      </a>
-      {{ end }}
-      <a class="post-link" href="/posts/{{ .PostID }}">
-        <div class="post-card-body">
-          {{ if .CategoryNames }}
-          <div class="post-categories">
-            <span class="post-category">{{ .CategoryNames }}</span>
-          </div>
-          {{ end }}
-        <h3 class="post-title">{{ .Title }}</h3>
-          <p class="post-content">{{ .Preview }}</p>
-        </div>
-      </a>
-      <div class="post-card-footer">
-        <div class="post-author">
-          {{ if .AuthorPicture }}
-          <img class="post-author-avatar" src="{{ .AuthorPicture }}" alt="" />
-          {{ else }}
-          <span class="post-author-avatar post-author-avatar-empty" aria-hidden="true">✦</span>
-          {{ end }}
-          <span class="post-author-name">{{ if .AuthorName }}{{ .AuthorName }}{{ else }}Unknown{{ end }}</span>
-          <span class="post-meta-separator" aria-hidden="true">·</span>
-          <time class="post-date" datetime="{{ .CreatedAt.Format "2006-01-02T15:04:05Z07:00" }}">{{ .TimeAgo }}</time>
-        </div>
-        <div class="post-card-actions">
-          <button type="button" class="post-card-action reaction-button like-button" title="{{ if $.User }}Like{{ else }}Sign in to like this post{{ end }}" {{ if not $.User }}disabled{{ end }}>
-            <svg class="reaction-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-              <path d="M5.5 7 8.25 2.5c.25-.4.65-.5 1-.35.45.18.7.65.55 1.1L9 6h3.2c.9 0 1.5.8 1.3 1.65l-1.1 5A1.7 1.7 0 0 1 10.75 14H5.5M2.5 6.5h3v7h-3z" />
-            </svg>
-            24
-          </button>
-          <button type="button" class="post-card-action reaction-button dislike-button" title="{{ if $.User }}Dislike{{ else }}Sign in to dislike this post{{ end }}" {{ if not $.User }}disabled{{ end }}>
-            <svg class="reaction-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-              <path d="M5.5 9 8.25 13.5c.25.4.65.5 1 .35.45-.18.7-.65.55-1.1L9 10h3.2c.9 0 1.5-.8 1.3-1.65l-1.1-5A1.7 1.7 0 0 0 10.75 2H5.5M2.5 2.5h3v7h-3z" />
-            </svg>
-            16
-          </button>
-          <a class="post-card-action post-comments-link" href="/posts/{{ .PostID }}">
-            <svg class="post-comments-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-              <path d="M2 2.75A1.75 1.75 0 0 1 3.75 1h8.5A1.75 1.75 0 0 1 14 2.75v6.5A1.75 1.75 0 0 1 12.25 11H7l-3.5 3v-3.25A1.75 1.75 0 0 1 2 9.25z" />
-            </svg>
-            15
-          </a>
-        </div>
-      </div>
-    </article>
+    {{ template "post-card" . }}
     {{ end }}
   </div>
   <p id="post-feed-empty" role="status" {{ if .Posts }}hidden{{ end }}>

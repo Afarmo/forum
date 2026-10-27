@@ -83,6 +83,7 @@ func (r *PostRepository) GetAllPosts(ctx context.Context, categoryID int) ([]mod
 	}
 	defer rows.Close()
 	var posts []models.Post
+
 	for rows.Next() {
 		var post models.Post
 		err := rows.Scan(
@@ -93,6 +94,7 @@ func (r *PostRepository) GetAllPosts(ctx context.Context, categoryID int) ([]mod
 		if err != nil {
 			return nil, err
 		}
+
 		posts = append(posts, post)
 	}
 	return posts, rows.Err()
@@ -125,10 +127,25 @@ func (r *PostRepository) GetPopularPosts(ctx context.Context, since time.Time, l
 	return posts, rows.Err()
 }
 
-func (r *PostRepository) GetPostByUser(ctx context.Context, userId int) ([]models.Post, error) {
-	query := `SELECT id, user_id, title, content, picture_content, created_at, deleted_at FROM posts WHERE user_id = ? AND deleted_at IS NULL ORDER BY created_at DESC`
+func (r *PostRepository) GetPostByUser(ctx context.Context, userID int) ([]models.Post, error) {
+	query := `
+		SELECT p.id, p.user_id, p.title, p.content,
+			p.picture_content, p.created_at, p.deleted_at,
+			u.username, COALESCE(u.profile_picture, ''),
+			COALESCE((
+				SELECT GROUP_CONCAT(DISTINCT c.name)
+				FROM post_categories pc
+				JOIN categories c ON c.id = pc.category_id
+				WHERE pc.post_id = p.id
+			), '')
+		FROM posts p
+		JOIN users u ON u.id = p.user_id
+		WHERE p.user_id = ?
+		AND p.deleted_at IS NULL
+		ORDER BY p.created_at DESC
+	`
 
-	rows, err := r.db.QueryContext(ctx, query, userId)
+	rows, err := r.db.QueryContext(ctx, query, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -137,8 +154,18 @@ func (r *PostRepository) GetPostByUser(ctx context.Context, userId int) ([]model
 
 	for rows.Next() {
 		var post models.Post
-		err := rows.Scan(&post.PostID, &post.UserID, &post.Title, &post.Content, &post.PictureContent, &post.CreatedAt, &post.DeletedAt)
-		if err != nil {
+		if err := rows.Scan(
+			&post.PostID,
+			&post.UserID,
+			&post.Title,
+			&post.Content,
+			&post.PictureContent,
+			&post.CreatedAt,
+			&post.DeletedAt,
+			&post.AuthorName,
+			&post.AuthorPicture,
+			&post.CategoryNames,
+		); err != nil {
 			return nil, err
 		}
 		posts = append(posts, post)
@@ -284,12 +311,20 @@ func (r *PostRepository) SearchPosts(ctx context.Context, search string) ([]mode
 func (r *PostRepository) GetLikedPostsByUser(ctx context.Context, userID int) ([]models.Post, error) {
 	query := `
 		SELECT p.id, p.user_id, p.title, p.content,
-		       p.picture_content, p.created_at, p.deleted_at
+			p.picture_content, p.created_at, p.deleted_at,
+			u.username, COALESCE(u.profile_picture, ''),
+			COALESCE((
+				SELECT GROUP_CONCAT(DISTINCT c.name)
+				FROM post_categories pc
+				JOIN categories c ON c.id = pc.category_id
+				WHERE pc.post_id = p.id
+			), '')
 		FROM posts p
 		JOIN post_reactions pr ON pr.post_id = p.id
+		JOIN users u ON u.id = p.user_id
 		WHERE pr.user_id = ?
-		  AND pr.reaction = 1
-		  AND p.deleted_at IS NULL
+		AND pr.reaction = 1
+		AND p.deleted_at IS NULL
 		ORDER BY p.created_at DESC
 	`
 
@@ -311,6 +346,9 @@ func (r *PostRepository) GetLikedPostsByUser(ctx context.Context, userID int) ([
 			&post.PictureContent,
 			&post.CreatedAt,
 			&post.DeletedAt,
+			&post.AuthorName,
+			&post.AuthorPicture,
+			&post.CategoryNames,
 		); err != nil {
 			return nil, err
 		}

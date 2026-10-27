@@ -1,81 +1,66 @@
 {{ define "login-modal" }}
 
 <div id="login-modal" class="modal" hidden>
-    <div class="modal-content">
+  <div class="modal-content">
+    <!-- Close button -->
+    <button
+      type="button"
+      class="close-modal"
+      onclick="closeModal('login-modal')"
+      aria-label="Close"
+    >
+      &times;
+    </button>
 
-        <!-- Close button -->
-        <button
-            type="button"
-            class="close-modal"
-            onclick="closeModal('login-modal')"
-            aria-label="Close"
-        >
-            &times;
-        </button>
+    <!-- Logo -->
+    <div class="lion-logo"></div>
 
-        <!-- Logo -->
-        <div class="lion-logo">
-        </div>
+    <!-- Heading -->
+    <h2>Welcome back, Lion</h2>
 
-        <!-- Heading -->
-        <h2>Welcome back, Lion</h2>
+    <p class="subtitle">Sign in to continue the conversation.</p>
 
-        <p class="subtitle">
-            Sign in to continue the conversation.
-        </p>
+    <!-- Tabs -->
+    <div class="auth-tabs">
+      <button type="button" class="auth-tab active">Sign In</button>
 
-        <!-- Tabs -->
-        <div class="auth-tabs">
-            <button type="button" class="auth-tab active">
-                Sign In
-            </button>
-
-            <button type="button" class="auth-tab" data-auth-switch="register">
-                Register
-            </button>
-        </div>
-
-        <!-- Login form -->
-        <form method="POST" action="/login">
-
-            <div class="form-group">
-                <label for="email">EMAIL</label>
-
-                <input
-                    id="email"
-                    type="email"
-                    name="email"
-                    placeholder="your@email.com"
-                    required
-                >
-            </div>
-
-            <div class="form-group">
-                <label for="password">PASSWORD</label>
-
-                <input
-                    id="password"
-                    type="password"
-                    name="password"
-                    required
-                >
-            </div>
-
-            <button type="submit" class="login-button">
-                Sign In
-            </button>
-
-        </form>
-
-        <!-- Register -->
-        <p class="register-text">
-            Don't have an account?
-            <button type="button" class="register-link" data-auth-switch="register">
-                Register
-            </button>
-        </p>
-
+      <button type="button" class="auth-tab" data-auth-switch="register">
+        Register
+      </button>
     </div>
+
+    <!-- Login form -->
+    <form method="POST" action="/login">
+      <div class="form-group">
+        <label for="email">EMAIL</label>
+
+        <input
+          id="email"
+          type="email"
+          name="email"
+          placeholder="your@email.com"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">PASSWORD</label>
+
+        <input id="password" type="password" name="password" required />
+        <p id="login-error" class="form-error" role="alert" hidden></p>
+      </div>
+
+      <button type="submit" class="login-button">Sign In</button>
+    </form>
+
+    <!-- Register -->
+    <p class="register-text">
+      Don't have an account?
+      <button type="button" class="register-link" data-auth-switch="register">
+        Register
+      </button>
+    </p>
+  </div>
 </div>
 
 {{ end }}

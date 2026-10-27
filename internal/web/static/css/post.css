@@ -3,9 +3,9 @@
 }
 
 .post-page {
-    max-width: 900px;
-    margin: 32px auto;
-    padding: 0 16px;
+  max-width: 900px;
+  margin: 32px auto;
+  padding: 0 16px;
 }
 
 .post-detail,
@@ -17,7 +17,7 @@
 }
 
 .post-detail {
-    overflow: hidden; /* keeps the image inside the rounded corners */
+  overflow: hidden; /* keeps the image inside the rounded corners */
 }
 
 .post-detail-image {
@@ -29,7 +29,7 @@
 }
 
 .post-detail-body {
-    padding: 32px 40px;
+  padding: 32px 40px;
 }
 
 .post-detail-title {
@@ -65,14 +65,14 @@
 
 /* The post author's avatar is a size up from the 36px one in comments and the header. */
 .post-meta .user-avatar {
-    width: 48px;
-    height: 48px;
+  width: 48px;
+  height: 48px;
 }
 
 .avatar-small {
-    width: 36px;
-    height: 36px;
-    font-size: 18px;
+  width: 36px;
+  height: 36px;
+  font-size: 18px;
 }
 
 .author-name {
@@ -101,7 +101,7 @@
     border-top: 1px solid var(--line);
     /* after liking, the page reloads at #post-reactions: keep the button
        roughly where it was on screen instead of snapping it to the top */
-    scroll-margin-top: 40vh;
+  scroll-margin-top: 40vh;
 }
 
 .like-button {
@@ -133,7 +133,7 @@
 }
 
 .discussion {
-    margin-top: 40px;
+  margin-top: 40px;
 }
 
 .discussion-title {
@@ -152,11 +152,11 @@
 }
 
 .comment-form {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
 }
 
 .comment-form textarea,
@@ -232,9 +232,9 @@
 
 
 .comment-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .comment-content {
@@ -255,7 +255,7 @@
 }
 
 .replies:empty {
-    display: none;
+  display: none;
 }
 
 /* Reply veins: each reply branches off its parent's line with a curved
@@ -311,7 +311,7 @@
 }
 
 .reply-box {
-    margin-top: 12px;
+  margin-top: 12px;
 }
 
 .reply-box summary {
@@ -390,10 +390,10 @@
 }
 
 .reply-form {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
 }
 
 .reply-form textarea {
@@ -403,7 +403,7 @@
 /* After posting, the page reloads at #comment-N: scroll there with a little
    breathing room and briefly highlight it, so the eye finds the new comment. */
 .comment-thread {
-    scroll-margin-top: 24px;
+  scroll-margin-top: 24px;
 }
 
 .post-options {
@@ -471,7 +471,7 @@
 }
 
 .comment-thread:target > .comment {
-    animation: comment-added 2s ease-out;
+  animation: comment-added 2s ease-out;
 }
 
 @media (max-width: 600px) {

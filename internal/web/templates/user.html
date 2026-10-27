@@ -12,10 +12,12 @@
     />
     {{ template "stylesheets" }}
   </head>
-  <body>
+  <body
+    data-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
+    data-profile-picture-notification="{{ .ProfilePictureNotification }}"
+  >
     <div class="page-header">
-      {{ template "header" .}} {{ template "login-modal" . }} {{ template
-      "register-modal" . }}
+      {{ template "header" .}} {{ template "register-modal" . }}
     </div>
     <div class="page-body">
       {{ template "sidebar" . }}

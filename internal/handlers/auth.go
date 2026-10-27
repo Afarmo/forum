@@ -30,14 +30,14 @@ func (h *AuthHandler) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err := h.service.Register(r.Context(), username, email, password); err != nil {
 		switch {
-		case errors.Is(err, apperrors.ErrInvalidUsername),
-			errors.Is(err, apperrors.ErrInvalidEmail),
-			errors.Is(err, apperrors.ErrInvalidPassword):
-			http.Error(w, err.Error(), http.StatusBadRequest)
-
+		case errors.Is(err, apperrors.ErrInvalidUsername):
+			http.Redirect(w, r, "/?register_error=invalid_username", http.StatusSeeOther)
+		case errors.Is(err, apperrors.ErrInvalidEmail):
+			http.Redirect(w, r, "/?register_error=invalid_email", http.StatusSeeOther)
+		case errors.Is(err, apperrors.ErrInvalidPassword):
+			http.Redirect(w, r, "/?register_error=invalid_password", http.StatusSeeOther)
 		case errors.Is(err, apperrors.ErrDuplicateKey):
-			http.Error(w, err.Error(), http.StatusConflict)
-
+			http.Redirect(w, r, "/?register_error=duplicate", http.StatusSeeOther)
 		default:
 			apperrors.Log(err)
 			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
@@ -56,7 +56,7 @@ func (h *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch {
 		case errors.Is(err, apperrors.ErrInvalidCredentials):
-			http.Error(w, "Invalid email or password", http.StatusUnauthorized)
+			http.Redirect(w, r, "/?login_error=1", http.StatusSeeOther)
 
 		default:
 			apperrors.Log(err)
@@ -74,7 +74,7 @@ func (h *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		SameSite: http.SameSiteLaxMode,
 	})
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	http.Redirect(w, r, "/?login_success=1", http.StatusSeeOther)
 }
 
 func (h *AuthHandler) LogoutHandler(w http.ResponseWriter, r *http.Request) {
