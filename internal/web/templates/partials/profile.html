@@ -40,8 +40,14 @@
             </summary>
             
             <div class="post-options-menu post-options-menu--row" role="menu">
-              <button type="button" class="post-options-item" role="menuitem"
-                      onclick="openModal('edit-post-modal-{{ .PostID }}')">Edit</button>
+              <button type="button" class="post-options-item post-options-item--icon comment-delete-button"
+                      role="menuitem" aria-label="Edit post" title="Edit post"
+                      onclick="openModal('edit-post-modal-{{ .PostID }}')">
+                <svg class="comment-delete-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 20h9" />
+                  <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                </svg>
+              </button>
               <form method = "POST" action="/posts/{{ .PostID }}/delete">
               <button type="submit" class="post-options-item post-options-item--icon comment-delete-button"
                       role="menuitem" aria-label="Delete post" title="Delete post">
