@@ -121,22 +121,6 @@ func (h *CommentHandler) CreateComment(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/posts/"+strconv.Itoa(postID)+"#comment-"+strconv.Itoa(comment.ID), http.StatusSeeOther)
 }
 
-func (h *CommentHandler) GetCommentsByPost(w http.ResponseWriter, r *http.Request) {
-	postID, err := strconv.Atoi(r.PathValue("id"))
-	if err != nil {
-		http.Error(w, "invalid post ID", http.StatusBadRequest)
-		return
-	}
-
-	_, err = h.service.GetCommentsByPost(r.Context(), postID)
-	if err != nil {
-		apperrors.Log(err)
-		http.Error(w, "failed to get comments", http.StatusInternalServerError)
-		return
-	}
-
-}
-
 func (h *CommentHandler) DeleteComment(w http.ResponseWriter, r *http.Request) {
 	commentID, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
