@@ -50,6 +50,7 @@ func startOfWeek(t time.Time) time.Time {
 
 func (s *PostService) GetPostByUser(ctx context.Context, userId int) ([]models.Post, error) {
 	return s.repo.GetPostByUser(ctx, userId)
+}
 
 func (s *PostService) UpdatePost(ctx context.Context, PostID *int, userID int, update *models.UpdatePost) error {
 	if PostID == nil || *PostID <= 0 {

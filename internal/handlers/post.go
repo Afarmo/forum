@@ -263,7 +263,7 @@ func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 	update.Title = &title
 	update.Content = &content
 
-	err = h.service.UpdatePost(r.Context(), &PostID, user.ID, &update)
+	err = h.postService.UpdatePost(r.Context(), &PostID, user.ID, &update)
 	if err != nil {
 		switch {
 		case errors.Is(err, apperrors.ErrNotFound):

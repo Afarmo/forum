@@ -34,12 +34,7 @@ func NewHomeHandler(categoryService *service.CategoryService,
 }
 
 type HomePageData struct {
-	Title       string
-	User        *models.User
-	Categories  []models.Category
-	Posts       []models.Post
-	SearchQuery string
-	Popular     []models.PopularPost
+
 	Title         string
 	User          *models.User
 	Categories    []models.Category
@@ -48,6 +43,8 @@ type HomePageData struct {
 	LoginError    string
 	RegisterError string
 	LoginSuccess  bool
+	Popular     []models.PopularPost
+
 }
 
 func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
