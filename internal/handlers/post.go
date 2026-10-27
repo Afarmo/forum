@@ -80,13 +80,11 @@ func (h *PostHandler) CreatePostPage(w http.ResponseWriter, r *http.Request) {
 	}
 	var userID int
 	user := middleware.UserFromContext(ctx)
-	viewerID := 0
-
 	if user != nil {
-		viewerID = user.ID
+		userID = user.ID
 	}
 
-	views := newCommentViews(comments, user != nil, viewerID)
+	views := newCommentViews(comments, user != nil, userID)
 
 	posts := []models.Post{*post}
 
@@ -103,7 +101,7 @@ func (h *PostHandler) CreatePostPage(w http.ResponseWriter, r *http.Request) {
 		User:         user,
 		Post:         post,
 		Comments:     views,
-		CommentCount: countComments(views),
+		CommentCount: post.CommentCount,
 	}
 
 	var buf bytes.Buffer
