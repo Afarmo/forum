@@ -56,7 +56,13 @@
 }
 
 .post-card-body {
+  position: relative;
   padding: 22px 24px 0;
+}
+
+.post-card-body .post-options {
+  top: 22px;
+  right: 24px;
 }
 
 .post-card .post-content {
@@ -168,7 +174,8 @@
   transition: color 160ms ease;
 }
 
-.post-card .reaction-button {
+.post-card .reaction-button,
+.post-detail .reaction-button {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -184,16 +191,47 @@
     background 160ms ease,
     border-color 160ms ease;
 }
-
-.post-card .like-button:hover:not(:disabled) {
-  color: var(--blue);
+.post-card .like-button:hover:not(:disabled),
+.post-detail .like-button:hover:not(:disabled) {
+  color: #6b79f3;
 }
 
-.post-card .dislike-button:hover:not(:disabled) {
-  color: var(--black);
+.post-card .like-button.liked,
+.post-detail .like-button.liked {
+  color: #6b79f3;
 }
 
-.post-card .reaction-button:disabled {
+.post-card .like-button:hover:not(:disabled) .reaction-icon,
+.post-card .like-button.liked .reaction-icon,
+.post-detail .like-button:hover:not(:disabled) .reaction-icon,
+.post-detail .like-button.liked .reaction-icon {
+  background-color: #6b79f3;
+}
+
+.post-card .dislike-button:hover:not(:disabled),
+.post-detail .dislike-button:hover:not(:disabled) {
+  color: #b8452a;
+}
+
+.post-card .dislike-button.disliked,
+.post-detail .dislike-button.disliked {
+  color: #b8452a;
+}
+
+.post-card .dislike-button:hover:not(:disabled) .reaction-icon,
+.post-card .dislike-button.disliked .reaction-icon,
+.post-detail .dislike-button:hover:not(:disabled) .reaction-icon,
+.post-detail .dislike-button.disliked .reaction-icon {
+  background-color: #b8452a;
+}
+
+.post-card .post-card-actions .reaction-button .reaction-count,
+.post-detail .post-card-actions .reaction-button .reaction-count {
+  color: #5c5b59;
+}
+
+.post-card .reaction-button:disabled,
+.post-detail .reaction-button:disabled {
   cursor: not-allowed;
   opacity: 0.75;
 }
@@ -202,7 +240,7 @@
   display: inline-block;
   width: 20px;
   height: 20px;
-  background-color: #9d7b54;
+  background-color: #dac989;
   -webkit-mask-position: center;
   mask-position: center;
   -webkit-mask-repeat: no-repeat;
@@ -219,6 +257,14 @@
 .dislike-button .reaction-icon {
   -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='white' d='M5.5%209%208.25%2013.5c.25.4.65.5%201%20.35.45-.18.7-.65.55-1.1L9%2010h3.2c.9%200%201.5-.8%201.3-1.65l-1.1-5A1.7%201.7%200%200%200%2010.75%202H5.5M2.5%202.5h3v7h-3z'/%3E%3C/svg%3E");
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='white' d='M5.5%209%208.25%2013.5c.25.4.65.5%201%20.35.45-.18.7-.65.55-1.1L9%2010h3.2c.9%200%201.5-.8%201.3-1.65l-1.1-5A1.7%201.7%200%200%200%2010.75%202H5.5M2.5%202.5h3v7h-3z'/%3E%3C/svg%3E");
+}
+
+.popular-like-button .reaction-icon {
+  background-color: var(--neu-blue-dark);
+}
+.popular-like-button .reaction-icon {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='white' d='M5.5%207%208.25%202.5c.25-.4.65-.5%201-.35.45.18.7.65.55%201.1L9%206h3.2c.9%200%201.5.8%201.3%201.65l-1.1%205A1.7%201.7%200%200%201%2010.75%2014H5.5M2.5%206.5h3v7h-3z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='white' d='M5.5%207%208.25%202.5c.25-.4.65-.5%201-.35.45.18.7.65.55%201.1L9%206h3.2c.9%200%201.5.8%201.3%201.65l-1.1%205A1.7%201.7%200%200%201%2010.75%2014H5.5M2.5%206.5h3v7h-3z'/%3E%3C/svg%3E");
 }
 
 .post-comments-link:hover {
@@ -254,7 +300,6 @@
 .post-card:target {
   animation: post-added 2s ease-out;
 }
-
 
 a.nav-button {
   text-decoration: none;

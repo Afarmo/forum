@@ -8,6 +8,14 @@ function closeModal(id) {
   if (modal) modal.hidden = true;
 }
 
+if (window.location.pathname === "/") {
+  document
+    .querySelectorAll(".post-card .post-options, .post-card .modal")
+    .forEach(function (controls) {
+      controls.hidden = true;
+    });
+}
+
 function showNotification(message, isError) {
   const notification = document.createElement("div");
   notification.className =
@@ -20,24 +28,24 @@ function showNotification(message, isError) {
 }
 
 if (document.body.dataset.authenticated !== "true") {
-  document.querySelectorAll(".post-card .reaction-button").forEach((button) => {
-    button.disabled = true;
-    button.title =
-      button.dataset.reaction === "1"
-        ? "Sign in to like this post"
-        : "Sign in to dislike this post";
-  });
+  document
+    .querySelectorAll(".reaction-button[data-post-id]")
+    .forEach((button) => {
+      button.disabled = true;
+      button.title =
+        button.dataset.reaction === "1"
+          ? "Sign in to like this post"
+          : "Sign in to dislike this post";
+    });
 }
 
 document.addEventListener("click", async function (event) {
-  const button = event.target.closest(
-    ".post-card .reaction-button[data-post-id]",
-  );
+  const button = event.target.closest(".reaction-button[data-post-id]");
   if (!button || button.disabled) return;
 
-  const postCard = button.closest(".post-card");
+  const post = button.closest(".post-card, .post-detail");
   const actions = button.closest(".post-card-actions");
-  const status = postCard.querySelector(".reaction-status");
+  const status = post.querySelector(".reaction-status");
   if (actions.dataset.reacting === "true") return;
 
   actions.dataset.reacting = "true";

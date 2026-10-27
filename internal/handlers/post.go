@@ -84,6 +84,7 @@ func (h *PostHandler) CreatePostPage(w http.ResponseWriter, r *http.Request) {
 
 	if user != nil {
 		viewerID = user.ID
+		userID = user.ID
 	}
 
 	views := newCommentViews(comments, user != nil, viewerID)
