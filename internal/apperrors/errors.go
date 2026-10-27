@@ -19,6 +19,8 @@ var (
 	ErrInvalidPassword    = errors.New("invalid password")
 	ErrInvalidCredentials = errors.New("invalid credentials")
 	ErrForbidden          = errors.New("forbidden")
+	ErrInvalidImage       = errors.New("invalid image format")
+	ErrImageTooLarge      = errors.New("image exceeds 5 MiB")
 )
 
 func Log(err error) {

@@ -26,7 +26,6 @@ func NewRouter(homeHandler *handlers.HomeHandler,
 
 	mux.HandleFunc("GET /posts", postHandler.GetAllPosts)
 	mux.HandleFunc("GET /posts/{id}", postHandler.CreatePostPage)
-	mux.HandleFunc("GET /posts/{id}/comments", commentHandler.GetCommentsByPost)
 	mux.HandleFunc("GET /search", postHandler.SearchPosts)
 
 	mux.HandleFunc("GET /users/{id}", userHandler.FindUserById)
