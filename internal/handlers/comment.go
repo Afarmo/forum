@@ -59,19 +59,20 @@ func buildCommentViews(comments []models.Comment, canReply bool, viewerID, depth
 			CollapseReplies: depth == visibleReplyDepth && len(replies) > 0,
 		}
 		if views[i].CollapseReplies {
-			views[i].HiddenCount = countComments(replies)
+			views[i].HiddenCount = countHiddenReplies(replies)
 		}
 	}
 	return views
 }
 
-func countComments(views []CommentView) int {
+func countHiddenReplies(views []CommentView) int {
 	n := len(views)
 	for _, v := range views {
-		n += countComments(v.Replies)
+		n += countHiddenReplies(v.Replies)
 	}
 	return n
 }
+
 func (h *CommentHandler) CreateComment(w http.ResponseWriter, r *http.Request) {
 	postID, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
@@ -135,6 +136,7 @@ func (h *CommentHandler) GetCommentsByPost(w http.ResponseWriter, r *http.Reques
 	}
 
 }
+
 func (h *CommentHandler) DeleteComment(w http.ResponseWriter, r *http.Request) {
 	commentID, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
