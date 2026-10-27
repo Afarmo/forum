@@ -83,6 +83,9 @@
             <time datetime="{{ .CreatedAt.Format "2006-01-02T15:04:05Z07:00" }}">{{ .CreatedAt.Format "Jan 2, 2006" }}</time>
           </div>
           <h2>{{ .Title }}</h2>
+          {{ if .PictureContent }}
+          <img class="post-image" src="{{ .ImageSrc }}" alt="" />
+          {{ end }}
           <p>{{ .Content }}</p>
         </article>
         {{ end }}
@@ -96,18 +99,21 @@
       <!-- <p class="profile-empty-state">Liked posts will appear here.</p> -->
        {{ if .LikedPosts }}
       <div class="profile-post-list">
-        {{ range .Posts }}
-        <article class="profile-post">
+        {{ range .LikedPosts }}
+        <article class="profile-">
           <div class="profile-post-meta">
             <time datetime="{{ .CreatedAt.Format "2006-01-02T15:04:05Z07:00" }}">{{ .CreatedAt.Format "Jan 2, 2006" }}</time>
           </div>
           <h2>{{ .Title }}</h2>
+          {{ if .PictureContent }}
+          <img class="post-image" src="{{ .ImageSrc }}" alt="" />
+          {{ end }}
           <p>{{ .Content }}</p>
         </article>
         {{ end }}
       </div>
       {{ else }}
-      <p class="profile-empty-state">You have not written any posts yet.</p>
+      <p class="profile-empty-state">You haven't liked any posts yet.</p>
       {{ end }}
     </section>
   </div>

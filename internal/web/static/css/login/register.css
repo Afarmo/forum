@@ -251,7 +251,7 @@
     border-radius: 999px;
 
     /* Blue pill raised off the eggshell modal: inset bevel plus egg-tinted outer shadows */
-    background: radial-gradient(ellipse at 35% 30%, #3a76ff 0%, var(--blue) 55%, var(--blue-deep) 100%);
+    background: radial-gradient(ellipse at 35% 30%, #6364c3 0%, var(--blue) 55%, var(--blue-deep) 100%);
 
     box-shadow:
         inset 2px 3px 6px rgba(255, 255, 255, 0.35),

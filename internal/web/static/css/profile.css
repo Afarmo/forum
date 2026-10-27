@@ -388,7 +388,7 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #3a76ff 0%, var(--blue) 55%, var(--blue-deep) 100%);
+  background: radial-gradient(circle at 35% 30%, #6364c3 0%, var(--blue) 55%, var(--blue-deep) 100%);
   box-shadow:
     1.5px 1.5px 3px rgba(2, 30, 100, 0.35),
     -1.5px -1.5px 3px var(--neu-egg-light);
@@ -466,6 +466,15 @@
   font-size: 28px;
   font-weight: 400;
   line-height: 1.1;
+}
+
+.profile-post .post-image {
+  display: block;
+  width: 100%;
+  max-height: 320px;
+  margin: 0 0 10px;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
 .profile-post p {

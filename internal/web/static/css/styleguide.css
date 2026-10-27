@@ -1,6 +1,6 @@
 :root {
-  --blue: #054ff0;
-  --blue-deep: #0339b8;
+  --blue: #898ad9;
+  --blue-deep: #7375e4;
   --egg: #f9f8f3;
   --black: #000000;
   --grape: #e1d2f3;
@@ -16,8 +16,8 @@
   /* Neumorphic shadows: a darker and a lighter tint of the surface underneath */
   --neu-egg-dark: #d8d5c8;
   --neu-egg-light: #ffffff;
-  --neu-blue-dark: #0336a3;
-  --neu-blue-light: #2d6cff;
+  --neu-blue-dark: #6364c3;
+  --neu-blue-light: #8a8bd7;
   --neu-egg: 8px 8px 16px var(--neu-egg-dark), -8px -8px 16px var(--neu-egg-light);
   --neu-egg-lg: 12px 12px 24px var(--neu-egg-dark), -12px -12px 24px var(--neu-egg-light);
   --neu-egg-strong:
