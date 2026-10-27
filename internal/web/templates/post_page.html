@@ -11,12 +11,16 @@
     />
     {{ template "stylesheets" }}
   </head>
-  <body class="post-page-body">
-    <div class="page-header">{{ template "header" . }}</div>
+  <body
+    class="post-page-body"
+    data-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
+  >
+    <div class="page-header">
+      {{ template "header" . }} {{ template "register-modal" . }}
+    </div>
 
     <main>{{ template "post-content" . }}</main>
-
-    {{ template "footer" . }}
+    {{ template "confirm-modal" . }} {{ template "footer" . }}
 
     <script src="/static/js/main.js"></script>
   </body>
