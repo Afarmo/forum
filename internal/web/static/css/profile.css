@@ -415,3 +415,8 @@
     font-size: 12px;
   }
 }
+.profile-edit-error {
+  margin: 0 0 12px;
+  color: #b3261e;
+  font-size: 12px;
+}
