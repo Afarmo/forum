@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"errors"
 	"html/template"
 	"net/http"
@@ -40,6 +41,9 @@ type CommentView struct {
 	// have replies; HiddenCount is how many replies sit under them in total.
 	CollapseReplies bool
 	HiddenCount     int
+	LikeCount       int
+	DislikeCount    int
+	UserReaction    int
 }
 
 func newCommentViews(comments []models.Comment, canReply bool, viewerID int) []CommentView {
@@ -71,6 +75,43 @@ func countHiddenReplies(views []CommentView) int {
 		n += countHiddenReplies(v.Replies)
 	}
 	return n
+}
+
+func populateCommentStats(
+	ctx context.Context,
+	views []CommentView,
+	reactions *service.ReactionService,
+	userID int,
+) error {
+	for i := range views {
+		comment := &views[i]
+
+		likes, dislikes, err := reactions.GetCommentReactionCount(ctx, comment.ID)
+		if err != nil {
+			return err
+		}
+
+		comment.LikeCount = likes
+		comment.DislikeCount = dislikes
+
+		if userID != 0 {
+			reaction, err := reactions.GetCommentReaction(ctx, comment.ID, userID)
+
+			if err != nil && !errors.Is(err, apperrors.ErrNotFound) {
+				return err
+			}
+
+			if err == nil {
+				comment.UserReaction = reaction.Reaction
+			}
+		}
+
+		if err := populateCommentStats(ctx, comment.Replies, reactions, userID); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (h *CommentHandler) CreateComment(w http.ResponseWriter, r *http.Request) {
