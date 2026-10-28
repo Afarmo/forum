@@ -18,9 +18,9 @@
     <!-- Upload/Update profile image -->
     <form
       method="POST"
-      action="/users/profile_picture"
-      enctype="multipart/form-data"
-      data-confirm="Are you sure you want to save this profile picture?"
+      action="/users/username"
+      data-confirm="Are you sure you want to save this profile changes?"
+      data-profile-form
     >
       <div class="profile-edit-avatar-field">
         <div id="avatar-preview" class="profile-avatar profile-avatar-small">
@@ -42,24 +42,9 @@
             accept="image/*"
           />
         </label>
-        <button
-          id="save-picture"
-          type="submit"
-          class="profile-picture-save-button"
-          hidden
-        >
-          Save
-        </button>
       </div>
-    </form>
 
     <!--  Update user name -->
-    <form
-      method="POST"
-      action="/users/{{ .User.ID}}"
-      enctype="multipart/form-data"
-      data-confirm="Are you sure you want to save these profile changes?"
-    >
       <div class="profile-edit-field">
         <label for="profile-username">USERNAME</label>
         <input
@@ -80,7 +65,7 @@
           disabled
         />
       </div>
-
+      <p id="profile-error" class="profile-edit-error" role="alert" hidden></p>
       <button type="submit" class="profile-save-button">Save changes</button>
     </form>
   </div>

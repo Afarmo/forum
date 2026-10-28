@@ -192,3 +192,25 @@ func (h *UserHandler) UploadProfilePicture(w http.ResponseWriter, r *http.Reques
 	// Redirect to the profile with a flag for the success notification.
 	http.Redirect(w, r, fmt.Sprintf("/users/%d?profile_picture_status=success", user.ID), http.StatusSeeOther)
 }
+
+func (h *UserHandler) UpdateUserName(w http.ResponseWriter, r *http.Request) {
+	user := middleware.UserFromContext(r.Context())
+	if user == nil {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	if err := h.userService.UpdateUserName(r.Context(), user.ID, r.FormValue("username")); err != nil {
+		switch {
+		case errors.Is(err, apperrors.ErrInvalidUsername):
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		case errors.Is(err, apperrors.ErrDuplicateKey):
+			http.Error(w, "username already taken", http.StatusConflict)
+		case errors.Is(err, apperrors.ErrNotFound):
+			http.Error(w, "user not found", http.StatusNotFound)
+		default:
+			apperrors.Log(err)
+			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
+		}
+	}
+	http.Redirect(w, r, fmt.Sprintf("/users/%d?profile_picture_status=success", user.ID), http.StatusSeeOther)
+}

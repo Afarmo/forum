@@ -80,12 +80,15 @@ func (s *AuthService) Login(ctx context.Context, email, password string) (*model
 func (s *AuthService) Logout(ctx context.Context, sessionID uuid.UUID) error {
 	return s.sessionRepo.DeleteSession(ctx, sessionID)
 }
-
-func validateRegistration(username, email, password string) error {
-	if username == "" ||
-		len(username) < minUsernameLength ||
-		len(username) > maxUsernameLength {
+func validateUserName(username string) error {
+	if len(username) < minUsernameLength || len(username) > maxUsernameLength {
 		return apperrors.ErrInvalidUsername
+	}
+	return nil
+}
+func validateRegistration(username, email, password string) error {
+	if err := validateUserName(username); err != nil {
+		return err
 	}
 
 	_, err := mail.ParseAddress(email)

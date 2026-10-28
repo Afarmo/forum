@@ -274,9 +274,8 @@ document.querySelectorAll(".category-picker").forEach((picker) => {
 document.addEventListener("DOMContentLoaded", function () {
   const input = document.getElementById("profile-picture-input");
   const preview = document.getElementById("avatar-preview");
-  const saveButton = document.getElementById("save-picture");
 
-  if (!input || !preview || !saveButton) return;
+  if (!input || !preview ) return;
 
   const uploadForm = input.form;
   uploadForm.addEventListener("submit", function (event) {
@@ -290,7 +289,39 @@ document.addEventListener("DOMContentLoaded", function () {
       true,
     );
   });
+  uploadForm.addEventListener("submit", async function (event) {
+    if (uploadForm.dataset.confirmed !== "true") return;
+    event.preventDefault();
 
+    const username = uploadForm.elements.username.value.trim();
+    const file = input.files && input.files[0];
+
+    let response = await fetch("/users/username", {
+      method: "POST",
+      body: new URLSearchParams({ username }),
+    });
+    if (!response.ok) {
+      showNotification(
+        response.status === 409
+          ? "That username is already taken."
+          : "Username must be between 3 and 20 characters.",
+        true,
+      );
+      return;
+    }
+
+    if (file) {
+      const body = new FormData();
+      body.append("profile_picture", file);
+      response = await fetch("/users/profile_picture", { method: "POST", body });
+      if (!response.ok) {
+        showNotification("Failed to update profile picture.", true);
+        return;
+      }
+    }
+
+    location.reload();
+  });
   let previewUrl;
 
   input.addEventListener("change", function () {
@@ -298,7 +329,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (!file) {
       preview.replaceChildren();
-      saveButton.hidden = true;
       return;
     }
 
@@ -311,9 +341,9 @@ document.addEventListener("DOMContentLoaded", function () {
     image.alt = "Selected profile picture";
 
     preview.replaceChildren(image);
-    saveButton.hidden = false;
   });
 });
+
 // Comment delete: send the request in the background and remove the
 // comment (and its replies) from the page instead of reloading.
 document.addEventListener("submit", function (event) {

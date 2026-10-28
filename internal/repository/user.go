@@ -113,3 +113,31 @@ func (r *UserRepository) UpdateProfilePicture(ctx context.Context, userID int, p
 	_, err := r.db.ExecContext(ctx, query, picturePath, userID)
 	return err
 }
+func (r *UserRepository) UpdateUserName(ctx context.Context, userID int, username string) error {
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return nil
+	}
+	defer tx.Rollback()
+
+	query := `UPDATE users SET username = ? WHERE id = ?`
+	res, err := r.db.ExecContext(ctx, query, username, userID)
+	if err != nil {
+		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
+			return apperrors.ErrDuplicateKey
+		}
+		return err
+	}
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return apperrors.ErrNotFound
+	}
+	_, err = tx.ExecContext(ctx, `UPDATE POSTS_SEARCH SET username = ? WHERE rowid IN (SELECT id FROM posts WHERE user_id = ?)`, username, userID)
+	if err != nil {
+		return err
+	}
+	return tx.Commit()
+}

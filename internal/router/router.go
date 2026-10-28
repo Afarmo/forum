@@ -46,6 +46,7 @@ func NewRouter(homeHandler *handlers.HomeHandler,
 	protected("POST /posts/{id}/reaction", reactionHandler.ReactToPost)
 	protected("POST /posts/{postID}/comments/{commentID}/reaction", reactionHandler.ReactToComment)
 	protected("POST /users/profile_picture", userHandler.UploadProfilePicture)
+	protected("POST /users/username", userHandler.UpdateUserName)
 
 	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("internal/web/static"))))
 
