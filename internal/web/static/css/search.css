@@ -1,17 +1,19 @@
+/* Eggshell pill sitting in the blue header, so its shadows are blue tints */
 .search-box {
   display: flex;
   align-items: center;
   width: 100%;
-  max-width: 680px;
-  height: 32px;
+  max-width: none;
+  height: 60px;
 
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background-color: #e8eee9;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  background: radial-gradient(ellipse at center, #fdfcf9 0%, var(--egg) 68%, #e4e2d8 100%);
 
-  padding: 0 12px;
-  margin: 12px;
+  padding: 0 28px;
+  margin: 0;
   box-sizing: border-box;
+  box-shadow: var(--neu-blue-strong);
 }
 
 .search-box form {
@@ -21,27 +23,14 @@
   min-width: 0;
 }
 
-/* Search icon */
+/* Search icon: magnifying glass in front of the input */
 .search-icon {
-  position: relative;
-  width: 12px;
-  height: 12px;
-  border: 2px solid #315b4a;
-  border-radius: 50%;
-  margin-right: 10px;
   flex-shrink: 0;
-}
-
-/* Handle of the magnifying glass */
-.search-icon::after {
-  content: "";
-  position: absolute;
-  width: 7px;
-  height: 2px;
-  background-color: #315b4a;
-  right: -5px;
-  bottom: -3px;
-  transform: rotate(45deg);
+  width: 22px;
+  height: 22px;
+  margin-right: 12px;
+  background: center / contain no-repeat
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23054ff0' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-4-4'/%3E%3C/svg%3E");
 }
 
 .search-input {
@@ -49,8 +38,10 @@
   border: none;
   outline: none;
 
-  font-size: 12px;
-  color: #315b4a;
+  font-family: var(--font-body);
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--black);
   background: transparent;
   width: 0;
   min-width: 0;
@@ -61,7 +52,8 @@
 }
 
 .search-input::placeholder {
-  color: #315b4a;
+  color: var(--blue);
+  opacity: 0.55;
 }
 
 .search-clear {
@@ -72,36 +64,33 @@
   width: 16px;
   height: 16px;
   margin-left: 8px;
+  padding: 0;
+  border: none;
+  cursor: pointer;
   background: center / contain no-repeat
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23315b4a' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 6 12 12M18 6 6 18'/%3E%3C/svg%3E");
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23054ff0' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 6 12 12M18 6 6 18'/%3E%3C/svg%3E");
+}
+
+/* Only show the clear button once there's text in the box */
+.search-input:placeholder-shown + .search-clear {
+  display: none;
 }
 
 /* Small screens */
 @media (max-width: 768px) {
   .search-box {
-    justify-content: center;
     width: 100%;
-    max-width: 240px;
-    height: 28px;
-    padding: 0 4px;
-    margin: 4px auto;
+    height: 44px;
+    padding: 0 16px;
   }
 
   .search-icon {
-    width: 9px;
-    height: 9px;
-    border-width: 1.5px;
-    margin-right: 7px;
-  }
-
-  .search-icon::after {
-    width: 5px;
-    height: 1.5px;
-    right: -4px;
-    bottom: -2px;
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
   }
 
   .search-input {
-    font-size: 11px;
+    font-size: 16px;
   }
 }

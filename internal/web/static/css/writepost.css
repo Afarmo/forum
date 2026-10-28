@@ -4,10 +4,10 @@
     gap: 8px;
 
     border: none;
-    border-radius: 4px;
+    border-radius: 999px;
 
-    background: #c52b1f;
-    color: white;
+    background: var(--blue);
+    color: var(--egg);
 
     padding: 12px 22px;
 
@@ -18,7 +18,7 @@
 }
 
 .new-post-button:hover {
-    background: #a92319;
+    background: var(--blue-deep);
 }
 
 /* Kept in the layout (not display:none) so the native validation bubble
@@ -47,7 +47,7 @@
     display: inline-flex;
     align-items: center;
     text-decoration: none;
-    color: #222;
+    color: var(--black);
 }
 
 /* Image source tabs: radio buttons styled as tabs; the checked one decides
@@ -61,20 +61,21 @@
 .source-tab {
     display: inline-flex;
     align-items: center;
-    padding: 8px 14px;
-    border: 1px solid #aaa;
-    border-radius: 4px;
+    padding: 8px 16px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
     cursor: pointer;
     font-size: 14px;
 }
 
 .source-radio:checked + .source-tab {
-    border-color: #a22b24;
-    color: #a22b24;
+    border-color: var(--blue);
+    background: var(--grape);
+    color: var(--blue);
 }
 
 .source-radio:focus-visible + .source-tab {
-    outline: 2px solid #a22b24;
+    outline: 2px solid var(--blue);
     outline-offset: 2px;
 }
 

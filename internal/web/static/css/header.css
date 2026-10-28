@@ -1,8 +1,7 @@
 .header {
   width: 100%;
   box-sizing: border-box;
-  background: #f7f5f0;
-  /* border-bottom:1px solid rgba(255,255,255,.08); */
+  background: var(--blue);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
@@ -10,33 +9,37 @@
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "brand nav"
+    "search search";
   align-items: center;
-  padding: 8px 24px;
-  gap: 24px;
+  padding: 12px 4.5%;
+  gap: 12px 24px;
   box-sizing: border-box;
 }
 .header a {
-  color: #dde4ef;
+  color: var(--egg);
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
 .logo {
+  grid-area: brand;
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: #315b4a !important;
+  gap: 10px;
+  color: var(--egg) !important;
 }
 
 .logo-icon {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   flex-shrink: 0;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.8;
+  stroke-width: 1.6;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -46,7 +49,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  line-height: 1.4;
+  line-height: 1;
 }
 .logo-text div {
   margin: 0;
@@ -57,69 +60,140 @@
   font-weight: 600;
 }
 .logo-title {
-  color: #315b4a;
-  font-size: 16px;
+  color: var(--egg);
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
   padding: 2px 6px;
-  font-weight: 600;
+  white-space: nowrap;
 }
 
 .header-search {
-  flex: 1 1 auto;
-  max-width: 680px;
-  margin: 0 16px;
+  grid-area: search;
+  width: 100%;
+  max-width: 640px;
+  box-sizing: border-box;
+  justify-self: center;
+  margin: 0;
   min-width: 0;
 }
 
 .nav-links {
+  grid-area: nav;
   font-weight: 600;
   font-size: 24px;
   display: flex;
+  flex-wrap: nowrap;
   gap: 1.5rem;
+  white-space: nowrap;
 }
 
 .nav-links a:hover {
-  color: #d8e0dc;
+  color: var(--hivis);
 }
 
+/* Hi-Vis pill: the site's main call to action. These shadows suit the
+   eggshell page; the header version below swaps them for blue ones. */
 .nav-button {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-
+  justify-content: center;
+  min-width: 176px;
+  min-height: 64px;
   border: none;
-  border-radius: 4px;
-
-  background: #315b4a;
-  color: #e8eee9;
-  padding: 8px 12px;
-
-  font-size: 16px;
+  border-radius: 999px;
+  background: radial-gradient(ellipse at center, #e6fd96 45%, var(--hivis) 72%, #bedb5a 100%);
+  color: var(--black);
+  padding: 12px 26px;
+  box-shadow:
+    inset 1px 2px 5px rgba(255, 255, 255, 0.55),
+    inset -2px -4px 8px rgba(78, 96, 10, 0.2),
+    6px 7px 14px var(--neu-egg-dark),
+    -5px -5px 12px var(--neu-egg-light);
+  font-family: var(--font-body);
+  font-size: 21px;
   font-weight: 600;
+  line-height: 1;
+  text-transform: lowercase;
 
   cursor: pointer;
+  transition: filter 160ms ease, transform 160ms ease, box-shadow 160ms ease;
 }
 
 .nav-button:hover {
-  opacity: 0.9;
+  filter: brightness(1.04);
+  transform: translateY(-1px);
+}
+
+.nav-button:active {
+  transform: translateY(1px);
+  box-shadow:
+    inset 2px 3px 7px rgba(78, 96, 10, 0.26),
+    2px 3px 7px var(--neu-egg-dark);
+}
+
+.nav-button:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 3px;
+}
+
+/* Sign In: same pill as the Write Review button (home.css) */
+.header .nav-button {
+  min-width: 0;
+  min-height: 52px;
+  padding: 10px 20px;
+  box-shadow:
+    inset 1px 2px 5px rgba(255, 255, 255, 0.55),
+    inset -2px -4px 8px rgba(78, 96, 10, 0.2),
+    6px 7px 14px var(--neu-blue-dark),
+    -5px -5px 12px var(--neu-blue-light);
+}
+
+.header .nav-button:active {
+  box-shadow:
+    inset 2px 3px 7px rgba(78, 96, 10, 0.26),
+    2px 3px 7px var(--neu-blue-dark);
+}
+
+.header .nav-button:focus-visible {
+  outline-color: var(--egg);
+}
+
+/* Wide desktop: logo, search and profile share one row */
+@media (min-width: 1400px) {
+  .header-content {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: "brand search nav";
+  }
+
+  /* Extra breathing room between the search bar and the logo / profile */
+  .header-search {
+    padding: 0 48px;
+  }
 }
 
 /* Responsive Design for Mobile Screens */
 @media (max-width: 600px) {
   .header {
-    /* flex-direction: column; */
     padding: 6px;
 
     gap: 1rem;
     text-align: center;
   }
   .header-content {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "brand"
+      "nav"
+      "search";
     padding: 4px 8px;
     gap: 8px;
   }
 
   .header-search {
     max-width: none;
-    margin: 0 4px;
+    margin: 0;
   }
 
   .logo {
@@ -127,18 +201,18 @@
   }
 
   .logo-icon {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     padding: 0 6px;
   }
 
-  .logo-text {
-    display: none;
+  .logo {
+    gap: 4px;
   }
+
   .logo-title {
-    font-size: 11px;
+    font-size: 20px;
     padding: 1px 2px;
-    white-space: nowrap;
   }
 
   .logo i {
@@ -154,10 +228,17 @@
   }
 
   .nav-button {
-    padding: 4px 7px;
-    font-size: 10px;
-    border-radius: 3px;
+    min-width: 104px;
+    min-height: 42px;
+    padding: 9px 14px;
+    font-size: 15px;
     white-space: nowrap;
+  }
+
+  .header .nav-button {
+    min-width: 0;
+    min-height: 38px;
+    padding: 8px 12px;
   }
 
   .search {

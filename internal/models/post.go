@@ -66,6 +66,13 @@ func (p Post) TimeAgo() string {
 	return p.CreatedAt.Format("Jan 2")
 }
 
+type PopularPost struct {
+	PostID     int
+	Title      string
+	AuthorName string
+	Likes      int
+}
+
 type UpdatePost struct {
 	Title          *string `json:"title"`
 	Content        *string `json:"content"`

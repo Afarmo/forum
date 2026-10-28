@@ -1,23 +1,53 @@
 {{ define "home-content" }}
 
 <div>
+  {{ if .Popular }}
+  <section class="card popular-week" aria-labelledby="popular-week-title">
+    <h2 class="popular-week-title" id="popular-week-title">
+      Most popular this week
+    </h2>
+    <ol class="popular-week-list">
+      {{ range .Popular }}
+      <li>
+        <a class="popular-week-item" href="/posts/{{ .PostID }}">
+          <span class="popular-week-text">
+            <span class="popular-week-post-title">{{ .Title }}</span>
+            <span class="popular-week-author"
+              >{{ if .AuthorName }}{{ .AuthorName }}{{ else }}Unknown{{ end
+              }}</span
+            >
+          </span>
+          <span
+            class="post-card-action reaction-button popular-like-button"
+            aria-label="{{ .Likes }} likes"
+          >
+            <span class="reaction-icon" aria-hidden="true"></span>
+            {{ .Likes }}
+          </span>
+        </a>
+      </li>
+      {{ end }}
+    </ol>
+  </section>
+  {{ end }}
+
   <div class="discussion-header">
     <div>
-      <h3>All Discussions</h3>
-      <p>Explore the latest thoughts from the Literary Lions community.</p>
+      <h3>
+        Explore the latest book reviews from the Literary Lions community.
+      </h3>
+      <p>All Discussions</p>
     </div>
 
     <div>
       {{if .User}}
-      <a class="nav-button" href="#writePost-modal">Write Post</a>
+      <a class="nav-button" href="#writePost-modal">Write Review</a>
       {{end}}
     </div>
   </div>
 
   <div id="post-feed">
-    {{ range .Posts }}
-    {{ template "post-card" . }}
-    {{ end }}
+    {{ range .Posts }} {{ template "post-card" . }} {{ end }}
   </div>
   <p id="post-feed-empty" role="status" {{ if .Posts }}hidden{{ end }}>
     No Post Found.

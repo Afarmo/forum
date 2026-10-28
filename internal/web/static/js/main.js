@@ -8,6 +8,14 @@ function closeModal(id) {
   if (modal) modal.hidden = true;
 }
 
+if (window.location.pathname === "/") {
+  document
+    .querySelectorAll(".post-card .post-options, .post-card .modal")
+    .forEach(function (controls) {
+      controls.hidden = true;
+    });
+}
+
 function showNotification(message, isError) {
   const notification = document.createElement("div");
   notification.className =
@@ -20,24 +28,24 @@ function showNotification(message, isError) {
 }
 
 if (document.body.dataset.authenticated !== "true") {
-  document.querySelectorAll(".post-card .reaction-button").forEach((button) => {
-    button.disabled = true;
-    button.title =
-      button.dataset.reaction === "1"
-        ? "Sign in to like this post"
-        : "Sign in to dislike this post";
-  });
+  document
+    .querySelectorAll(".reaction-button[data-post-id]")
+    .forEach((button) => {
+      button.disabled = true;
+      button.title =
+        button.dataset.reaction === "1"
+          ? "Sign in to like this post"
+          : "Sign in to dislike this post";
+    });
 }
 
 document.addEventListener("click", async function (event) {
-  const button = event.target.closest(
-    ".post-card .reaction-button[data-post-id]",
-  );
+  const button = event.target.closest(".reaction-button[data-post-id]");
   if (!button || button.disabled) return;
 
-  const postCard = button.closest(".post-card");
+  const post = button.closest(".post-card, .post-detail");
   const actions = button.closest(".post-card-actions");
-  const status = postCard.querySelector(".reaction-status");
+  const status = post.querySelector(".reaction-status");
   if (actions.dataset.reacting === "true") return;
 
   actions.dataset.reacting = "true";
@@ -181,6 +189,68 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
+// Post options menus (<details class="post-options">): only one open at a
+// time, closed by clicking outside or pressing Escape.
+document.addEventListener("click", function (event) {
+  document.querySelectorAll(".post-options[open]").forEach(function (menu) {
+    if (!menu.contains(event.target)) menu.open = false;
+  });
+});
+
+document.addEventListener("keydown", function (event) {
+  if (event.key !== "Escape") return;
+  document.querySelectorAll(".post-options[open]").forEach(function (menu) {
+    menu.open = false;
+  });
+});
+
+// Search clear button: if a search is active, go back to the full feed;
+// otherwise just empty the box without reloading.
+document.addEventListener("click", function (event) {
+  const button = event.target.closest(".search-clear");
+  if (!button) return;
+
+  if (button.hasAttribute("data-active-search")) {
+    window.location.href = "/";
+    return;
+  }
+
+  const input = button.form.querySelector(".search-input");
+  input.value = "";
+  input.focus();
+});
+
+// After posting a reply the page reloads at #comment-N. If that comment is
+// inside a collapsed "View N replies" dropdown, open it (and any
+// dropdowns around it) so the browser can scroll to it.
+document.addEventListener("DOMContentLoaded", function () {
+  if (!location.hash) return;
+  const target = document.getElementById(location.hash.slice(1));
+  if (!target) return;
+
+  let details = target.closest("details.more-replies");
+  if (!details) return;
+  while (details) {
+    details.open = true;
+    details = details.parentElement.closest("details.more-replies");
+  }
+  target.scrollIntoView();
+});
+
+// Comment and reply boxes: Enter sends, Shift+Enter adds a new line.
+// Skipped mid-composition so IME users can confirm characters with Enter.
+document.addEventListener("keydown", function (event) {
+  if (event.key !== "Enter" || event.shiftKey || event.isComposing) return;
+
+  const textarea = event.target.closest(
+    ".comment-form textarea, .reply-form textarea",
+  );
+  if (!textarea) return;
+
+  event.preventDefault();
+  textarea.form.requestSubmit();
+});
+
 // Category picker: checkboxes can't use `required` (that would mean "check
 // ALL of them"), so "pick at least one" is enforced manually via
 // setCustomValidity on the first checkbox in the group. That plugs into the
@@ -274,3 +344,20 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
+// Comment delete: send the request in the background and remove the
+// comment (and its replies) from the page instead of reloading.
+document.addEventListener("submit", function (event) {
+  const form = event.target.closest(".comment-delete-form");
+  if (!form) return;
+
+  event.preventDefault();
+
+  fetch(form.action, { method: "POST" })
+    .then(function (response) {
+      if (!response.ok) throw new Error(response.status);
+      form.closest(".comment-thread").remove();
+    })
+    .catch(function () {
+      alert("Couldn't delete the comment. Please try again.");
+    });
+});

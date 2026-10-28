@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"html/template"
-	"io"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -17,6 +18,7 @@ import (
 	"github.com/Afarmo/forum/internal/middleware"
 	"github.com/Afarmo/forum/internal/models"
 	"github.com/Afarmo/forum/internal/service"
+	"github.com/Afarmo/forum/internal/upload"
 )
 
 type PostHandler struct {
@@ -51,7 +53,7 @@ type PostPageData struct {
 
 func (h *PostHandler) CreatePostPage(w http.ResponseWriter, r *http.Request) {
 
-	num, err := strconv.Atoi(r.PathValue("id"))
+	postID, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		http.Error(w, "invalid post id", http.StatusBadRequest)
 		return
@@ -59,7 +61,7 @@ func (h *PostHandler) CreatePostPage(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	post, err := h.postService.GetPostById(ctx, num)
+	post, err := h.postService.GetPostById(ctx, postID)
 	if err != nil {
 		if errors.Is(err, apperrors.ErrNotFound) {
 			apperrors.RenderError(w, h.tmpl, http.StatusNotFound)
@@ -71,7 +73,7 @@ func (h *PostHandler) CreatePostPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	comments, err := h.commentService.GetCommentThreads(ctx, num)
+	comments, err := h.commentService.GetCommentThreads(ctx, postID)
 	if err != nil {
 		log.Println("get comments error:", err)
 		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
@@ -83,7 +85,7 @@ func (h *PostHandler) CreatePostPage(w http.ResponseWriter, r *http.Request) {
 		userID = user.ID
 	}
 
-	views := newCommentViews(comments, user != nil)
+	views := newCommentViews(comments, user != nil, userID)
 
 	posts := []models.Post{*post}
 
@@ -100,7 +102,7 @@ func (h *PostHandler) CreatePostPage(w http.ResponseWriter, r *http.Request) {
 		User:         user,
 		Post:         post,
 		Comments:     views,
-		CommentCount: countComments(views),
+		CommentCount: post.CommentCount,
 	}
 
 	var buf bytes.Buffer
@@ -117,6 +119,16 @@ func (h *PostHandler) CreatePostPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
+	r.Body = http.MaxBytesReader(w, r.Body, upload.MaxRequestSize)
+	if err := r.ParseMultipartForm(10 << 20); err != nil {
+		if _, ok := errors.AsType[*http.MaxBytesError](err); ok {
+			http.Error(w, "request exceeds upload limit", http.StatusRequestEntityTooLarge)
+		} else {
+			http.Error(w, "invalid form data", http.StatusBadRequest)
+		}
+		return
+	}
+
 	title := r.FormValue("title")
 	if title == "" {
 		http.Error(w, "title is required", http.StatusBadRequest)
@@ -129,13 +141,13 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	category_id := r.FormValue("category_id")
-	if category_id == "" {
+	categoryIDStr := r.FormValue("category_id")
+	if categoryIDStr == "" {
 		http.Error(w, "category is required", http.StatusBadRequest)
 		return
 	}
 
-	categoryID, err := strconv.Atoi(category_id)
+	categoryID, err := strconv.Atoi(categoryIDStr)
 	if err != nil {
 		http.Error(w, "invalid category", http.StatusBadRequest)
 		return
@@ -143,58 +155,72 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 
 	var post models.Post
 	user := middleware.UserFromContext(r.Context())
-	if user == nil {
-		http.Error(w, "authentication required", http.StatusUnauthorized)
-		return
-	}
 
 	post.Title = title
 	post.Content = content
 	post.UserID = user.ID
 
+	postDir := filepath.Join("internal", "web", "static", "img", "post")
+
 	file, header, err := r.FormFile("picture")
 	if err == nil {
 		defer file.Close()
 
-		err = os.MkdirAll("internal/web/static/img/post", 0755)
+		// Validate and save the uploaded image with a unique filename.
+		filename, err := upload.SaveImage(file, header.Size, postDir)
 		if err != nil {
-			apperrors.Log(err)
-			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
-			return
-		}
-		destination, err := os.Create("internal/web/static/img/post/" + header.Filename)
-		if err != nil {
-			apperrors.Log(err)
-			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
-			return
-		}
-		defer destination.Close()
-
-		if _, err := io.Copy(destination, file); err != nil {
-			apperrors.Log(err)
-			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
+			switch {
+			case errors.Is(err, apperrors.ErrImageTooLarge):
+				http.Error(w, "post image exceeds upload limit (5MiB)", http.StatusRequestEntityTooLarge)
+			case errors.Is(err, apperrors.ErrInvalidImage):
+				http.Error(w, "unsupported image format", http.StatusBadRequest)
+			default:
+				apperrors.Log(err)
+				apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
+			}
 			return
 		}
 
-		post.PictureContent = header.Filename
-	} else if imageURL := strings.TrimSpace(r.FormValue("image_url")); imageURL != "" {
-		u, err := url.Parse(imageURL)
-		if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" {
-			http.Error(w, "image URL must be a full http:// or https:// link", http.StatusBadRequest)
-			return
+		post.PictureContent = filename
+
+	} else if errors.Is(err, http.ErrMissingFile) {
+		// Allow an external image URL when no file was uploaded.
+		if imageURL := strings.TrimSpace(r.FormValue("image_url")); imageURL != "" {
+			u, err := url.Parse(imageURL)
+			if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" {
+				http.Error(w, "image URL must be a full http:// or https:// link", http.StatusBadRequest)
+				return
+			}
+
+			post.PictureContent = imageURL
 		}
-		post.PictureContent = imageURL
+	} else {
+		if _, ok := errors.AsType[*http.MaxBytesError](err); ok {
+			http.Error(w, "request exceeds upload limit", http.StatusRequestEntityTooLarge)
+		} else {
+			http.Error(w, "failed to read uploaded image", http.StatusBadRequest)
+		}
+		return
 	}
 
-	err = h.postService.CreatePost(r.Context(), &post, categoryID)
-	if err != nil {
+	if err := h.postService.CreatePost(r.Context(), &post, categoryID); err != nil {
+		// Remove the uploaded image if the post couldn't be created.
+		if file != nil {
+			if removeErr := os.Remove(filepath.Join(postDir, post.PictureContent)); removeErr != nil {
+				apperrors.Log(removeErr)
+			}
+		}
+
 		if errors.Is(err, apperrors.ErrInvalidInput) {
 			http.Error(w, "invalid post data", http.StatusBadRequest)
 			return
 		}
+
 		apperrors.Log(err)
 		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
+		return
 	}
+
 	// Back to the feed, scrolled to the new post's card (#post-N).
 	http.Redirect(w, r, "/#post-"+strconv.Itoa(post.PostID), http.StatusSeeOther)
 }
@@ -223,15 +249,13 @@ func (h *PostHandler) GetAllPosts(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *PostHandler) GetPostByUser(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	id := r.PathValue("id")
-	userID, err := strconv.Atoi(id)
+	userID, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		http.Error(w, "invalid user id", http.StatusBadRequest)
 		return
 	}
 
-	posts, err := h.postService.GetPostByUser(ctx, userID)
+	posts, err := h.postService.GetPostByUser(r.Context(), userID)
 	if err != nil {
 		apperrors.Log(err)
 		http.Error(w, "failed to get the user posts", http.StatusInternalServerError)
@@ -248,7 +272,8 @@ func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid Post ID", http.StatusBadRequest)
 		return
 	}
-
+	title := r.FormValue("title")
+	content := r.FormValue("content")
 	user := middleware.UserFromContext(r.Context())
 	if user == nil {
 		http.Error(w, "authentication required", http.StatusUnauthorized)
@@ -256,11 +281,9 @@ func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 	}
 	var update models.UpdatePost
 
-	err = json.NewDecoder(r.Body).Decode(&update)
-	if err != nil {
-		http.Error(w, "invalid json", http.StatusBadRequest)
-		return
-	}
+	update.Title = &title
+	update.Content = &content
+
 	err = h.postService.UpdatePost(r.Context(), &PostID, user.ID, &update)
 	if err != nil {
 		switch {
@@ -276,9 +299,7 @@ func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("post updated successfully"))
+	http.Redirect(w, r, fmt.Sprintf("/users/%d", user.ID), http.StatusSeeOther)
 }
 
 func (h *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
@@ -308,7 +329,7 @@ func (h *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	http.Redirect(w, r, "/posts/"+strconv.Itoa(postID), http.StatusSeeOther)
+	http.Redirect(w, r, "/users/"+strconv.Itoa(user.ID), http.StatusSeeOther)
 }
 
 func (h *PostHandler) SearchPosts(w http.ResponseWriter, r *http.Request) {

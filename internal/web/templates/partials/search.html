@@ -1,20 +1,24 @@
 {{ define "search"}}
 
 <div class="search-box">
-  <span class="search-icon"></span>
+  <span class="search-icon" aria-hidden="true"></span>
   <form method="GET" action="/" role="search">
     <input
       type="search"
       name="query"
       class="search-input"
-      placeholder="Search..."
+      placeholder="search..."
       aria-label="Search posts"
       value="{{ .SearchQuery }}"
     />
+    <button
+      type="button"
+      class="search-clear"
+      aria-label="Clear search"
+      title="Clear search"
+      {{ if .SearchQuery }}data-active-search{{ end }}
+    ></button>
   </form>
-  {{ if .SearchQuery }}
-  <a class="search-clear" href="/" aria-label="Clear search" title="Clear search"></a>
-  {{ end }}
 </div>
 
 {{ end}}

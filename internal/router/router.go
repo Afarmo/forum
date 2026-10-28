@@ -26,7 +26,6 @@ func NewRouter(homeHandler *handlers.HomeHandler,
 
 	mux.HandleFunc("GET /posts", postHandler.GetAllPosts)
 	mux.HandleFunc("GET /posts/{id}", postHandler.CreatePostPage)
-	mux.HandleFunc("GET /posts/{id}/comments", commentHandler.GetCommentsByPost)
 	mux.HandleFunc("GET /search", postHandler.SearchPosts)
 
 	mux.HandleFunc("GET /users/{id}", userHandler.FindUserById)
@@ -39,7 +38,7 @@ func NewRouter(homeHandler *handlers.HomeHandler,
 		mux.Handle(pattern, authMiddleware.RequireAuth(handler))
 	}
 
-	protected("PATCH /posts/{id}", postHandler.UpdatePost)
+	protected("POST /posts/{id}/update", postHandler.UpdatePost)
 	protected("POST /posts/{id}/delete", postHandler.DeletePost)
 	protected("POST /writePosts", postHandler.CreatePost)
 	protected("POST /posts/{id}/comments", commentHandler.CreateComment)

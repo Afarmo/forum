@@ -5,18 +5,17 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-	"io"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
-	"uuid"
 
 	"github.com/Afarmo/forum/internal/apperrors"
 	"github.com/Afarmo/forum/internal/middleware"
 	"github.com/Afarmo/forum/internal/models"
 	"github.com/Afarmo/forum/internal/service"
+	"github.com/Afarmo/forum/internal/upload"
 )
 
 type UserHandler struct {
@@ -137,16 +136,12 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// UploadProfilePicture validates and saves a user's profile picture,
+// updates its URL in the database, and redirects to their profile.
 func (h *UserHandler) UploadProfilePicture(w http.ResponseWriter, r *http.Request) {
-	const maxFileSize = 5 << 20
-	const maxRequestSize = maxFileSize + 1<<20
-	user := middleware.UserFromContext(r.Context())
-	if user == nil {
-		http.Error(w, "authentication required", http.StatusUnauthorized)
-		return
-	}
+	// Limit the entire HTTP request before reading the uploaded file.
+	r.Body = http.MaxBytesReader(w, r.Body, upload.MaxRequestSize)
 
-	r.Body = http.MaxBytesReader(w, r.Body, maxRequestSize)
 	file, header, err := r.FormFile("profile_picture")
 	if err != nil {
 		if _, ok := errors.AsType[*http.MaxBytesError](err); ok {
@@ -159,92 +154,42 @@ func (h *UserHandler) UploadProfilePicture(w http.ResponseWriter, r *http.Reques
 	}
 	defer file.Close()
 
-	if header.Size > maxFileSize {
-		http.Error(w, "profile picture exceeds upload limit (5MiB)", http.StatusRequestEntityTooLarge)
-		return
-	}
-
-	// Check the file contents instead of trusting its extension
-	buf := make([]byte, 512)
-	n, err := file.Read(buf)
-	if err != nil && err != io.EOF {
-		http.Error(w, "failed to read provided file", http.StatusBadRequest)
-		return
-	}
-
-	// Identify the MIME type (<type>/<subtype>)
-	contentType := http.DetectContentType(buf[:n])
-
-	var ext string
-	switch contentType {
-	case "image/jpeg":
-		ext = ".jpeg"
-	case "image/png":
-		ext = ".png"
-	case "image/webp":
-		ext = ".webp"
-	default:
-		http.Error(w, "unsupported image format", http.StatusBadRequest)
-		return
-	}
-
-	if _, err := file.Seek(0, io.SeekStart); err != nil {
-		apperrors.Log(err)
-		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
-		return
-	}
-
 	profileDir := filepath.Join("internal", "web", "static", "img", "profile")
-	if err := os.MkdirAll(profileDir, 0755); err != nil {
-		apperrors.Log(err)
-		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
-		return
-	}
 
-	filename := uuid.New().String() + ext
-	picturePath := filepath.Join(profileDir, filename)
-
-	destination, err := os.Create(picturePath)
+	// Validate the image and save it with a unique filename.
+	filename, err := upload.SaveImage(file, header.Size, profileDir)
 	if err != nil {
-		apperrors.Log(err)
-		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
-		return
-	}
-
-	var saved bool
-
-	defer func() {
-		if !saved {
-			if err := os.Remove(picturePath); err != nil {
-				apperrors.Log(err)
-			}
+		switch {
+		case errors.Is(err, apperrors.ErrImageTooLarge):
+			http.Error(w, "profile picture exceeds upload limit (5MiB)", http.StatusRequestEntityTooLarge)
+		case errors.Is(err, apperrors.ErrInvalidImage):
+			http.Error(w, "unsupported image format", http.StatusBadRequest)
+		default:
+			apperrors.Log(err)
+			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 		}
-	}()
-
-	defer destination.Close()
-
-	if _, err = io.Copy(destination, file); err != nil {
-		apperrors.Log(err)
-		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 		return
 	}
 
-	if err := destination.Close(); err != nil {
-		apperrors.Log(err)
-		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
-		return
-	}
-
+	picturePath := filepath.Join(profileDir, filename)
 	pictureURL := "/static/img/profile/" + url.PathEscape(filename)
 
+	user := middleware.UserFromContext(r.Context())
+	// Store the public image URL in the database.
 	if err := h.userService.UpdateProfilePicture(r.Context(), user.ID, pictureURL); err != nil {
+
+		// Remove the uploaded file if the database update fails.
+		// This prevents unused images from accumulating on disk.
+		if err := os.Remove(picturePath); err != nil {
+			apperrors.Log(err)
+		}
+
 		apperrors.Log(err)
 		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 		return
 	}
 
-	saved = true
-
+	// Redirect to the profile with a flag for the success notification.
 	http.Redirect(w, r, fmt.Sprintf("/users/%d?profile_picture_status=success", user.ID), http.StatusSeeOther)
 }
 

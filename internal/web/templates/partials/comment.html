@@ -1,13 +1,51 @@
 {{ define "comment" }}
 <div class="comment-thread" id="comment-{{ .ID }}">
   <div class="card comment">
+    {{if .IsOwner}}
+    <details class="post-options">
+      <summary
+        class="post-options-toggle comment-delete-button"
+        aria-label="Delete comment"
+        title="Delete comment"
+      >
+        <svg class="comment-delete-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 6h18" />
+          <path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2" />
+          <path d="M19 6l-1 14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1L5 6" />
+          <path d="M10 11v6M14 11v6" />
+        </svg>
+      </summary>
+      <form
+        class="post-options-menu comment-delete-form"
+        method="POST"
+        action="/comments/{{ .ID }}/delete"
+        enctype="multipart/form-data"
+        data-confirm="Are you sure you want to delete this comment?"
+      >
+        <p class="comment-delete-prompt">
+          Delete this comment and its replies?
+        </p>
+        <button
+          type="submit"
+          class="post-options-item post-options-item--danger"
+        >
+          Yes, delete
+        </button>
+      </form>
+    </details>
+    {{end}}
+
     <div class="comment-header">
       {{ if .AuthorPicture }}
-      <img src="{{ .AuthorPicture }}" alt="{{ .AuthorName }}" class="user-avatar" />
+      <img
+        src="{{ .AuthorPicture }}"
+        alt="{{ .AuthorName }}"
+        class="user-avatar"
+      />
       {{ else }}
       <span class="user-avatar default-avatar">👤</span>
       {{ end }}
-      <span class="author-name">User {{ .UserID }}</span>
+      <span class="author-name">{{ .AuthorName }}</span>
       <time class="meta-date">{{ .CreatedAt.Format "Jan 2" }}</time>
     </div>
     <p class="comment-content">{{ .Content }}</p>
@@ -15,15 +53,37 @@
     {{ if .CanReply }}
     <details class="reply-box">
       <summary>Reply</summary>
-      <form class="reply-form" method="POST" action="/posts/{{ .PostID }}/comments">
-        <input type="hidden" name="parent_id" value="{{ .ID }}">
-        <textarea name="content" placeholder="Write a reply..." required></textarea>
+      <form
+        class="reply-form"
+        method="POST"
+        action="/posts/{{ .PostID }}/comments"
+      >
+        <input type="hidden" name="parent_id" value="{{ .ID }}" />
+        <textarea
+          name="content"
+          placeholder="Write a reply..."
+          required
+        ></textarea>
         <button type="submit" class="nav-button">Reply</button>
       </form>
     </details>
     {{ end }}
   </div>
 
-  <div class="replies">{{ range .Replies }}{{ template "comment" . }}{{ end }}</div>
+  {{ if .CollapseReplies }}
+  <details class="more-replies">
+    <summary>
+      View {{ .HiddenCount }} {{ if eq .HiddenCount 1 }}reply{{ else }}replies{{
+      end }}
+    </summary>
+    <div class="replies">
+      {{ range .Replies }}{{ template "comment" . }}{{ end }}
+    </div>
+  </details>
+  {{ else }}
+  <div class="replies">
+    {{ range .Replies }}{{ template "comment" . }}{{ end }}
+  </div>
+  {{ end }}
 </div>
 {{ end }}

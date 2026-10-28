@@ -33,7 +33,9 @@
       {{ if .Posts }}
       <div class="profile-post-list">
         {{ range .Posts }}
-        {{ template "post-card" . }}
+        
+          {{ template "post-card" . }}
+      
         {{ end }}
       </div>
       {{ else }}

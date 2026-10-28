@@ -1,36 +1,172 @@
 .discussion-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  width: 100%;
 }
 
-.success-notification {
-    position: fixed;
-    top: 1.25rem;
-    right: 1.25rem;
-    z-index: 1000;
-    padding: 1rem 1.5rem;
-    border-radius: 8px;
-    background: #237a45;
-    color: #fff;
-    box-shadow: 0 4px 16px rgb(0 0 0 / 20%);
-    animation: success-notification-dismiss 2s ease forwards;
+.discussion-header h3 {
+  margin: 0 0 6px;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
 }
 
-.error-notification {
-    background: #a22b24;
+.discussion-header p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1.1rem;
 }
 
-@keyframes success-notification-dismiss {
-    0%,
-    82% {
-        opacity: 1;
-        transform: translateY(0);
-    }
+/* Write Review: never squeezed by the long heading beside it — the heading
+   wraps instead, and the button text stays on one line */
+.discussion-header > div:last-child {
+  flex-shrink: 0;
+}
 
-    100% {
-        opacity: 0;
-        transform: translateY(-8px);
-    }
+.discussion-header .nav-button {
+  min-width: 0;
+  min-height: 52px;
+  padding: 10px 20px;
+  margin-right: -20px;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .discussion-header h3 {
+    font-size: 1.5rem;
+  }
+
+  .discussion-header .nav-button {
+    min-height: 38px;
+    padding: 8px 12px;
+    margin-right: 8px;
+  }
+}
+
+/* =========================
+   MOST POPULAR THIS WEEK
+   ========================= */
+
+/* Top 5 most-liked reviews posted since Monday; ranks come from a CSS
+   counter so the template doesn't need to number them */
+.popular-week {
+  margin: 0 0 32px;
+  padding: 22px 24px 14px;
+}
+
+.popular-week-title {
+  margin: 0 0 8px;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--blue);
+}
+
+.popular-week-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: popular;
+}
+
+.popular-week-list li {
+  counter-increment: popular;
+}
+
+.popular-week-list li + li {
+  border-top: 1px solid var(--line);
+}
+
+.popular-week-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 4px;
+  color: var(--black);
+  text-decoration: none;
+}
+
+/* Rank: a small lime ball like the site's main buttons */
+.popular-week-item::before {
+  content: counter(popular);
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    #e6fd96 45%,
+    var(--hivis) 72%,
+    #bedb5a 100%
+  );
+  box-shadow:
+    inset 1px 1px 3px rgba(255, 255, 255, 0.6),
+    inset -1px -2px 4px rgba(78, 96, 10, 0.2),
+    2px 3px 6px var(--neu-egg-dark);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.popular-week-item:hover .popular-week-post-title {
+  color: var(--blue);
+}
+
+.popular-week-item:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+  border-radius: 12px;
+}
+
+.popular-week-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.popular-week-post-title {
+  overflow: hidden;
+  font-size: 1rem;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition: color 160ms ease;
+}
+
+.popular-week-author {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.popular-week-likes {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--blue);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .popular-week {
+    margin-bottom: 24px;
+    padding: 18px 16px 8px;
+  }
+
+  .popular-week-title {
+    font-size: 1.3rem;
+  }
+
+  .popular-week-item {
+    gap: 10px;
+  }
 }
