@@ -105,7 +105,12 @@ func (s *ReactionService) PopulatePostStats(ctx context.Context, posts []models.
 
 		post.PostReactions.Like = likes
 		post.PostReactions.Dislike = dislikes
+		commentCount, err := s.commentRepo.GetCommentCount(ctx, post.PostID)
+		if err != nil {
+			return err
+		}
 
+		post.CommentCount = commentCount
 		if userID == 0 {
 			continue
 		}
@@ -119,12 +124,6 @@ func (s *ReactionService) PopulatePostStats(ctx context.Context, posts []models.
 		}
 		post.UserReaction = reaction.Reaction
 
-		commentCount, err := s.commentRepo.GetCommentCount(ctx, post.PostID)
-		if err != nil {
-			return err
-		}
-
-		post.CommentCount = commentCount
 	}
 
 	return nil
