@@ -86,6 +86,11 @@ func (h *PostHandler) CreatePostPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	views := newCommentViews(comments, user != nil, userID)
+	if err := populateCommentStats(ctx, views, h.reactionService, userID); err != nil {
+		apperrors.Log(err)
+		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
+		return
+	}
 
 	posts := []models.Post{*post}
 

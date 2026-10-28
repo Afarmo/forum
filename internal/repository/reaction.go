@@ -142,7 +142,7 @@ func (r *ReactionRepository) GetCommentReaction(ctx context.Context, commentID, 
 func (r *ReactionRepository) CreateCommentReaction(ctx context.Context, reaction *models.CommentReaction) error {
 	query := `
 		INSERT INTO comment_reactions(comment_id, user_id, reaction) 
-		SELEECT ?, ?, ?
+		SELECT ?, ?, ?
 		WHERE EXISTS (
 			SELECT 1 FROM comments c
 			JOIN posts p ON p.id = c.post_id
