@@ -58,14 +58,25 @@
       <div class="form-group">
         <label for="register-password">PASSWORD</label>
 
-        <input
-          id="register-password"
-          type="password"
-          name="password"
-          placeholder="At least 8 characters"
-          minlength="8"
-          required
-        />
+        <div class="password-input-wrap">
+          <input
+            id="register-password"
+            type="password"
+            name="password"
+            placeholder="At least 8 characters"
+            minlength="8"
+            required
+          />
+          <button
+            type="button"
+            class="password-toggle"
+            aria-controls="register-password"
+            aria-label="Show password"
+            aria-pressed="false"
+          >
+            Show
+          </button>
+        </div>
       </div>
       <p id="register-error" class="form-error" role="alert" hidden></p>
 

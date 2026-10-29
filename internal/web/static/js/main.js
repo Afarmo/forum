@@ -8,6 +8,22 @@ function closeModal(id) {
   if (modal) modal.hidden = true;
 }
 
+document.addEventListener("click", function (event) {
+  const toggle = event.target.closest(".password-toggle");
+  if (!toggle) return;
+
+  const passwordInput = document.getElementById(
+    toggle.getAttribute("aria-controls"),
+  );
+  if (!passwordInput) return;
+
+  const showPassword = passwordInput.type === "password";
+  passwordInput.type = showPassword ? "text" : "password";
+  toggle.textContent = showPassword ? "Hide" : "Show";
+  toggle.setAttribute("aria-label", showPassword ? "Hide" : "Show");
+  toggle.setAttribute("aria-pressed", String(showPassword));
+});
+
 if (window.location.pathname === "/") {
   document
     .querySelectorAll(".post-card .post-options, .post-card .modal")
@@ -29,18 +45,26 @@ function showNotification(message, isError) {
 
 if (document.body.dataset.authenticated !== "true") {
   document
-    .querySelectorAll(".reaction-button[data-post-id]")
+    .querySelectorAll(
+      ".reaction-button[data-post-id], .reaction-button[data-comment-id]",
+    )
     .forEach((button) => {
       button.disabled = true;
       button.title =
         button.dataset.reaction === "1"
-          ? "Sign in to like this post"
-          : "Sign in to dislike this post";
+          ? button.dataset.commentId
+            ? "Sign in to like this comment"
+            : "Sign in to like this post"
+          : button.dataset.commentId
+            ? "Sign in to dislike this comment"
+            : "Sign in to dislike this post";
     });
 }
 
 document.addEventListener("click", async function (event) {
-  const button = event.target.closest(".reaction-button[data-post-id]");
+  const button = event.target.closest(
+    ".reaction-button[data-post-id]:not([data-comment-id])",
+  );
   if (!button || button.disabled) return;
 
   const post = button.closest(".post-card, .post-detail");
@@ -57,6 +81,75 @@ document.addEventListener("click", async function (event) {
   try {
     const response = await fetch(
       "/posts/" + encodeURIComponent(button.dataset.postId) + "/reaction",
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({ reaction: button.dataset.reaction }),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error("Reaction request failed with status " + response.status);
+    }
+
+    const result = await response.json();
+    if (document.body.dataset.ownProfile === "true") {
+      window.location.reload();
+      return;
+    }
+
+    const likeButton = actions.querySelector(
+      '.reaction-button[data-reaction="1"]',
+    );
+    const dislikeButton = actions.querySelector(
+      '.reaction-button[data-reaction="-1"]',
+    );
+    likeButton.querySelector(".reaction-count").textContent = result.like_count;
+    dislikeButton.querySelector(".reaction-count").textContent =
+      result.dislike_count;
+
+    const liked = result.user_reaction === 1;
+    const disliked = result.user_reaction === -1;
+    likeButton.classList.toggle("liked", liked);
+    dislikeButton.classList.toggle("disliked", disliked);
+    likeButton.setAttribute("aria-pressed", String(liked));
+    dislikeButton.setAttribute("aria-pressed", String(disliked));
+  } catch (error) {
+    console.error(error);
+    status.textContent = "Could not update reaction. Please try again.";
+  } finally {
+    delete actions.dataset.reacting;
+    const authenticated = document.body.dataset.authenticated === "true";
+    actions.querySelectorAll(".reaction-button").forEach((reactionButton) => {
+      reactionButton.disabled = !authenticated;
+    });
+  }
+});
+
+document.addEventListener("click", async function (event) {
+  const button = event.target.closest(".reaction-button[data-comment-id]");
+  if (!button || button.disabled) return;
+
+  const actions = button.closest(".comment-reaction-actions");
+  const status = actions.querySelector(".reaction-status");
+  if (actions.dataset.reacting === "true") return;
+
+  actions.dataset.reacting = "true";
+  actions.querySelectorAll(".reaction-button").forEach((reactionButton) => {
+    reactionButton.disabled = true;
+  });
+  status.textContent = "";
+
+  try {
+    const response = await fetch(
+      "/posts/" +
+        encodeURIComponent(button.dataset.postId) +
+        "/comments/" +
+        encodeURIComponent(button.dataset.commentId) +
+        "/reaction",
       {
         method: "POST",
         headers: {
@@ -275,7 +368,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const input = document.getElementById("profile-picture-input");
   const preview = document.getElementById("avatar-preview");
 
-  if (!input || !preview ) return;
+  if (!input || !preview) return;
 
   const uploadForm = input.form;
   uploadForm.addEventListener("submit", function (event) {
@@ -313,7 +406,10 @@ document.addEventListener("DOMContentLoaded", function () {
     if (file) {
       const body = new FormData();
       body.append("profile_picture", file);
-      response = await fetch("/users/profile_picture", { method: "POST", body });
+      response = await fetch("/users/profile_picture", {
+        method: "POST",
+        body,
+      });
       if (!response.ok) {
         showNotification("Failed to update profile picture.", true);
         return;
@@ -349,6 +445,7 @@ document.addEventListener("DOMContentLoaded", function () {
 document.addEventListener("submit", function (event) {
   const form = event.target.closest(".comment-delete-form");
   if (!form) return;
+  if (form.dataset.confirmed !== "true") return;
 
   event.preventDefault();
 
