@@ -86,7 +86,7 @@
     <form method="POST" action="/posts/{{ .PostID }}/update" data-confirm="Are you sure you want save the changes?">
       <div class="form-group">
         <label for="edit-title-{{ .PostID }}">TITLE</label>
-        <input id="edit-title-{{ .PostID }}" type="text" name="title" value="{{ .Title }}" required />
+        <textarea id="edit-title-{{ .PostID }}" name="title" required>{{ .Title }}</textarea>
       </div>
       <div class="form-group">
         <label for="edit-content-{{ .PostID }}">CONTENT</label>
