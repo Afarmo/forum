@@ -22,9 +22,7 @@
         enctype="multipart/form-data"
         data-confirm="Are you sure you want to delete this comment?"
       >
-        <p class="comment-delete-prompt">
-          Delete this comment and its replies?
-        </p>
+        <p class="comment-delete-prompt">Delete this comment?</p>
         <button
           type="submit"
           class="post-options-item post-options-item--danger"
@@ -50,7 +48,35 @@
     </div>
     <p class="comment-content">{{ .Content }}</p>
 
-    {{ if .CanReply }}
+    {{ if not .DeletedAt }}
+    <div class="comment-reaction-actions">
+      <button
+        type="button"
+        class="reaction-button like-button{{ if eq .UserReaction 1 }} liked{{ end }}"
+        data-post-id="{{ .PostID }}"
+        data-comment-id="{{ .ID }}"
+        data-reaction="1"
+        aria-pressed="{{ if eq .UserReaction 1 }}true{{ else }}false{{ end }}"
+        title="Like"
+      >
+        <span class="reaction-icon" aria-hidden="true"></span>
+        <span class="reaction-count">{{ .LikeCount }}</span>
+      </button>
+      <button
+        type="button"
+        class="reaction-button dislike-button{{ if eq .UserReaction -1 }} disliked{{ end }}"
+        data-post-id="{{ .PostID }}"
+        data-comment-id="{{ .ID }}"
+        data-reaction="-1"
+        aria-pressed="{{ if eq .UserReaction -1 }}true{{ else }}false{{ end }}"
+        title="Dislike"
+      >
+        <span class="reaction-icon" aria-hidden="true"></span>
+        <span class="reaction-count">{{ .DislikeCount }}</span>
+      </button>
+      <span class="reaction-status" role="status" aria-live="polite"></span>
+    </div>
+    {{ end }} {{ if .CanReply }}
     <details class="reply-box">
       <summary>Reply</summary>
       <form

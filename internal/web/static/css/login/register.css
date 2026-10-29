@@ -223,6 +223,38 @@
     outline: none;
 }
 
+.password-input-wrap {
+    position: relative;
+}
+
+.password-input-wrap input {
+    padding-right: 140px;
+}
+
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--blue);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: right;
+    white-space: nowrap;
+    cursor: pointer;
+    appearance: none;
+}
+
+.password-toggle:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
 .form-group input::placeholder {
     color: var(--muted);
 }

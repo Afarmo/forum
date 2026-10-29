@@ -175,7 +175,8 @@
 }
 
 .post-card .reaction-button,
-.post-detail .reaction-button {
+.post-detail .reaction-button,
+.comment .reaction-button {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -192,36 +193,44 @@
     border-color 160ms ease;
 }
 .post-card .like-button:hover:not(:disabled),
-.post-detail .like-button:hover:not(:disabled) {
+.post-detail .like-button:hover:not(:disabled),
+.comment .like-button:hover:not(:disabled) {
   color: #6b79f3;
 }
 
 .post-card .like-button.liked,
-.post-detail .like-button.liked {
+.post-detail .like-button.liked,
+.comment .like-button.liked {
   color: #6b79f3;
 }
 
 .post-card .like-button:hover:not(:disabled) .reaction-icon,
 .post-card .like-button.liked .reaction-icon,
 .post-detail .like-button:hover:not(:disabled) .reaction-icon,
-.post-detail .like-button.liked .reaction-icon {
+.post-detail .like-button.liked .reaction-icon,
+.comment .like-button:hover:not(:disabled) .reaction-icon,
+.comment .like-button.liked .reaction-icon {
   background-color: #6b79f3;
 }
 
 .post-card .dislike-button:hover:not(:disabled),
-.post-detail .dislike-button:hover:not(:disabled) {
+.post-detail .dislike-button:hover:not(:disabled),
+.comment .dislike-button:hover:not(:disabled) {
   color: #b8452a;
 }
 
 .post-card .dislike-button.disliked,
-.post-detail .dislike-button.disliked {
+.post-detail .dislike-button.disliked,
+.comment .dislike-button.disliked {
   color: #b8452a;
 }
 
 .post-card .dislike-button:hover:not(:disabled) .reaction-icon,
 .post-card .dislike-button.disliked .reaction-icon,
 .post-detail .dislike-button:hover:not(:disabled) .reaction-icon,
-.post-detail .dislike-button.disliked .reaction-icon {
+.post-detail .dislike-button.disliked .reaction-icon,
+.comment .dislike-button:hover:not(:disabled) .reaction-icon,
+.comment .dislike-button.disliked .reaction-icon {
   background-color: #b8452a;
 }
 
@@ -231,9 +240,21 @@
 }
 
 .post-card .reaction-button:disabled,
-.post-detail .reaction-button:disabled {
+.post-detail .reaction-button:disabled,
+.comment .reaction-button:disabled {
   cursor: not-allowed;
   opacity: 0.75;
+}
+
+.comment-reaction-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.comment-reaction-actions .reaction-count {
+  color: #5c5b59;
 }
 
 .reaction-icon {

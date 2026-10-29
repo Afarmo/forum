@@ -46,7 +46,18 @@
       <div class="form-group">
         <label for="password">PASSWORD</label>
 
-        <input id="password" type="password" name="password" required />
+        <div class="password-input-wrap">
+          <input id="password" type="password" name="password" required />
+          <button
+            type="button"
+            class="password-toggle"
+            aria-controls="password"
+            aria-label="Show password"
+            aria-pressed="false"
+          >
+            Show
+          </button>
+        </div>
         <p id="login-error" class="form-error" role="alert" hidden></p>
       </div>
 
