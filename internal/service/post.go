@@ -118,9 +118,6 @@ func (s *PostService) GetPostById(ctx context.Context, postID int) (*models.Post
 }
 
 func (s *PostService) SearchPosts(ctx context.Context, search string) ([]models.Post, error) {
-	if search == "" {
-		return nil, apperrors.ErrNotFound
-	}
 	return s.repo.SearchPosts(ctx, search)
 }
 

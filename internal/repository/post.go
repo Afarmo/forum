@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/Afarmo/forum/internal/apperrors"
 	"github.com/Afarmo/forum/internal/models"
@@ -258,9 +259,6 @@ func (r *PostRepository) GetPostById(ctx context.Context, postID int) (*models.P
 }
 
 func (r *PostRepository) SearchPosts(ctx context.Context, search string) ([]models.Post, error) {
-	if strings.TrimSpace(search) == "" {
-		return r.GetAllPosts(ctx, 0)
-	}
 	//  FTS5 column weights: prioritize title, then username, then content.
 	//  Lower BM25 scores are more relevant, so the best matches come first.
 	query := `
@@ -279,7 +277,13 @@ func (r *PostRepository) SearchPosts(ctx context.Context, search string) ([]mode
 			AND p.deleted_at IS NULL
 		
 		ORDER BY bm25(POSTS_SEARCH, 10.0, 1.0, 5.0), p.created_at DESC`
-	rows, err := r.db.QueryContext(ctx, query, search)
+
+	FTSSearch := NormalizeFTSInput(search)
+	if FTSSearch == "" {
+		return nil, nil
+	}
+
+	rows, err := r.db.QueryContext(ctx, query, FTSSearch)
 	if err != nil {
 		return nil, err
 	}
@@ -356,4 +360,27 @@ func (r *PostRepository) GetLikedPostsByUser(ctx context.Context, userID int) ([
 	}
 
 	return posts, rows.Err()
+}
+
+func NormalizeFTSInput(search string) string {
+	var tokens []string
+
+	for _, token := range strings.Fields(search) {
+		var hasAlphanumeric bool
+
+		for _, v := range token {
+			if unicode.IsLetter(v) || unicode.IsDigit(v) {
+				hasAlphanumeric = true
+				break
+			}
+		}
+		if !hasAlphanumeric {
+			continue
+		}
+
+		token = strings.ReplaceAll(token, `"`, `""`)
+		tokens = append(tokens, `"`+token+`"*`)
+	}
+
+	return strings.Join(tokens, " ")
 }
