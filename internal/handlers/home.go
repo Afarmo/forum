@@ -133,8 +133,10 @@ func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
 		data.RegisterError = "Enter a valid email address."
 	case "invalid_password":
 		data.RegisterError = "Password must be between 8 and 64 characters."
-	case "duplicate":
-		data.RegisterError = "An account with that information already exists."
+	case "duplicate_username":
+		data.RegisterError = "That username is already taken."
+	case "duplicate_email":
+		data.RegisterError = "An account with that email already exists."
 	}
 
 	var buf bytes.Buffer
