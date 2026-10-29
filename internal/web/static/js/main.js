@@ -72,6 +72,11 @@ document.addEventListener("click", async function (event) {
     }
 
     const result = await response.json();
+    if (document.body.dataset.ownProfile === "true") {
+      window.location.reload();
+      return;
+    }
+
     const likeButton = actions.querySelector(
       '.reaction-button[data-reaction="1"]',
     );

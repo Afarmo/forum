@@ -14,6 +14,7 @@
   </head>
   <body
     data-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
+    data-own-profile="{{ if and .User (eq .User.ID .ProfileUser.ID) }}true{{ else }}false{{ end }}"
     data-profile-picture-notification="{{ .ProfilePictureNotification }}"
   >
     <div class="page-header">
