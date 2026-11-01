@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	iterations = 1
+	iterations = 2
 	memory     = 64 * 1024
 	threads    = 4
 	keyLen     = 32
