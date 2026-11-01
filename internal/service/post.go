@@ -32,8 +32,9 @@ func (s *PostService) CreatePost(ctx context.Context, post *models.Post, categor
 	return s.repo.CreatePost(ctx, post, categoryID)
 }
 
-func (s *PostService) GetAllPosts(ctx context.Context, categoryID int) ([]models.Post, error) {
-	return s.repo.GetAllPosts(ctx, categoryID)
+func (s *PostService) GetAllPosts(ctx context.Context, filters models.PostFilter) ([]models.Post, error) {
+	filters = ExtractFilters(filters)
+	return s.repo.GetAllPosts(ctx, filters)
 }
 
 const popularPostsLimit = 5
@@ -48,8 +49,9 @@ func startOfWeek(t time.Time) time.Time {
 	return time.Date(t.Year(), t.Month(), t.Day()-daysSinceMonday, 0, 0, 0, 0, t.Location())
 }
 
-func (s *PostService) GetPostByUser(ctx context.Context, userId int) ([]models.Post, error) {
-	return s.repo.GetPostByUser(ctx, userId)
+func (s *PostService) GetPostByUser(ctx context.Context, userId int, filters models.PostFilter) ([]models.Post, error) {
+	filters = ExtractFilters(filters)
+	return s.repo.GetPostByUser(ctx, userId, filters)
 }
 
 func (s *PostService) UpdatePost(ctx context.Context, PostID *int, userID int, update *models.UpdatePost) error {
@@ -121,6 +123,23 @@ func (s *PostService) SearchPosts(ctx context.Context, search string) ([]models.
 	return s.repo.SearchPosts(ctx, search)
 }
 
-func (s *PostService) GetLikedPostsByUser(ctx context.Context, userID int) ([]models.Post, error) {
-	return s.repo.GetLikedPostsByUser(ctx, userID)
+func (s *PostService) GetLikedPostsByUser(ctx context.Context, userID int, filters models.PostFilter) ([]models.Post, error) {
+	filters = ExtractFilters(filters)
+	return s.repo.GetLikedPostsByUser(ctx, userID, filters)
+}
+
+func ExtractFilters(filters models.PostFilter) models.PostFilter {
+	switch filters.Sort {
+	case "newest", "oldest", "most_liked", "most_discussed":
+	default:
+		filters.Sort = "newest"
+	}
+
+	switch filters.Period {
+	case "day", "week", "month", "all":
+	default:
+		filters.Period = "all"
+	}
+
+	return filters
 }

@@ -51,7 +51,7 @@ func (r *PostRepository) CreatePost(ctx context.Context, post *models.Post, cate
 	return tx.Commit()
 }
 
-func (r *PostRepository) GetAllPosts(ctx context.Context, categoryID int) ([]models.Post, error) {
+func (r *PostRepository) GetAllPosts(ctx context.Context, filters models.PostFilter) ([]models.Post, error) {
 	// Posts require an author, while profile pictures and categories are optional.
 	// COALESCE maps those optional values to empty strings for the feed model.
 	query := `
@@ -68,15 +68,16 @@ func (r *PostRepository) GetAllPosts(ctx context.Context, categoryID int) ([]mod
 		WHERE p.deleted_at IS NULL`
 	args := []any{}
 
-	if categoryID > 0 {
+	if filters.CategoryID > 0 {
 		query += `
 			AND EXISTS (
 				SELECT 1 FROM post_categories pc_filter
 				WHERE pc_filter.post_id = p.id AND pc_filter.category_id = ?
 			)`
-		args = append(args, categoryID)
+		args = append(args, filters.CategoryID)
 	}
-	query += ` ORDER BY p.created_at DESC`
+
+	query = BuildFilterQuery(query, filters)
 
 	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
@@ -128,7 +129,7 @@ func (r *PostRepository) GetPopularPosts(ctx context.Context, since time.Time, l
 	return posts, rows.Err()
 }
 
-func (r *PostRepository) GetPostByUser(ctx context.Context, userID int) ([]models.Post, error) {
+func (r *PostRepository) GetPostByUser(ctx context.Context, userID int, filters models.PostFilter) ([]models.Post, error) {
 	query := `
 		SELECT p.id, p.user_id, p.title, p.content,
 			p.picture_content, p.created_at, p.deleted_at,
@@ -143,8 +144,9 @@ func (r *PostRepository) GetPostByUser(ctx context.Context, userID int) ([]model
 		JOIN users u ON u.id = p.user_id
 		WHERE p.user_id = ?
 		AND p.deleted_at IS NULL
-		ORDER BY p.created_at DESC
 	`
+
+	query = BuildFilterQuery(query, filters)
 
 	rows, err := r.db.QueryContext(ctx, query, userID)
 	if err != nil {
@@ -312,7 +314,7 @@ func (r *PostRepository) SearchPosts(ctx context.Context, search string) ([]mode
 	return posts, rows.Err()
 }
 
-func (r *PostRepository) GetLikedPostsByUser(ctx context.Context, userID int) ([]models.Post, error) {
+func (r *PostRepository) GetLikedPostsByUser(ctx context.Context, userID int, filters models.PostFilter) ([]models.Post, error) {
 	query := `
 		SELECT p.id, p.user_id, p.title, p.content,
 			p.picture_content, p.created_at, p.deleted_at,
@@ -329,8 +331,8 @@ func (r *PostRepository) GetLikedPostsByUser(ctx context.Context, userID int) ([
 		WHERE pr.user_id = ?
 		AND pr.reaction = 1
 		AND p.deleted_at IS NULL
-		ORDER BY p.created_at DESC
 	`
+	query = BuildFilterQuery(query, filters)
 
 	rows, err := r.db.QueryContext(ctx, query, userID)
 	if err != nil {
@@ -383,4 +385,37 @@ func NormalizeFTSInput(search string) string {
 	}
 
 	return strings.Join(tokens, " ")
+}
+
+func BuildFilterQuery(query string, filters models.PostFilter) string {
+
+	switch filters.Period {
+	case "day":
+		query += ` AND p.created_at >= datetime('now', '-1 day')`
+	case "week":
+		query += ` AND p.created_at >= datetime('now', '-7 days')`
+	case "month":
+		query += ` AND p.created_at >= datetime('now', '-30 days')`
+	}
+
+	switch filters.Sort {
+
+	case "oldest":
+		query += ` ORDER BY p.created_at ASC`
+	case "most_liked":
+		query += ` ORDER BY (
+		SELECT COUNT(*)
+		FROM post_reactions pr 
+		WHERE pr.post_id = p.id
+		AND pr.reaction = 1) DESC, p.created_at DESC`
+	case "most_discussed":
+		query += ` ORDER BY (
+		SELECT COUNT(*)
+		FROM comments cm 
+		WHERE cm.post_id = p.id AND cm.deleted_at IS NULL) DESC, p.created_at DESC`
+	default:
+		query += ` ORDER BY p.created_at DESC`
+	}
+
+	return query
 }
