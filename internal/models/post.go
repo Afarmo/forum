@@ -29,6 +29,12 @@ type Post struct {
 	UserReaction  int                `json:"user_reaction"`
 }
 
+type PostFilter struct {
+	CategoryID int
+	Sort       string
+	Period     string
+}
+
 // ImageSrc is the <img src> for the post's picture: a linked image's full URL
 // as-is, or the path of an uploaded file under /static/img/post/.
 func (p Post) ImageSrc() string {

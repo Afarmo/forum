@@ -1,10 +1,9 @@
 /* Category list: scrolled by the browser, with a visible scrollbar so users
    can see how many categories there are. Snaps to whole items. */
 .carousel-scene {
-  width: 100%;
-  height: 580px;
+    width: 100%;
+    height: clamp(200px, calc(100vh - 370px), 580px);
 }
-
 .sidebar-label {
   flex: none;
 }

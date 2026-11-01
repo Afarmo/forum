@@ -50,6 +50,8 @@ type UserPageData struct {
 	LikedPosts                 []models.Post
 	SearchQuery                string
 	ProfilePictureNotification string
+	Filters                    models.PostFilter
+	RequestPath                string
 }
 
 func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
@@ -78,14 +80,19 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	profileUserPosts, err := h.postService.GetPostByUser(r.Context(), userID)
+	filters := models.PostFilter{
+		Sort:   r.URL.Query().Get("sort"),
+		Period: r.URL.Query().Get("period"),
+	}
+
+	profileUserPosts, err := h.postService.GetPostByUser(r.Context(), userID, filters)
 	if err != nil {
 		apperrors.Log(err)
 		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
 		return
 	}
 
-	profileUserLikedPosts, err := h.postService.GetLikedPostsByUser(r.Context(), userID)
+	profileUserLikedPosts, err := h.postService.GetLikedPostsByUser(r.Context(), userID, filters)
 	if err != nil {
 		apperrors.Log(err)
 		apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
@@ -117,6 +124,8 @@ func (h *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 		Categories:  categories,
 		Posts:       profileUserPosts,
 		LikedPosts:  profileUserLikedPosts,
+		Filters:     filters,
+		RequestPath: r.URL.Path,
 	}
 	if value := r.URL.Query().Get("profile_picture_status"); value == "success" {
 		data.ProfilePictureNotification = "Successfully updated your profile picture."

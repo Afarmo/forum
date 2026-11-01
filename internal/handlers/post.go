@@ -241,7 +241,7 @@ func (h *PostHandler) GetAllPosts(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	posts, err := h.postService.GetAllPosts(r.Context(), categoryID)
+	posts, err := h.postService.GetAllPosts(r.Context(), models.PostFilter{CategoryID: categoryID})
 	if err != nil {
 		apperrors.Log(err)
 		http.Error(w, "failed to get the posts", http.StatusInternalServerError)
@@ -260,7 +260,7 @@ func (h *PostHandler) GetPostByUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	posts, err := h.postService.GetPostByUser(r.Context(), userID)
+	posts, err := h.postService.GetPostByUser(r.Context(), userID, models.PostFilter{})
 	if err != nil {
 		apperrors.Log(err)
 		http.Error(w, "failed to get the user posts", http.StatusInternalServerError)
@@ -343,7 +343,7 @@ func (h *PostHandler) SearchPosts(w http.ResponseWriter, r *http.Request) {
 	var posts []models.Post
 	var err error
 	if search == "" {
-		posts, err = h.postService.GetAllPosts(ctx, 0)
+		posts, err = h.postService.GetAllPosts(ctx, models.PostFilter{})
 	} else {
 		posts, err = h.postService.SearchPosts(ctx, search)
 	}

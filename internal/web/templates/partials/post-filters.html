@@ -1,0 +1,27 @@
+{{define "post-filters"}}
+
+    <form class="post-filters-form" method="GET">
+        <label for="sort">Sort by</label>
+        <select name="sort" id="sort">
+            <option value="newest" {{if eq .Filters.Sort "newest"}}selected{{end}}>Newest</option>
+            <option value="oldest" {{if eq .Filters.Sort "oldest"}}selected{{end}}>Oldest</option>
+            <option value="most_liked" {{if eq .Filters.Sort "most_liked"}}selected{{end}}>Most liked</option>
+            <option value="most_discussed" {{if eq .Filters.Sort "most_discussed"}}selected{{end}}>Most discussed</option>
+        </select>
+
+        <label for="period">Posted within</label>
+        <select name="period" id="period">
+            <option value="all" {{if eq .Filters.Period "all"}}selected{{end}}>All time</option>
+            <option value="day" {{if eq .Filters.Period "day"}}selected{{end}}>Past 24 hours</option>
+            <option value="week" {{if eq .Filters.Period "week"}}selected{{end}}>Past 7 days</option>
+            <option value="month" {{if eq .Filters.Period "month"}}selected{{end}}>Past 30 days</option>
+        </select>
+
+        {{if gt .Filters.CategoryID 0}}
+            <input type="hidden" name="category_id" value="{{.Filters.CategoryID}}">
+        {{end}}
+
+        <button type="submit" class="post-filters-submit">Apply filters</button>
+        <a class="post-filters-reset" href="{{ .RequestPath }}">Clear filters</a>
+    </form>
+{{end}}

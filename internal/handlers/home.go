@@ -34,7 +34,6 @@ func NewHomeHandler(categoryService *service.CategoryService,
 }
 
 type HomePageData struct {
-
 	Title         string
 	User          *models.User
 	Categories    []models.Category
@@ -43,8 +42,9 @@ type HomePageData struct {
 	LoginError    string
 	RegisterError string
 	LoginSuccess  bool
-	Popular     []models.PopularPost
-
+	Popular       []models.PopularPost
+	Filters       models.PostFilter
+	RequestPath   string
 }
 
 func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
@@ -68,6 +68,11 @@ func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	filters := models.PostFilter{
+		CategoryID: categoryID,
+		Sort:       r.URL.Query().Get("sort"),
+		Period:     r.URL.Query().Get("period"),
+	}
 
 	searchQuery := strings.TrimSpace(r.URL.Query().Get("query"))
 
@@ -80,7 +85,7 @@ func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else {
-		posts, err = h.postService.GetAllPosts(r.Context(), categoryID)
+		posts, err = h.postService.GetAllPosts(r.Context(), filters)
 		if err != nil {
 			apperrors.Log(err)
 			apperrors.RenderError(w, h.tmpl, http.StatusInternalServerError)
@@ -121,10 +126,14 @@ func (h *HomeHandler) HomePageHandler(w http.ResponseWriter, r *http.Request) {
 		Posts:       posts,
 		SearchQuery: searchQuery,
 		Popular:     popular,
+		Filters:     filters,
+		RequestPath: r.URL.Path,
 	}
+
 	if r.URL.Query().Get("login_error") == "1" {
 		data.LoginError = "Invalid email or password"
 	}
+
 	data.LoginSuccess = r.URL.Query().Get("login_success") == "1"
 	switch r.URL.Query().Get("register_error") {
 	case "invalid_username":

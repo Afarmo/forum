@@ -22,7 +22,10 @@
       {{ template "header" .}} {{ template "register-modal" . }}
     </div>
     <div class="page-body">
-      {{ template "sidebar" . }}
+      <div class="left-column">
+        {{template "sidebar" .}}
+        {{template "post-filters" .}}
+      </div>
       <main class="main-content">{{template "profile" .}}</main>
     </div>
 
